@@ -1,49 +1,683 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import Header from '../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 ---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Luma Arte — Arte patagónico del sur de Chile</title>
+  <meta name="description" content="Arte de la Patagonia chilena. Acuarela, pastel al óleo y bordado inspirados en los paisajes del sur de Chile." />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This template
-				serves as a lightweight, minimally-styled starting point for anyone looking to build a personal
-				website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to
-				<a href="https://docs.astro.build/">read the docs</a>
-				or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out
-				<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>
-				by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
-		</main>
-		<Footer />
-	</body>
+  <!-- NAV -->
+  <nav class="nav">
+    <a href="/" class="nav-logo">Luma Arte</a>
+    <div class="nav-links">
+      <a href="/obras">Obras</a>
+      <a href="/blog">Blog</a>
+      <a href="/sobre-mi">Sobre mí</a>
+      <a href="/contacto">Contacto</a>
+    </div>
+    <button class="nav-menu-btn" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-text">
+        <p class="hero-origen">— Patagonia · Chile del Sur</p>
+        <h1>Arte nacido<br /><em>donde el mundo<br />termina</em></h1>
+        <p class="hero-tecnica">Acuarela · Pastel al óleo · Bordado</p>
+        <a href="#obras" class="btn-primary">Ver las obras</a>
+      </div>
+      <div class="hero-duo">
+        <figure class="duo-obra duo-obra--uno">
+          <img src="/obras/obra-1.jpg" alt="Copihues I — acuarela y pastel al óleo" />
+        </figure>
+        <figure class="duo-obra duo-obra--dos">
+          <img src="/obras/obra-2.jpg" alt="Copihues II — acuarela y pastel al óleo" />
+        </figure>
+        <p class="duo-label">Dúo Copihues · Técnica mixta</p>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <span>↓</span>
+    </div>
+  </section>
+
+  <!-- INSPIRACIÓN -->
+  <section class="inspiracion">
+    <div class="inspiracion-inner">
+      <p class="inspiracion-eyebrow">La inspiración</p>
+      <blockquote>
+        El sur tiene un color<br />que no se puede mezclar.<br /><em>Solo se puede sentir.</em>
+      </blockquote>
+      <p class="inspiracion-cuerpo">
+        Cada obra nace de los paisajes del sur de Chile — los bosques de arrayanes, los copihues entre la lluvia, los ríos que bajan de la cordillera, los cielos cambiantes de la Patagonia. Una naturaleza tan intensa que solo el papel puede contenerla.
+      </p>
+    </div>
+  </section>
+
+  <!-- OBRA DESTACADA: bosque de arrayanes -->
+  <section class="destacada">
+    <div class="destacada-imagen">
+      <img src="/obras/obra-5.jpg" alt="Bosque de arrayanes — acuarela y bordado — Luma Arte" />
+    </div>
+    <div class="destacada-texto">
+      <span class="destacada-tag">Acuarela + Bordado a mano</span>
+      <h2>Bosque de<br />arrayanes</h2>
+      <p>
+        Los troncos naranjos del arrayán son únicos en el mundo. Esta obra combina acuarela y bordado a mano sobre papel — cada punto de hilo es un brote de musgo, cada pincelada la luz filtrándose entre los árboles del sur.
+      </p>
+      <p class="destacada-marco">Enmarcada en madera nativa del sur de Chile</p>
+      <a href="/contacto" class="btn-secondary">Consultar disponibilidad</a>
+    </div>
+  </section>
+
+  <!-- GALERÍA PREVIEW -->
+  <section class="galeria" id="obras">
+    <div class="galeria-header">
+      <h2>Las obras</h2>
+      <a href="/obras" class="galeria-ver-todas">Ver colección completa →</a>
+    </div>
+    <div class="galeria-grid">
+      <article class="galeria-item">
+        <div class="galeria-img-wrap">
+          <img src="/obras/obra-3.jpg" alt="Chilco — Luma Arte" />
+        </div>
+        <div class="galeria-info">
+          <p class="galeria-nombre">Chilco</p>
+          <p class="galeria-tecnica">Pastel al óleo sobre papel</p>
+        </div>
+      </article>
+      <article class="galeria-item">
+        <div class="galeria-img-wrap">
+          <img src="/obras/obra-4.jpg" alt="Hortensias — Luma Arte" />
+        </div>
+        <div class="galeria-info">
+          <p class="galeria-nombre">Hortensias</p>
+          <p class="galeria-tecnica">Acuarela sobre papel</p>
+        </div>
+      </article>
+      <article class="galeria-item">
+        <div class="galeria-img-wrap">
+          <img src="/obras/obra-1.jpg" alt="Copihues I — Luma Arte" />
+        </div>
+        <div class="galeria-info">
+          <p class="galeria-nombre">Copihues I</p>
+          <p class="galeria-tecnica">Técnica mixta · Dúo</p>
+        </div>
+      </article>
+      <article class="galeria-item">
+        <div class="galeria-img-wrap">
+          <img src="/obras/obra-2.jpg" alt="Copihues II — Luma Arte" />
+        </div>
+        <div class="galeria-info">
+          <p class="galeria-nombre">Copihues II</p>
+          <p class="galeria-tecnica">Técnica mixta · Dúo</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ENVÍOS BANNER -->
+  <section class="envios">
+    <p>Envíos a todo Chile &nbsp;·&nbsp; Obras enmarcadas en madera nativa &nbsp;·&nbsp; Piezas únicas y originales</p>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <p class="footer-logo">Luma Arte</p>
+      <p class="footer-tagline">Arte patagónico · Sur de Chile</p>
+      <nav class="footer-nav">
+        <a href="/obras">Obras</a>
+        <a href="/blog">Blog</a>
+        <a href="/sobre-mi">Sobre mí</a>
+        <a href="/contacto">Contacto</a>
+      </nav>
+      <p class="footer-copy">© 2026 Luma Arte · Todos los derechos reservados</p>
+    </div>
+  </footer>
+
+</body>
 </html>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ivory:         #F3F0E9;
+    --ivory-dark:    #E3DBCC;
+    --obsidian:      #101010;
+    --musgo:         #54582f;
+    --musgo-dark:    #272b00;
+    --azul-deep:     #004173;
+    --corteza:       #d2691e;
+    --corteza-claro: #ffbb6e;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-sans:  'Inter', system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--ivory);
+    color: var(--obsidian);
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  img { display: block; max-width: 100%; height: auto; }
+
+  /* NAV */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 2.5rem;
+    background: rgba(243, 240, 233, 0.93);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(16,16,16,0.07);
+  }
+
+  .nav-logo {
+    font-family: var(--font-serif);
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--obsidian);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.2rem;
+  }
+
+  .nav-links a {
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--obsidian);
+    text-decoration: none;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+
+  .nav-links a:hover { opacity: 1; }
+
+  .nav-menu-btn {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .nav-menu-btn span {
+    display: block;
+    width: 22px;
+    height: 1.5px;
+    background: var(--obsidian);
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    padding-top: 80px;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(155deg, var(--ivory) 55%, #dde8d8 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: 'LUMA';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-serif);
+    font-size: clamp(8rem, 22vw, 24rem);
+    font-weight: 600;
+    color: rgba(16,16,16,0.028);
+    pointer-events: none;
+    white-space: nowrap;
+    user-select: none;
+    letter-spacing: 0.12em;
+  }
+
+  .hero-content {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 2rem;
+    padding: 4rem 5rem 3rem;
+    max-width: 1300px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .hero-text { position: relative; z-index: 2; }
+
+  .hero-origen {
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--musgo);
+    margin-bottom: 1.8rem;
+    font-weight: 500;
+  }
+
+  .hero-text h1 {
+    font-family: var(--font-serif);
+    font-size: clamp(2.6rem, 4.5vw, 4.8rem);
+    font-weight: 400;
+    line-height: 1.08;
+    color: var(--obsidian);
+    margin-bottom: 1.8rem;
+  }
+
+  .hero-text h1 em {
+    font-style: italic;
+    color: var(--musgo-dark);
+  }
+
+  .hero-tecnica {
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(16,16,16,0.4);
+    margin-bottom: 2.8rem;
+  }
+
+  .btn-primary {
+    display: inline-block;
+    padding: 0.95rem 2.4rem;
+    background: var(--musgo-dark);
+    color: var(--ivory);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.25s, transform 0.2s;
+  }
+
+  .btn-primary:hover {
+    background: var(--musgo);
+    transform: translateY(-2px);
+  }
+
+  .hero-duo {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 540px;
+  }
+
+  .duo-obra {
+    position: absolute;
+    width: 52%;
+    box-shadow: 0 24px 64px rgba(16,16,16,0.18), 0 4px 16px rgba(16,16,16,0.08);
+    border-radius: 0;
+    margin: 0;
+  }
+
+  .duo-obra img { width: 100%; height: auto; display: block; }
+
+  .duo-obra--uno {
+    left: 4%;
+    top: 10px;
+    transform: rotate(-4.5deg) translateY(16px);
+    z-index: 2;
+  }
+
+  .duo-obra--dos {
+    right: 2%;
+    top: 50px;
+    transform: rotate(3deg);
+    z-index: 1;
+  }
+
+  .duo-label {
+    position: absolute;
+    bottom: -2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(16,16,16,0.35);
+    white-space: nowrap;
+  }
+
+  .hero-scroll {
+    text-align: center;
+    padding: 2.5rem;
+    font-size: 1.1rem;
+    opacity: 0.25;
+    animation: bounce 2.2s ease-in-out infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(7px); }
+  }
+
+  /* INSPIRACIÓN */
+  .inspiracion {
+    background: linear-gradient(140deg, var(--musgo-dark) 0%, var(--azul-deep) 100%);
+    padding: 8rem 2rem;
+    text-align: center;
+    color: var(--ivory);
+  }
+
+  .inspiracion-inner { max-width: 680px; margin: 0 auto; }
+
+  .inspiracion-eyebrow {
+    font-size: 0.68rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.45;
+    margin-bottom: 2.8rem;
+  }
+
+  .inspiracion blockquote {
+    font-family: var(--font-serif);
+    font-size: clamp(1.9rem, 3.8vw, 3.2rem);
+    font-weight: 400;
+    line-height: 1.3;
+    margin-bottom: 3rem;
+  }
+
+  .inspiracion blockquote em {
+    font-style: italic;
+    color: var(--corteza-claro);
+  }
+
+  .inspiracion-cuerpo {
+    font-size: 1rem;
+    line-height: 1.85;
+    opacity: 0.65;
+    font-weight: 300;
+    max-width: 540px;
+    margin: 0 auto;
+  }
+
+  /* OBRA DESTACADA */
+  .destacada {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 75vh;
+    background: var(--ivory-dark);
+  }
+
+  .destacada-imagen { overflow: hidden; }
+
+  .destacada-imagen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.7s ease;
+  }
+
+  .destacada-imagen:hover img { transform: scale(1.04); }
+
+  .destacada-texto {
+    padding: 5rem 4.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .destacada-tag {
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--corteza);
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+  }
+
+  .destacada-texto h2 {
+    font-family: var(--font-serif);
+    font-size: clamp(2.4rem, 3.8vw, 4rem);
+    font-weight: 400;
+    line-height: 1.08;
+    margin-bottom: 1.8rem;
+  }
+
+  .destacada-texto p {
+    font-size: 0.98rem;
+    line-height: 1.85;
+    color: rgba(16,16,16,0.72);
+    margin-bottom: 1rem;
+    max-width: 420px;
+  }
+
+  .destacada-marco {
+    font-size: 0.7rem !important;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--musgo) !important;
+    opacity: 0.65;
+    margin-bottom: 2.5rem !important;
+  }
+
+  .btn-secondary {
+    display: inline-block;
+    padding: 0.88rem 2.2rem;
+    border: 1.5px solid var(--obsidian);
+    color: var(--obsidian);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    align-self: flex-start;
+    transition: background 0.25s, color 0.25s;
+  }
+
+  .btn-secondary:hover {
+    background: var(--obsidian);
+    color: var(--ivory);
+  }
+
+  /* GALERÍA */
+  .galeria {
+    padding: 6rem 5rem;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  .galeria-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 3rem;
+    border-bottom: 1px solid rgba(16,16,16,0.1);
+    padding-bottom: 1.5rem;
+  }
+
+  .galeria-header h2 {
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 400;
+  }
+
+  .galeria-ver-todas {
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    color: var(--musgo);
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.2s;
+  }
+
+  .galeria-ver-todas:hover { opacity: 0.55; }
+
+  .galeria-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.8rem;
+  }
+
+  .galeria-item { cursor: pointer; }
+
+  .galeria-img-wrap {
+    overflow: hidden;
+    background: var(--ivory-dark);
+    aspect-ratio: 3/4;
+  }
+
+  .galeria-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.55s ease;
+  }
+
+  .galeria-item:hover .galeria-img-wrap img { transform: scale(1.05); }
+
+  .galeria-info { padding: 0.9rem 0 0; }
+
+  .galeria-nombre {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-style: italic;
+    font-weight: 400;
+    margin-bottom: 0.2rem;
+  }
+
+  .galeria-tecnica {
+    font-size: 0.68rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: rgba(16,16,16,0.4);
+  }
+
+  /* ENVÍOS */
+  .envios {
+    background: var(--musgo);
+    color: var(--ivory);
+    text-align: center;
+    padding: 1.2rem 2rem;
+    font-size: 0.73rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* FOOTER */
+  .footer {
+    background: var(--obsidian);
+    color: var(--ivory);
+    padding: 4.5rem 2rem 3rem;
+  }
+
+  .footer-inner {
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .footer-logo {
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+  }
+
+  .footer-tagline {
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.35;
+    margin-bottom: 2.5rem;
+  }
+
+  .footer-nav {
+    display: flex;
+    justify-content: center;
+    gap: 2.2rem;
+    margin-bottom: 3rem;
+  }
+
+  .footer-nav a {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ivory);
+    text-decoration: none;
+    opacity: 0.45;
+    transition: opacity 0.2s;
+  }
+
+  .footer-nav a:hover { opacity: 1; }
+
+  .footer-copy {
+    font-size: 0.65rem;
+    opacity: 0.2;
+    letter-spacing: 0.05em;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 1024px) {
+    .hero-content { padding: 4rem 3rem 3rem; }
+    .galeria { padding: 5rem 3rem; }
+  }
+
+  @media (max-width: 900px) {
+    .hero-content {
+      grid-template-columns: 1fr;
+      text-align: center;
+      padding: 3rem 2rem 2rem;
+    }
+
+    .hero-duo { min-height: 360px; width: 100%; }
+    .duo-obra { width: 40%; }
+
+    .btn-primary { margin: 0 auto; }
+
+    .destacada { grid-template-columns: 1fr; }
+    .destacada-imagen { height: 55vh; }
+    .destacada-texto { padding: 3rem 2rem; }
+    .btn-secondary { align-self: auto; }
+
+    .galeria { padding: 4rem 2rem; }
+    .galeria-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 600px) {
+    .nav { padding: 1rem 1.4rem; }
+    .nav-links { display: none; }
+    .nav-menu-btn { display: flex; }
+
+    .hero-content { padding: 2rem 1.4rem; }
+    .hero-text h1 { font-size: 2.4rem; }
+    .hero-duo { min-height: 300px; }
+
+    .galeria { padding: 3rem 1.4rem; }
+    .galeria-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+
+    .footer-nav { flex-wrap: wrap; gap: 1.2rem; }
+  }
+</style>
