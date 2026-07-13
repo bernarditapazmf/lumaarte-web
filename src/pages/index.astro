@@ -565,8 +565,18 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
             <input type="email" name="email" required placeholder="tucorreo@mail.com" />
           </div>
           <div class="pedido-field">
-            <label>Ciudad / Región</label>
-            <input type="text" name="ciudad" placeholder="Santiago, Región Metropolitana..." />
+            <label>Dirección de envío *</label>
+            <input type="text" name="direccion" required placeholder="Calle, número, depto..." />
+          </div>
+          <div class="pedido-row">
+            <div class="pedido-field">
+              <label>Ciudad</label>
+              <input type="text" name="ciudad" placeholder="Puerto Varas..." />
+            </div>
+            <div class="pedido-field">
+              <label>Región</label>
+              <input type="text" name="region" placeholder="Los Lagos..." />
+            </div>
           </div>
           <div class="pedido-field">
             <label>Mensaje (opcional)</label>
@@ -926,6 +936,7 @@ document.getElementById('pedido-form').addEventListener('submit',async(e)=>{
   try{
     const res=await fetch('https://api.web3forms.com/submit',{method:'POST',body:data});
     const json=await res.json();
+    console.log('Web3Forms response:', json);
     if(json.success){
       document.getElementById('pedido-form-wrap').style.display='none';
       document.getElementById('pedido-ok').style.display='block';
@@ -934,12 +945,12 @@ document.getElementById('pedido-form').addEventListener('submit',async(e)=>{
     } else {
       btn.disabled=false;
       btn.textContent='Reintentar →';
-      alert('Hubo un error al enviar. Inténtalo de nuevo.');
+      alert('Error al enviar: '+(json.message||JSON.stringify(json)));
     }
-  } catch{
+  } catch(err){
     btn.disabled=false;
     btn.textContent='Reintentar →';
-    alert('Error de conexión. Inténtalo de nuevo.');
+    alert('Error de conexión: '+err.message);
   }
 });
 
