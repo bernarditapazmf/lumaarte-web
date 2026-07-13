@@ -74,9 +74,9 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
 .obra-cell--horizontal{grid-column:span 2}
 .obra-frame{position:relative;overflow:hidden;border-radius:4px;background:transparent;cursor:pointer}
 .obra-frame--vertical{aspect-ratio:106/150}
-.obra-frame--horizontal{aspect-ratio:150/106}
+.obra-frame--horizontal{aspect-ratio:3/2}
 .obra-frame--vendida{cursor:default}
-.obra-img{width:100%;height:100%;object-fit:contain;transition:transform 1.1s cubic-bezier(.16,1,.3,1)}
+.obra-img{width:100%;height:100%;object-fit:cover;object-position:center;transition:transform 1.1s cubic-bezier(.16,1,.3,1)}
 .obra-frame:not(.obra-frame--vendida):hover .obra-img,.obra-frame.is-open .obra-img{transform:scale(1.55)}
 .obra-badge{position:absolute;left:14px;top:14px;z-index:4;display:flex;align-items:center;gap:7px;padding:6px 11px;border-radius:60px;background:rgba(253,252,248,.92);backdrop-filter:blur(3px);transition:opacity .3s ease}
 .obra-badge.hidden{opacity:0;pointer-events:none}
@@ -222,8 +222,12 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
 .cart-item-thumb{width:72px;height:88px;flex:none;border-radius:4px;overflow:hidden;background:#f0ede6}
 .cart-item-thumb img{width:100%;height:100%;object-fit:contain;object-position:center}
 .cart-item-title{font-family:'Mackinac',serif;font-size:15px;line-height:1.3}
+.cart-item-price{font:500 13px/1 'Spline Sans Mono',monospace;color:#211f18;white-space:nowrap;flex-shrink:0;padding-top:2px}
 .cart-item-detail{font:400 12px/1.5 'CoFo Sans';color:rgba(33,31,24,.55);margin-top:3px}
 .cart-item-remove{margin-top:10px;background:none;border:none;padding:0;font:400 11.5px 'CoFo Sans';color:rgba(33,31,24,.45);text-decoration:underline;cursor:pointer}
+.cart-total{display:none;align-items:center;justify-content:space-between;padding:16px 24px 0;border-top:.5px solid rgba(33,31,24,.14);margin-top:4px}
+.cart-total-label{font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:rgba(33,31,24,.55)}
+.cart-total-val{font-family:'Mackinac',serif;font-size:20px}
 .cart-note{font:300 13px/1.6 'CoFo Sans';color:rgba(33,31,24,.55);margin:22px 0 0}
 .cart-footer{flex:none;padding:22px 24px;border-top:.5px solid rgba(33,31,24,.14);background:#FDFCF8}
 .cart-checkout{width:100%;padding:17px;border:none;border-radius:60px;background:#54582f;color:#fdfcf8;font:500 12px/1 'Spline Sans Mono',monospace;letter-spacing:.14em;text-transform:uppercase}
@@ -503,7 +507,11 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
       </div>
     </div>
     <div class="cart-footer">
-      <button class="cart-checkout">Ir a pagar →</button>
+      <div class="cart-total" id="cart-total-wrap" style="display:none">
+        <span class="cart-total-label">Total</span>
+        <span class="cart-total-val" id="cart-total-val"></span>
+      </div>
+      <button class="cart-checkout" style="margin-top:16px">Ir a pagar →</button>
       <div class="cart-pay-label">Pago seguro · Webpay / transferencia</div>
     </div>
   </div>
@@ -511,12 +519,18 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
 
 <script>
 // ── DATOS ──────────────────────────────────────────
+// ── PRECIOS: actualiza estos valores antes de publicar ─
 const OBRAS = [
-  { base:'obra1', title:'Dúo Lilium y Volcanes I',  disponible:true,  horizontal:false },
-  { base:'obra2', title:'Dúo Lilium y Volcanes II', disponible:false, horizontal:false },
-  { base:'obra3', title:'Rostro de Chilcos',         disponible:true,  horizontal:false },
-  { base:'obra4', title:'Mujer Hortensia',           disponible:true,  horizontal:false },
-  { base:'obra5', title:'Bosque de Arrayanes',       disponible:true,  horizontal:true  },
+  { base:'obra1', title:'Dúo Lilium y Volcanes I',  disponible:true, horizontal:false,
+    precios:{'30 × 40 cm':95000,'40 × 50 cm':145000,'50 × 70 cm':220000} },
+  { base:'obra2', title:'Dúo Lilium y Volcanes II', disponible:true, horizontal:false,
+    precios:{'30 × 40 cm':95000,'40 × 50 cm':145000,'50 × 70 cm':220000} },
+  { base:'obra3', title:'Rostro de Chilcos',         disponible:true, horizontal:false,
+    precios:{'30 × 40 cm':95000,'40 × 50 cm':145000,'50 × 70 cm':220000} },
+  { base:'obra4', title:'Mujer Hortensia',           disponible:true, horizontal:false,
+    precios:{'30 × 40 cm':95000,'40 × 50 cm':145000,'50 × 70 cm':220000} },
+  { base:'obra5', title:'Bosque de Arrayanes',       disponible:true, horizontal:true,
+    precios:{'30 × 40 cm':95000,'40 × 50 cm':145000,'50 × 70 cm':220000} },
 ];
 const SIZES = ['30 × 40 cm','40 × 50 cm','50 × 70 cm'];
 const GC_IMGS = ['/img/gc1.jpg','/img/gc2.jpg','/img/gc3.jpg','/img/gc4.jpg','/img/gc5.jpg','/img/gc6.jpg'];
@@ -623,7 +637,8 @@ window.selectSize = (i,sz)=>{
 window.comprar = (i)=>{
   const o=OBRAS[i];
   const size=S.sizes[i]||'30 × 40 cm';
-  S.cart.push({title:o.title,img:`/img/${o.base}.png`,detail:`Técnica mixta · ${size}`,key:Date.now()+'-'+i});
+  const precio=o.precios[size]||0;
+  S.cart.push({title:o.title,img:`/img/${o.base}.png`,detail:`${size}`,precio,key:Date.now()+'-'+i});
   closeObra(i);
   renderCart();
   openCart();
@@ -652,18 +667,26 @@ function renderCart(){
       <div class="cart-empty-title">Tu carrito está vacío.</div>
       <p class="cart-empty-sub">Elige una obra y su tamaño para agregarla aquí.</p>
     </div>`;
+    document.getElementById('cart-total-wrap').style.display='none';
     return;
   }
+  const total = S.cart.reduce((s,c)=>s+(c.precio||0),0);
   body.innerHTML = S.cart.map(c=>`
     <div class="cart-item">
       <div class="cart-item-thumb"><img src="${c.img}" alt="${c.title}" /></div>
       <div style="flex:1;min-width:0">
-        <div class="cart-item-title">${c.title}</div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+          <div class="cart-item-title">${c.title}</div>
+          <div class="cart-item-price">${c.precio?clp(c.precio):''}</div>
+        </div>
         <div class="cart-item-detail">${c.detail}</div>
         <button class="cart-item-remove" onclick="removeItem('${c.key}')">Quitar</button>
       </div>
     </div>`).join('')
-  + `<p class="cart-note">Coordinamos el envío y embalaje de cada obra contigo. Los valores se confirman al finalizar.</p>`;
+  + `<p class="cart-note">Coordinamos envío y embalaje contigo. Los valores son referenciales.</p>`;
+  const tw = document.getElementById('cart-total-wrap');
+  tw.style.display='flex';
+  document.getElementById('cart-total-val').textContent = clp(total);
 }
 
 document.getElementById('btn-cart').addEventListener('click', openCart);
