@@ -234,6 +234,39 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
 .cart-checkout:hover{background:#3c3f21}
 .cart-pay-label{text-align:center;margin-top:12px;font:400 11px/1 'Spline Sans Mono',monospace;letter-spacing:.06em;color:rgba(33,31,24,.45)}
 
+/* MODAL PEDIDO */
+.pedido-scrim{position:fixed;inset:0;z-index:1100;background:rgba(24,22,14,.5);opacity:0;visibility:hidden;transition:opacity .4s ease}
+.pedido-scrim.open{opacity:1;visibility:visible}
+.pedido-modal{position:fixed;bottom:0;left:0;right:0;z-index:1200;max-height:92vh;transform:translateY(105%);transition:transform .55s cubic-bezier(.16,1,.3,1);display:flex;justify-content:center}
+.pedido-modal.open{transform:translateY(0)}
+.pedido-inner{background:#FDFCF8;border-radius:20px 20px 0 0;width:100%;max-width:660px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 -12px 60px rgba(20,18,10,.22)}
+.pedido-header{display:flex;align-items:center;justify-content:space-between;padding:26px 32px 18px;border-bottom:.5px solid rgba(33,31,24,.12);flex:none}
+.pedido-header-title{font-family:'Mackinac',serif;font-size:22px}
+.pedido-close{background:none;border:none;color:#211f18;padding:4px;cursor:pointer}
+.pedido-scroll{flex:1;min-height:0;overflow-y:auto;padding:24px 32px 32px}
+.pedido-resumen{margin-bottom:26px;padding-bottom:22px;border-bottom:.5px solid rgba(33,31,24,.12)}
+.pedido-resumen-title{font:500 10px/1 'Spline Sans Mono',monospace;letter-spacing:.22em;text-transform:uppercase;color:rgba(33,31,24,.45);margin-bottom:16px}
+.pedido-item{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:7px 0;font:400 14px/1.4 'CoFo Sans';color:#211f18;border-bottom:.5px solid rgba(33,31,24,.07)}
+.pedido-item:last-child{border-bottom:none}
+.pedido-item-name{flex:1}
+.pedido-item-det{font-size:12px;color:rgba(33,31,24,.5);display:block;margin-top:1px}
+.pedido-item-val{font:500 13px/1 'Spline Sans Mono',monospace;white-space:nowrap}
+.pedido-total-row{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.pedido-total-label{font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:rgba(33,31,24,.55)}
+.pedido-total-val{font-family:'Mackinac',serif;font-size:22px}
+.pedido-fields{display:flex;flex-direction:column;gap:18px}
+.pedido-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pedido-field label{display:block;font:500 10px/1 'Spline Sans Mono',monospace;letter-spacing:.18em;text-transform:uppercase;color:#54582f;margin-bottom:8px}
+.pedido-field input,.pedido-field textarea{width:100%;box-sizing:border-box;background:transparent;border:none;border-bottom:.5px solid rgba(33,31,24,.35);padding:10px 2px;font:400 15px 'CoFo Sans';color:#211f18;outline:none}
+.pedido-field textarea{resize:none}
+.pedido-submit{width:100%;margin-top:28px;padding:17px;border:none;border-radius:60px;background:#54582f;color:#fdfcf8;font:500 12px/1 'Spline Sans Mono',monospace;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:background .2s}
+.pedido-submit:hover{background:#3c3f21}
+.pedido-submit:disabled{background:rgba(33,31,24,.25);cursor:not-allowed}
+.pedido-ok{display:none;text-align:center;padding:48px 24px}
+.pedido-ok-icon{font-size:40px;margin-bottom:20px}
+.pedido-ok-title{font-family:'Mackinac',serif;font-style:italic;font-size:26px;margin-bottom:14px}
+.pedido-ok-sub{font:300 15px/1.7 'CoFo Sans';color:rgba(33,31,24,.65);max-width:38ch;margin:0 auto}
+
 @media(max-width:900px){
   .nav{padding:20px 24px}
   .nav-links{gap:20px}
@@ -487,6 +520,72 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
       </div>
     </div>
     <div class="footer-copy">© 2026 Luma Producciones · Todas las obras son originales de B. Mir.</div>
+  </div>
+</div>
+
+<!-- MODAL PEDIDO -->
+<div class="pedido-scrim" id="pedido-scrim"></div>
+<div class="pedido-modal" id="pedido-modal">
+  <div class="pedido-inner">
+    <div class="pedido-header">
+      <span class="pedido-header-title">Confirmar pedido</span>
+      <button class="pedido-close" id="btn-pedido-close" aria-label="Cerrar">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="pedido-scroll">
+      <!-- Resumen del carrito -->
+      <div class="pedido-resumen">
+        <div class="pedido-resumen-title">Tu pedido</div>
+        <div id="pedido-items"></div>
+        <div class="pedido-total-row">
+          <span class="pedido-total-label">Total</span>
+          <span class="pedido-total-val" id="pedido-total"></span>
+        </div>
+      </div>
+      <!-- Formulario de contacto -->
+      <div id="pedido-form-wrap">
+        <form class="pedido-fields" id="pedido-form" novalidate>
+          <input type="hidden" name="access_key" value="TU_KEY_WEB3FORMS_AQUÍ" />
+          <input type="hidden" name="subject" id="pedido-subject" />
+          <input type="hidden" name="from_name" value="Luma Arte — Nuevo pedido" />
+          <input type="hidden" name="redirect" value="false" />
+          <div class="pedido-row">
+            <div class="pedido-field">
+              <label>Nombre completo *</label>
+              <input type="text" name="nombre" required placeholder="Tu nombre" />
+            </div>
+            <div class="pedido-field">
+              <label>Teléfono</label>
+              <input type="tel" name="telefono" placeholder="+56 9 ..." />
+            </div>
+          </div>
+          <div class="pedido-field">
+            <label>Correo electrónico *</label>
+            <input type="email" name="email" required placeholder="tucorreo@mail.com" />
+          </div>
+          <div class="pedido-field">
+            <label>Ciudad / Región</label>
+            <input type="text" name="ciudad" placeholder="Santiago, Región Metropolitana..." />
+          </div>
+          <div class="pedido-field">
+            <label>Mensaje (opcional)</label>
+            <textarea name="mensaje" rows="2" placeholder="¿Alguna pregunta sobre la obra o el envío?"></textarea>
+          </div>
+          <input type="hidden" name="detalle_pedido" id="pedido-detalle-hidden" />
+          <button type="submit" class="pedido-submit" id="pedido-submit-btn">Enviar pedido →</button>
+          <p style="text-align:center;margin-top:14px;font:300 12px/1.6 'CoFo Sans';color:rgba(33,31,24,.5)">
+            Te contactaremos para coordinar el pago por transferencia bancaria y el despacho.
+          </p>
+        </form>
+      </div>
+      <!-- Éxito -->
+      <div class="pedido-ok" id="pedido-ok">
+        <div class="pedido-ok-icon">🌿</div>
+        <div class="pedido-ok-title">¡Pedido recibido!</div>
+        <p class="pedido-ok-sub">Te escribiremos a tu correo en las próximas horas para coordinar el pago y el envío. Gracias por llevar el Sur contigo.</p>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -776,6 +875,72 @@ document.getElementById('gc-add-btn').addEventListener('click',()=>{
   S.cart.push({ title:`Giftcard — ${design}`, img:GC_IMGS[gc.design], detail:`Envío digital · ${clp(monto)}`, key:Date.now()+'-gc' });
   renderCart();
   openCart();
+});
+
+// ── MODAL PEDIDO ─────────────────────────────────────
+function openPedido(){
+  if(S.cart.length===0) return;
+  const total=S.cart.reduce((s,c)=>s+(c.precio||0),0);
+
+  // Resumen de ítems
+  document.getElementById('pedido-items').innerHTML=S.cart.map(c=>`
+    <div class="pedido-item">
+      <div class="pedido-item-name">
+        ${c.title}
+        <span class="pedido-item-det">${c.detail}</span>
+      </div>
+      <div class="pedido-item-val">${c.precio?clp(c.precio):''}</div>
+    </div>`).join('');
+  document.getElementById('pedido-total').textContent=clp(total);
+
+  // Campo oculto con el resumen para el email
+  const detalleTexto=S.cart.map(c=>`• ${c.title} | ${c.detail}${c.precio?' | '+clp(c.precio):''}`).join('\n')+'\n\nTotal: '+clp(total);
+  document.getElementById('pedido-detalle-hidden').value=detalleTexto;
+  document.getElementById('pedido-subject').value=`Nuevo pedido Luma Arte — ${clp(total)}`;
+
+  // Resetear form/estado
+  document.getElementById('pedido-form').reset();
+  document.getElementById('pedido-form-wrap').style.display='block';
+  document.getElementById('pedido-ok').style.display='none';
+  document.getElementById('pedido-submit-btn').disabled=false;
+  document.getElementById('pedido-submit-btn').textContent='Enviar pedido →';
+
+  document.getElementById('pedido-scrim').classList.add('open');
+  document.getElementById('pedido-modal').classList.add('open');
+  closeCart();
+}
+function closePedido(){
+  document.getElementById('pedido-scrim').classList.remove('open');
+  document.getElementById('pedido-modal').classList.remove('open');
+}
+document.getElementById('btn-pedido-close').addEventListener('click',closePedido);
+document.getElementById('pedido-scrim').addEventListener('click',closePedido);
+document.querySelector('.cart-checkout').addEventListener('click',openPedido);
+
+document.getElementById('pedido-form').addEventListener('submit',async(e)=>{
+  e.preventDefault();
+  const btn=document.getElementById('pedido-submit-btn');
+  btn.disabled=true;
+  btn.textContent='Enviando…';
+  const data=new FormData(e.target);
+  try{
+    const res=await fetch('https://api.web3forms.com/submit',{method:'POST',body:data});
+    const json=await res.json();
+    if(json.success){
+      document.getElementById('pedido-form-wrap').style.display='none';
+      document.getElementById('pedido-ok').style.display='block';
+      S.cart=[];
+      renderCart();
+    } else {
+      btn.disabled=false;
+      btn.textContent='Reintentar →';
+      alert('Hubo un error al enviar. Inténtalo de nuevo.');
+    }
+  } catch{
+    btn.disabled=false;
+    btn.textContent='Reintentar →';
+    alert('Error de conexión. Inténtalo de nuevo.');
+  }
 });
 
 // ── INIT ────────────────────────────────────────────
