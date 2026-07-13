@@ -750,7 +750,8 @@ window.comprar = (i)=>{
   const o=OBRAS[i];
   const size=S.sizes[i]||'30 × 40 cm';
   const precio=o.precios[size]||0;
-  S.cart.push({title:o.title,img:`/img/${o.base}.png`,detail:`${size}`,precio,key:Date.now()+'-'+i});
+  const matLabel=S.mat[i]==='black'?'Paspartú negro':'Paspartú blanco';
+  S.cart.push({title:o.title,img:`/img/${o.base}.png`,detail:`${size} · ${matLabel}`,precio,key:Date.now()+'-'+i});
   closeObra(i);
   renderCart();
   openCart();
