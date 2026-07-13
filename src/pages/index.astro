@@ -76,8 +76,8 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
 .obra-frame--vertical{aspect-ratio:106/150}
 .obra-frame--horizontal{aspect-ratio:150/106}
 .obra-frame--vendida{cursor:default}
-.obra-img{width:100%;height:100%;object-fit:contain;transition:transform 1s cubic-bezier(.16,1,.3,1)}
-.obra-frame:not(.obra-frame--vendida):hover .obra-img{transform:scale(1.18)}
+.obra-img{width:100%;height:100%;object-fit:contain;transition:transform 1.1s cubic-bezier(.16,1,.3,1)}
+.obra-frame:not(.obra-frame--vendida):hover .obra-img,.obra-frame.is-open .obra-img{transform:scale(1.55)}
 .obra-badge{position:absolute;left:14px;top:14px;z-index:4;display:flex;align-items:center;gap:7px;padding:6px 11px;border-radius:60px;background:rgba(253,252,248,.92);backdrop-filter:blur(3px);transition:opacity .3s ease}
 .obra-badge.hidden{opacity:0;pointer-events:none}
 .obra-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
@@ -543,40 +543,33 @@ window.addEventListener('resize', fitCollage);
 document.fonts && document.fonts.ready.then(()=>fitCollage());
 setTimeout(fitCollage,300);
 
-// ── RENDER OBRAS ────────────────────────────────────
+// ── RENDER OBRAS (una sola vez) ─────────────────────
 function renderObras(){
   const grid = document.getElementById('obras-grid');
   grid.innerHTML = OBRAS.map((o,i) => {
-    const mat = S.mat[i]||'white';
-    const selSize = S.sizes[i]||null;
-    const isActive = S.activeObra === i;
-    const imgSrc = `/img/${o.base}_${mat}.png`;
     const horizontal = o.horizontal;
     return `
     <div class="obra-cell${horizontal?' obra-cell--horizontal':''}">
-      <div class="obra-frame obra-frame--${horizontal?'horizontal':'vertical'}${!o.disponible?' obra-frame--vendida':''}"
-           ${o.disponible?`onclick="toggleObra(${i})"`:''}>
-        <img class="obra-img" src="${imgSrc}" alt="${o.title}" />
-        <div class="obra-badge${isActive?' hidden':''}">
+      <div id="obra-frame-${i}" class="obra-frame obra-frame--${horizontal?'horizontal':'vertical'}${!o.disponible?' obra-frame--vendida':''}">
+        <img id="obra-img-${i}" class="obra-img" src="/img/${o.base}_white.png" alt="${o.title}" />
+        <div id="obra-badge-${i}" class="obra-badge">
           <span class="obra-dot obra-dot--${o.disponible?'disp':'vend'}"></span>
           <span class="obra-badge-txt">${o.disponible?'Disponible':'Vendida'}</span>
         </div>
-        <div class="obra-overlay${isActive?' active':''}">
+        <div id="obra-overlay-${i}" class="obra-overlay">
           <div>
             <div class="obra-sizes-label">Elige el tamaño</div>
             <div class="obra-sizes">
               ${SIZES.map(sz=>`
-                <button class="obra-size-btn${selSize===sz?' selected':''}"
+                <button class="obra-size-btn" data-obra="${i}" data-size="${sz}"
                   onclick="event.stopPropagation();selectSize(${i},'${sz}')">
                   ${sz}
                 </button>`).join('')}
             </div>
           </div>
           <div class="obra-overlay-bottom">
-            <button class="obra-cerrar" onclick="event.stopPropagation();toggleObra(${i})">Cancelar</button>
-            <button class="obra-comprar" onclick="event.stopPropagation();comprar(${i})">
-              Comprar →
-            </button>
+            <button class="obra-cerrar" onclick="event.stopPropagation();closeObra(${i})">Cancelar</button>
+            <button class="obra-comprar" onclick="event.stopPropagation();comprar(${i})">Comprar →</button>
           </div>
         </div>
       </div>
@@ -585,34 +578,53 @@ function renderObras(){
         <div class="obra-desc">Técnica mixta · Acuarela, pastel al óleo, hilo sobre papel.</div>
         <div class="obra-mat-label">Paspartú</div>
         <div class="obra-mat-btns">
-          <button class="obra-mat-btn${mat==='white'?' active':''}" onclick="setMat(${i},'white')">Blanco</button>
-          <button class="obra-mat-btn${mat==='black'?' active':''}" onclick="setMat(${i},'black')">Negro</button>
+          <button class="obra-mat-btn active" data-obra="${i}" data-mat="white" onclick="setMat(${i},'white')">Blanco</button>
+          <button class="obra-mat-btn" data-obra="${i}" data-mat="black" onclick="setMat(${i},'black')">Negro</button>
         </div>
       </div>
     </div>`;
   }).join('');
+
+  OBRAS.forEach((o,i)=>{
+    if(o.disponible){
+      document.getElementById(`obra-frame-${i}`).addEventListener('click',()=>toggleObra(i));
+    }
+  });
 }
 
-// ── OBRAS HANDLERS ──────────────────────────────────
+// ── OBRAS HANDLERS (solo DOM, sin re-render) ────────
 window.toggleObra = (i)=>{
-  S.activeObra = S.activeObra===i ? null : i;
-  renderObras();
+  if(S.activeObra===i){ closeObra(i); return; }
+  if(S.activeObra!==null) closeObra(S.activeObra);
+  S.activeObra=i;
+  document.getElementById(`obra-frame-${i}`).classList.add('is-open');
+  document.getElementById(`obra-overlay-${i}`).classList.add('active');
+  document.getElementById(`obra-badge-${i}`).classList.add('hidden');
+};
+window.closeObra = (i)=>{
+  document.getElementById(`obra-frame-${i}`).classList.remove('is-open');
+  document.getElementById(`obra-overlay-${i}`).classList.remove('active');
+  document.getElementById(`obra-badge-${i}`).classList.remove('hidden');
+  if(S.activeObra===i) S.activeObra=null;
 };
 window.setMat = (i,val)=>{
   S.mat[i]=val;
-  renderObras();
+  document.getElementById(`obra-img-${i}`).src=`/img/${OBRAS[i].base}_${val}.png`;
+  document.querySelectorAll(`.obra-mat-btn[data-obra="${i}"]`).forEach(b=>{
+    b.classList.toggle('active', b.dataset.mat===val);
+  });
 };
-window.selectSize = (i,label)=>{
-  S.sizes[i]=label;
-  renderObras();
+window.selectSize = (i,sz)=>{
+  S.sizes[i]=sz;
+  document.querySelectorAll(`.obra-size-btn[data-obra="${i}"]`).forEach(b=>{
+    b.classList.toggle('selected', b.dataset.size===sz);
+  });
 };
 window.comprar = (i)=>{
-  const o = OBRAS[i];
-  const mat = S.mat[i]||'white';
-  const size = S.sizes[i]||'30 × 40 cm';
-  S.cart.push({ title:o.title, img:`/img/${o.base}.png`, detail:`Técnica mixta · ${size}`, key:Date.now()+'-'+i });
-  S.activeObra = null;
-  renderObras();
+  const o=OBRAS[i];
+  const size=S.sizes[i]||'30 × 40 cm';
+  S.cart.push({title:o.title,img:`/img/${o.base}.png`,detail:`Técnica mixta · ${size}`,key:Date.now()+'-'+i});
+  closeObra(i);
   renderCart();
   openCart();
 };
