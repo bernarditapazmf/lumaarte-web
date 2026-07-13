@@ -266,6 +266,8 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
 .pedido-ok-icon{font-size:40px;margin-bottom:20px}
 .pedido-ok-title{font-family:'Mackinac',serif;font-style:italic;font-size:26px;margin-bottom:14px}
 .pedido-ok-sub{font:300 15px/1.7 'CoFo Sans';color:rgba(33,31,24,.65);max-width:38ch;margin:0 auto}
+.pedido-ok-btn{margin-top:32px;display:inline-block;padding:14px 36px;background:#54582f;color:#f5f0e8;font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.18em;text-transform:uppercase;border:none;cursor:pointer;transition:background .2s}
+.pedido-ok-btn:hover{background:#3a3d1f}
 
 @media(max-width:900px){
   .nav{padding:20px 24px}
@@ -594,6 +596,7 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
         <div class="pedido-ok-icon">🌿</div>
         <div class="pedido-ok-title">¡Pedido recibido!</div>
         <p class="pedido-ok-sub">Te escribiremos a tu correo en las próximas horas para coordinar el pago y el envío. Gracias por llevar el Sur contigo.</p>
+        <button class="pedido-ok-btn" onclick="closePedidoModal()">Volver al inicio</button>
       </div>
     </div>
   </div>
@@ -923,6 +926,10 @@ function closePedido(){
   document.getElementById('pedido-scrim').classList.remove('open');
   document.getElementById('pedido-modal').classList.remove('open');
 }
+window.closePedidoModal=function(){
+  closePedido();
+  window.scrollTo({top:0,behavior:'smooth'});
+};
 document.getElementById('btn-pedido-close').addEventListener('click',closePedido);
 document.getElementById('pedido-scrim').addEventListener('click',closePedido);
 document.querySelector('.cart-checkout').addEventListener('click',openPedido);
