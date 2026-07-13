@@ -546,7 +546,7 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
       <!-- Formulario de contacto -->
       <div id="pedido-form-wrap">
         <form class="pedido-fields" id="pedido-form" novalidate>
-          <input type="hidden" name="access_key" value="TU_KEY_WEB3FORMS_AQUÍ" />
+          <input type="hidden" name="access_key" value={import.meta.env.PUBLIC_WEB3FORMS_KEY} />
           <input type="hidden" name="subject" id="pedido-subject" />
           <input type="hidden" name="from_name" value="Luma Arte — Nuevo pedido" />
           <input type="hidden" name="redirect" value="false" />
