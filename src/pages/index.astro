@@ -74,7 +74,7 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
 .obra-cell--horizontal{grid-column:span 2}
 .obra-frame{position:relative;overflow:hidden;border-radius:4px;background:transparent;cursor:pointer}
 .obra-frame--vertical{aspect-ratio:106/150}
-.obra-frame--horizontal{aspect-ratio:3/2}
+.obra-frame--horizontal{aspect-ratio:900/635}
 .obra-frame--vendida{cursor:default}
 .obra-img{width:100%;height:100%;object-fit:cover;object-position:center;transition:transform 1.1s cubic-bezier(.16,1,.3,1)}
 .obra-frame:not(.obra-frame--vendida):hover .obra-img,.obra-frame.is-open .obra-img{transform:scale(1.55)}
@@ -637,7 +637,7 @@ const OBRAS = [
     precios:{'30 × 40 cm':95000,'40 × 50 cm':145000,'50 × 70 cm':220000} },
   { base:'obra2', title:'Dúo Lilium y Volcanes II', disponible:true, horizontal:false,
     precios:{'30 × 40 cm':95000,'40 × 50 cm':145000,'50 × 70 cm':220000} },
-  { base:'obra3', title:'Rostro de Chilcos',         disponible:true, horizontal:false,
+  { base:'obra3', title:'Rostro de Chilcos',         disponible:true, horizontal:false, imgPos:'top center',
     precios:{'30 × 40 cm':95000,'40 × 50 cm':145000,'50 × 70 cm':220000} },
   { base:'obra4', title:'Mujer Hortensia',           disponible:true, horizontal:false,
     precios:{'30 × 40 cm':95000,'40 × 50 cm':145000,'50 × 70 cm':220000} },
@@ -677,7 +677,7 @@ function renderObras(){
     return `
     <div class="obra-cell${horizontal?' obra-cell--horizontal':''}">
       <div id="obra-frame-${i}" class="obra-frame obra-frame--${horizontal?'horizontal':'vertical'}${!o.disponible?' obra-frame--vendida':''}">
-        <img id="obra-img-${i}" class="obra-img" src="/img/${o.base}_white.png" alt="${o.title}" />
+        <img id="obra-img-${i}" class="obra-img" src="/img/${o.base}_white.png" alt="${o.title}" ${o.imgPos?`style="object-position:${o.imgPos}"`:''}  />
         <div id="obra-badge-${i}" class="obra-badge">
           <span class="obra-dot obra-dot--${o.disponible?'disp':'vend'}"></span>
           <span class="obra-badge-txt">${o.disponible?'Disponible':'Vendida'}</span>
