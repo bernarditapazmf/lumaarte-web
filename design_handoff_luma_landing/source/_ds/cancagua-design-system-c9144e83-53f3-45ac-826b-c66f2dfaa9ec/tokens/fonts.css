@@ -1,0 +1,17 @@
+/* ============================================================
+   CANCAGUA — Webfonts
+   ------------------------------------------------------------
+   Original brand fonts (from the identity deck):
+     · IBM Plex Sans   — display + body         → Google Fonts ✓ exact
+     · IBM Plex Mono   — labels / headers        → Google Fonts ✓ exact
+     · Courier Prime   — captions / mono accents  → Google Fonts ✓ exact
+     · CoFo Sans Mono VF — "elegant + natural" mono (commercial, CoType)
+                         → SUBSTITUTED with "Spline Sans Mono" (humanist,
+                           rounded-terminal mono — nearest free match)
+     · P22 Mackinac Pro — serif display (commercial, P22/IHOF)
+                         → SUBSTITUTED with "Newsreader" (transitional
+                           wedge-ish serif w/ optical display sizes)
+   Replace the two substitutes with the licensed binaries if available.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500;600&family=Courier+Prime:wght@400;700&family=Newsreader:opsz,wght@18..72,400;18..72,500;18..72,600&display=swap');

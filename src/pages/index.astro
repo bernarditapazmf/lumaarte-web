@@ -939,21 +939,33 @@ document.getElementById('pedido-form').addEventListener('submit',async(e)=>{
   e.preventDefault();
   const btn=document.getElementById('pedido-submit-btn');
   btn.disabled=true;
-  btn.textContent='Enviando…';
-  const data=new FormData(e.target);
+  btn.textContent='Redirigiendo a pago…';
+  const fd=new FormData(e.target);
+  const total=S.cart.reduce((s,c)=>s+(c.precio||0),0);
+  const payload={
+    nombre: fd.get('nombre'),
+    email:  fd.get('email'),
+    telefono: fd.get('telefono')||'',
+    direccion: fd.get('direccion')||'',
+    ciudad: fd.get('ciudad')||'',
+    region: fd.get('region')||'',
+    mensaje: fd.get('mensaje')||'',
+    total,
+    items: S.cart.map(c=>({title:c.title,detail:c.detail,precio:c.precio})),
+  };
   try{
-    const res=await fetch('https://api.web3forms.com/submit',{method:'POST',body:data});
+    const res=await fetch('/api/payment-create',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload),
+    });
     const json=await res.json();
-    console.log('Web3Forms response:', json);
-    if(json.success){
-      document.getElementById('pedido-form-wrap').style.display='none';
-      document.getElementById('pedido-ok').style.display='block';
-      S.cart=[];
-      renderCart();
+    if(json.redirectUrl){
+      window.location.href=json.redirectUrl;
     } else {
       btn.disabled=false;
       btn.textContent='Reintentar →';
-      alert('Error al enviar: '+(json.message||JSON.stringify(json)));
+      alert('Error al crear pago: '+(json.error||'intenta de nuevo'));
     }
   } catch(err){
     btn.disabled=false;

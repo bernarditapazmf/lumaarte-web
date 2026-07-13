@@ -1,0 +1,72 @@
+---
+import crypto from 'crypto';
+
+function sign(params, secretKey) {
+  const keys = Object.keys(params).sort();
+  const str = keys.map(k => k + params[k]).join('');
+  return crypto.createHmac('sha256', secretKey).update(str).digest('hex');
+}
+
+const token = Astro.url.searchParams.get('token');
+let status = null;
+let payment = null;
+
+if (token) {
+  const apiKey = import.meta.env.FLOW_API_KEY;
+  const secretKey = import.meta.env.FLOW_SECRET_KEY;
+  const params = { apiKey, token };
+  const s = sign(params, secretKey);
+  const qs = new URLSearchParams({ ...params, s }).toString();
+  const res = await fetch(`https://www.flow.cl/api/payment/getStatus?${qs}`);
+  payment = await res.json();
+  status = payment.status; // 1=pendiente, 2=pagado, 3=rechazado, 4=anulado
+}
+---
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Resultado del pago — Luma Arte</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Spline Sans Mono',monospace;background:#f5f0e8;color:#211f18;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+    .card{background:#fdfcf8;max-width:480px;width:100%;padding:56px 48px;text-align:center}
+    .icon{font-size:48px;margin-bottom:24px}
+    h1{font-family:Georgia,serif;font-style:italic;font-size:28px;margin-bottom:16px}
+    p{font-size:13px;line-height:1.8;color:rgba(33,31,24,.65);margin-bottom:32px}
+    a{display:inline-block;padding:14px 36px;background:#54582f;color:#f5f0e8;font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.18em;text-transform:uppercase;text-decoration:none}
+    a:hover{background:#3a3d1f}
+  </style>
+</head>
+<body>
+  <div class="card">
+    {status === 2 && <>
+      <div class="icon">🌿</div>
+      <h1>¡Pago recibido!</h1>
+      <p>Tu pedido ha sido confirmado. Te escribiremos a tu correo en las próximas horas para coordinar el despacho.<br/><br/>Orden N° {payment?.flowOrder}</p>
+      <a href="/">Volver al inicio</a>
+    </>}
+    {status === 3 && <>
+      <div class="icon">✕</div>
+      <h1>Pago rechazado</h1>
+      <p>Tu pago fue rechazado. Por favor intenta nuevamente con otra tarjeta o medio de pago.</p>
+      <a href="/#pinturas">Volver a las obras</a>
+    </>}
+    {status === 4 && <>
+      <div class="icon">○</div>
+      <h1>Pago anulado</h1>
+      <p>El pago fue anulado. Si fue un error, puedes volver y realizar el pedido nuevamente.</p>
+      <a href="/#pinturas">Volver a las obras</a>
+    </>}
+    {(status === 1 || !status) && <>
+      <div class="icon">◌</div>
+      <h1>Pago pendiente</h1>
+      <p>Tu pago está siendo procesado. Te notificaremos por correo cuando se confirme.</p>
+      <a href="/">Volver al inicio</a>
+    </>}
+  </div>
+</body>
+</html>
