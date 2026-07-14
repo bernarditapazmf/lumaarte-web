@@ -23,7 +23,7 @@
 @font-face{font-family:'CoFo Sans';src:url('/fonts/CoFoSans-Medium.otf') format('opentype');font-weight:500;font-style:normal;font-display:swap}
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;overflow-x:hidden}
 body{background:#FDFCF8;font-family:'CoFo Sans',system-ui,sans-serif;color:#211f18;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 img{display:block;max-width:100%}
 button{font-family:inherit;cursor:pointer}
@@ -269,6 +269,9 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
 .pedido-ok-btn{margin-top:32px;display:inline-block;padding:14px 36px;background:#54582f;color:#f5f0e8;font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.18em;text-transform:uppercase;border:none;cursor:pointer;transition:background .2s}
 .pedido-ok-btn:hover{background:#3a3d1f}
 
+/* Cita mobile — oculta en desktop */
+.insp-quote-mobile{display:none}
+
 @media(max-width:900px){
   .nav{padding:20px 24px}
   .nav-links{gap:20px}
@@ -280,7 +283,7 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
   .obra-cell--horizontal{grid-column:span 2}
   .insp{padding:80px 24px 44px}
   .oficio{grid-template-columns:1fr;padding:40px 24px 100px;gap:32px}
-  .oficio-fotos{height:280px}
+  .oficio-fotos{height:300px}
   .gc{padding:72px 24px}
   .gc-grid{grid-template-columns:1fr;gap:40px}
   .contacto{padding:72px 24px}
@@ -290,11 +293,37 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
   .footer-top{flex-direction:column}
 }
 @media(max-width:600px){
+  /* Nav */
   .nav-links{display:none}
+  .nav-logo{height:50px;width:87px}
+  /* Hero */
+  .hero-h1{font-size:34px}
+  .hero-sub{font-size:15px}
+  /* Obras */
   .obras-grid{grid-template-columns:1fr;gap:28px}
   .obra-cell--horizontal{grid-column:span 1}
+  /* Collage: ocultar stage (texto queda ilegible a escala móvil), mostrar cita separada */
+  #collage-wrap{display:none}
+  .insp-quote-mobile{display:block;font-family:'Mackinac',serif;font-style:italic;font-size:22px;line-height:1.55;color:#fdfcf8;text-shadow:0 2px 16px rgba(8,12,4,.7);margin-top:12px}
+  /* Oficio fotos: ajustar polaroids para que no salgan del contenedor */
+  .oficio-fotos{height:300px}
+  .oficio-fotos .polaroid:first-child{right:8px !important;width:185px !important}
+  .oficio-fotos .polaroid:nth-child(2){right:0 !important;width:168px !important;top:165px !important}
+  /* GiftCard montos: 2×2 */
+  .gc-amounts{grid-template-columns:repeat(2,1fr)}
+  /* Formulario de pedido: inputs en columna única */
+  .pedido-header{padding:20px 20px 16px}
+  .pedido-scroll{padding:20px 20px 24px}
+  .pedido-row{grid-template-columns:1fr}
+  /* Footer */
   .gc-grid{grid-template-columns:1fr}
   .footer-links{flex-direction:column;gap:32px}
+}
+@media(max-width:400px){
+  .hero-h1{font-size:28px}
+  .hero-sub{font-size:14px}
+  .nav-logo{height:42px;width:73px}
+  .pinturas-h2{font-size:36px}
 }
 </style>
 </head>
@@ -371,6 +400,8 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
           </div>
         </div>
       </div>
+      <!-- Cita solo visible en móvil -->
+      <p class="insp-quote-mobile">Nos inspira la naturaleza del sur de Chile, la Patagonia y su movimiento… particular, delicado. La bruma sobre el lago, el canto del chucao, la suave brisa del atardecer.</p>
     </div>
 
     <!-- EL OFICIO -->
