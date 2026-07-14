@@ -548,10 +548,6 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
       <!-- Formulario de contacto -->
       <div id="pedido-form-wrap">
         <form class="pedido-fields" id="pedido-form" novalidate>
-          <input type="hidden" name="access_key" value={import.meta.env.PUBLIC_WEB3FORMS_KEY} />
-          <input type="hidden" name="subject" id="pedido-subject" />
-          <input type="hidden" name="from_name" value="Luma Arte — Nuevo pedido" />
-          <input type="hidden" name="redirect" value="false" />
           <div class="pedido-row">
             <div class="pedido-field">
               <label>Nombre completo *</label>
@@ -584,10 +580,9 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
             <label>Mensaje (opcional)</label>
             <textarea name="mensaje" rows="2" placeholder="¿Alguna pregunta sobre la obra o el envío?"></textarea>
           </div>
-          <input type="hidden" name="detalle_pedido" id="pedido-detalle-hidden" />
-          <button type="submit" class="pedido-submit" id="pedido-submit-btn">Enviar pedido →</button>
+          <button type="submit" class="pedido-submit" id="pedido-submit-btn">Ir a pagar →</button>
           <p style="text-align:center;margin-top:14px;font:300 12px/1.6 'CoFo Sans';color:rgba(33,31,24,.5)">
-            Te contactaremos para coordinar el pago por transferencia bancaria y el despacho.
+            Serás redirigida a Flow para pagar con tarjeta de crédito, débito o Webpay.
           </p>
         </form>
       </div>
@@ -624,7 +619,7 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
         <span class="cart-total-val" id="cart-total-val"></span>
       </div>
       <button class="cart-checkout" style="margin-top:16px">Ir a pagar →</button>
-      <div class="cart-pay-label">Pago seguro · Webpay / transferencia</div>
+      <div class="cart-pay-label">Pago seguro · Flow · Webpay · Tarjetas</div>
     </div>
   </div>
 </div>
@@ -906,11 +901,6 @@ function openPedido(){
       <div class="pedido-item-val">${c.precio?clp(c.precio):''}</div>
     </div>`).join('');
   document.getElementById('pedido-total').textContent=clp(total);
-
-  // Campo oculto con el resumen para el email
-  const detalleTexto=S.cart.map(c=>`• ${c.title} | ${c.detail}${c.precio?' | '+clp(c.precio):''}`).join('\n')+'\n\nTotal: '+clp(total);
-  document.getElementById('pedido-detalle-hidden').value=detalleTexto;
-  document.getElementById('pedido-subject').value=`Nuevo pedido Luma Arte — ${clp(total)}`;
 
   // Resetear form/estado
   document.getElementById('pedido-form').reset();
