@@ -7,6 +7,27 @@ export function getDb() {
   });
 }
 
+async function migrate(db) {
+  // Agrega columnas nuevas a obras si no existen
+  const { rows: cols } = await db.execute('PRAGMA table_info(obras)');
+  const existing = cols.map(r => r.name);
+
+  const newCols = [
+    ['precio_30x40',              'INTEGER DEFAULT 0'],
+    ['precio_40x50',              'INTEGER DEFAULT 0'],
+    ['precio_50x70',              'INTEGER DEFAULT 0'],
+    ['costo_produccion',          'INTEGER DEFAULT 0'],
+    ['costo_enmarcado',           'INTEGER DEFAULT 0'],
+    ['pago_enmarcador_pendiente', 'INTEGER DEFAULT 0'],
+  ];
+
+  for (const [col, def] of newCols) {
+    if (!existing.includes(col)) {
+      await db.execute(`ALTER TABLE obras ADD COLUMN ${col} ${def}`);
+    }
+  }
+}
+
 export async function initDb() {
   const db = getDb();
 
@@ -30,6 +51,8 @@ export async function initDb() {
       created_at                TEXT    DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  await migrate(db);
 
   await db.execute(`
     CREATE TABLE IF NOT EXISTS pedidos (
