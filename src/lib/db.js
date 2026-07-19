@@ -10,7 +10,7 @@ export function getDb() {
 export async function initDb() {
   const db = getDb();
 
-  await db.executeMultiple(`
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS obras (
       id                        INTEGER PRIMARY KEY AUTOINCREMENT,
       nombre                    TEXT    NOT NULL,
@@ -28,8 +28,10 @@ export async function initDb() {
       notas                     TEXT,
       orden                     INTEGER DEFAULT 0,
       created_at                TEXT    DEFAULT CURRENT_TIMESTAMP
-    );
+    )
+  `);
 
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS pedidos (
       id                      INTEGER PRIMARY KEY AUTOINCREMENT,
       obra_id                 INTEGER REFERENCES obras(id),
@@ -47,8 +49,10 @@ export async function initDb() {
       flow_order              TEXT,
       notas                   TEXT,
       created_at              TEXT    DEFAULT CURRENT_TIMESTAMP
-    );
+    )
+  `);
 
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS contactos (
       id         INTEGER PRIMARY KEY AUTOINCREMENT,
       nombre     TEXT,
@@ -57,8 +61,10 @@ export async function initDb() {
       origen     TEXT DEFAULT 'manual',
       tags       TEXT,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
-    );
+    )
+  `);
 
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS codigos_descuento (
       id          INTEGER PRIMARY KEY AUTOINCREMENT,
       codigo      TEXT UNIQUE NOT NULL,
@@ -69,7 +75,7 @@ export async function initDb() {
       activo      INTEGER DEFAULT 1,
       expira_en   TEXT,
       created_at  TEXT DEFAULT CURRENT_TIMESTAMP
-    );
+    )
   `);
 
   return db;
