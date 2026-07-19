@@ -1,4 +1,5 @@
 ---
+import AdminLayout from '../../layouts/AdminLayout.astro';
 import { isAuthenticated } from '../../lib/auth.js';
 import { initDb } from '../../lib/db.js';
 
@@ -6,239 +7,180 @@ if (!isAuthenticated(Astro.request)) return Astro.redirect('/admin/login');
 
 const db = await initDb();
 const { rows: obras } = await db.execute('SELECT * FROM obras ORDER BY orden ASC, id DESC');
-const { rows: pedidos } = await db.execute("SELECT * FROM pedidos ORDER BY created_at DESC LIMIT 5");
-const totalVentas = await db.execute("SELECT COALESCE(SUM(monto),0) as total FROM pedidos");
-const pendientesEnmarcador = await db.execute("SELECT COALESCE(SUM(pago_enmarcador_pendiente),0) as total FROM obras");
+const { rows: pedidos } = await db.execute('SELECT * FROM pedidos ORDER BY created_at DESC LIMIT 5');
+const pendientesEnmarcador = await db.execute('SELECT COALESCE(SUM(pago_enmarcador_pendiente),0) as total FROM obras');
 ---
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Admin — Luma Arte</title>
-  <meta name="robots" content="noindex" />
+<AdminLayout title="Obras" active="obras">
   <style>
-    @font-face{font-family:'Mackinac';src:url('/fonts/Mackinac-Book.otf') format('opentype');font-weight:400}
-    @font-face{font-family:'Mackinac';src:url('/fonts/Mackinac-BookItalic.otf') format('opentype');font-weight:400;font-style:italic}
-    @font-face{font-family:'CoFo Sans';src:url('/fonts/CoFoSans-Regular.otf') format('opentype');font-weight:400}
-    @font-face{font-family:'CoFo Sans';src:url('/fonts/CoFoSans-Light.otf') format('opentype');font-weight:300}
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'CoFo Sans',system-ui,sans-serif;background:#f3f0e9;color:#211f18;min-height:100vh}
-
-    /* TOPBAR */
-    .topbar{background:#211f18;color:#fdfcf8;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:56px;position:sticky;top:0;z-index:10}
-    .topbar-brand{font-family:'Mackinac',serif;font-size:18px;letter-spacing:-.01em}
-    .topbar-brand em{font-style:italic}
-    .topbar-nav{display:flex;align-items:center;gap:24px}
-    .topbar-link{color:rgba(253,252,248,.55);font-size:13px;text-decoration:none}
-    .topbar-link:hover,.topbar-link.active{color:#fdfcf8}
-    .logout-btn{background:none;border:.5px solid rgba(253,252,248,.25);color:rgba(253,252,248,.6);padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit}
-    .logout-btn:hover{background:rgba(253,252,248,.1)}
-
-    .main{max-width:1100px;margin:0 auto;padding:36px 24px}
-    .section-title{font-family:'Mackinac',serif;font-size:22px;font-weight:400;margin-bottom:20px}
-    .section-title em{font-style:italic}
-
-    /* STATS */
-    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:36px}
-    .stat{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:10px;padding:20px 22px}
-    .stat-num{font-family:'Mackinac',serif;font-size:30px;font-weight:400;margin-bottom:4px;line-height:1}
-    .stat-label{font-size:11px;color:rgba(33,31,24,.45);letter-spacing:.04em;text-transform:uppercase}
-    .stat-warn{color:#a05020}
-
-    /* HEADER ROW */
-    .header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+    h1{font-family:'Mackinac',serif;font-size:26px;font-weight:400}
+    h1 em{font-style:italic}
+    h2{font-family:'Mackinac',serif;font-size:20px;font-weight:400;margin-bottom:16px}
+    h2 em{font-style:italic}
     .btn-new{display:inline-flex;align-items:center;gap:6px;background:#54582f;color:#fdfcf8;text-decoration:none;padding:9px 18px;border-radius:8px;font-size:12px;letter-spacing:.04em}
     .btn-new:hover{background:#3a3d1f}
-    .btn-seed{background:none;border:.5px solid rgba(33,31,24,.25);color:#54582f;padding:9px 18px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;letter-spacing:.04em}
+    .btn-seed{background:none;border:.5px solid rgba(33,31,24,.25);color:#54582f;padding:9px 18px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit}
     .btn-seed:hover{background:#54582f;color:#fdfcf8}
-
-    /* TABLE */
-    .table-wrap{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:10px;overflow:hidden;margin-bottom:36px}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px}
+    .stat{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:10px;padding:18px 20px}
+    .stat-num{font-family:'Mackinac',serif;font-size:28px;font-weight:400;line-height:1;margin-bottom:4px}
+    .stat-label{font-size:10px;color:rgba(33,31,24,.45);letter-spacing:.06em;text-transform:uppercase}
+    .stat-warn{color:#a05020}
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .table-wrap{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:10px;overflow:hidden;margin-bottom:32px}
     table{width:100%;border-collapse:collapse}
-    th{text-align:left;padding:11px 18px;font-size:10px;letter-spacing:.08em;color:rgba(33,31,24,.4);border-bottom:.5px solid rgba(33,31,24,.08);font-weight:400;text-transform:uppercase}
-    td{padding:13px 18px;border-bottom:.5px solid rgba(33,31,24,.06);font-size:13px;vertical-align:middle}
+    th{text-align:left;padding:10px 16px;font-size:10px;letter-spacing:.08em;color:rgba(33,31,24,.4);border-bottom:.5px solid rgba(33,31,24,.08);font-weight:400;text-transform:uppercase}
+    td{padding:12px 16px;border-bottom:.5px solid rgba(33,31,24,.06);font-size:13px;vertical-align:middle}
     tr:last-child td{border-bottom:none}
     tr:hover td{background:#faf9f5}
-    .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px}
+    .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px}
     .badge-disp{background:#e8eddd;color:#3a4020}
     .badge-vend{background:#ede8e8;color:#5a2020}
-    .precios-cell{font-size:11px;color:rgba(33,31,24,.5);line-height:1.8}
-    .ganancia{color:#3a4020;font-weight:400}
+    .precios-cell{font-size:11px;color:rgba(33,31,24,.5);line-height:1.9}
+    .ganancia{color:#3a4020}
     .actions{display:flex;gap:6px}
     .btn-edit{font-size:11px;color:#54582f;text-decoration:none;padding:4px 10px;border:.5px solid rgba(84,88,47,.35);border-radius:5px}
     .btn-edit:hover{background:#54582f;color:#fdfcf8}
     .btn-del{font-size:11px;color:#a33;background:none;border:.5px solid rgba(170,51,51,.3);border-radius:5px;padding:4px 10px;cursor:pointer;font-family:inherit}
     .btn-del:hover{background:#a33;color:#fff}
-    .empty{text-align:center;padding:48px 20px;color:rgba(33,31,24,.4);font-size:14px}
-
-    /* PEDIDOS RECIENTES */
-    .estado-pill{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px}
-    .estado-pagado{background:#e8eddd;color:#3a4020}
-    .estado-en_enmarcado{background:#fdf3d8;color:#7a5010}
-    .estado-enviado{background:#d8eafd;color:#103a7a}
-    .estado-entregado{background:#d8fde8;color:#105a30}
-    .estado-pendiente_pago{background:#fde8d8;color:#7a2010}
-
-    @media(max-width:900px){
-      .stats{grid-template-columns:repeat(2,1fr)}
-      th:nth-child(4),td:nth-child(4){display:none}
-    }
+    .empty{text-align:center;padding:48px 20px;color:rgba(33,31,24,.4);font-size:13px}
+    .pill{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px}
+    .pill-pagado{background:#e8eddd;color:#3a4020}
+    .pill-en_enmarcado{background:#fdf3d8;color:#7a5010}
+    .pill-enviado{background:#d8eafd;color:#103a7a}
+    .pill-entregado{background:#d8fde8;color:#105a30}
+    .pill-pendiente_pago{background:#fde8d8;color:#7a2010}
+    @media(max-width:900px){.stats{grid-template-columns:1fr 1fr}}
     @media(max-width:600px){
-      .topbar{padding:0 16px}
-      .main{padding:24px 16px}
-      .stats{grid-template-columns:1fr 1fr}
-      th:nth-child(3),td:nth-child(3){display:none}
+      th:nth-child(3),td:nth-child(3),th:nth-child(4),td:nth-child(4){display:none}
     }
   </style>
-</head>
-<body>
-  <nav class="topbar">
-    <span class="topbar-brand">Luma <em>Arte</em></span>
-    <div class="topbar-nav">
-      <a class="topbar-link active" href="/admin">Obras</a>
-      <a class="topbar-link" href="/admin/pedidos">Pedidos</a>
-      <a class="topbar-link" href="/" target="_blank">Ver sitio ↗</a>
-      <form method="POST" action="/api/admin/logout">
-        <button class="logout-btn" type="submit">Salir</button>
-      </form>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">{obras.length}</div>
+      <div class="stat-label">Total obras</div>
     </div>
-  </nav>
-
-  <main class="main">
-
-    <!-- STATS -->
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-num">{obras.length}</div>
-        <div class="stat-label">Total obras</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">{obras.filter(r => r.disponible).length}</div>
-        <div class="stat-label">Disponibles</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">{obras.filter(r => !r.disponible).length}</div>
-        <div class="stat-label">Vendidas</div>
-      </div>
-      <div class="stat">
-        <div class={`stat-num ${Number(pendientesEnmarcador.rows[0].total) > 0 ? 'stat-warn' : ''}`}>
-          ${Number(pendientesEnmarcador.rows[0].total).toLocaleString('es-CL')}
-        </div>
-        <div class="stat-label">Pendiente enmarcador</div>
-      </div>
+    <div class="stat">
+      <div class="stat-num">{obras.filter(r => r.disponible).length}</div>
+      <div class="stat-label">Disponibles</div>
     </div>
-
-    <!-- INVENTARIO -->
-    <div class="header-row">
-      <h2 class="section-title">Inventario de <em>obras</em></h2>
-      <div style="display:flex;gap:10px">
-        {obras.length === 0 && (
-          <form method="POST" action="/api/admin/seed">
-            <button class="btn-seed" type="submit">↓ Importar obras del sitio</button>
-          </form>
-        )}
-        <a class="btn-new" href="/admin/nueva">+ Nueva obra</a>
-      </div>
+    <div class="stat">
+      <div class="stat-num">{obras.filter(r => !r.disponible).length}</div>
+      <div class="stat-label">Vendidas</div>
     </div>
+    <div class="stat">
+      <div class={`stat-num ${Number(pendientesEnmarcador.rows[0].total) > 0 ? 'stat-warn' : ''}`}>
+        ${Number(pendientesEnmarcador.rows[0].total).toLocaleString('es-CL')}
+      </div>
+      <div class="stat-label">Pend. enmarcador</div>
+    </div>
+  </div>
 
-    <div class="table-wrap">
-      {obras.length === 0 ? (
-        <div class="empty">Sin obras. Usa "Importar obras del sitio" o agrega manualmente.</div>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Precios por talla</th>
-              <th>Costos</th>
-              <th>Ganancia neta</th>
-              <th>Estado</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {obras.map(o => {
-              const gananciaMin = (o.precio_30x40 || 0) - (o.costo_produccion || 0) - (o.costo_enmarcado || 0);
-              const gananciaMax = (o.precio_50x70 || 0) - (o.costo_produccion || 0) - (o.costo_enmarcado || 0);
-              return (
-                <tr>
-                  <td>
-                    <strong>{o.nombre}</strong>
-                    {o.serie && <div style="font-size:11px;color:rgba(33,31,24,.4);margin-top:2px">{o.serie}</div>}
-                    {o.tecnica && <div style="font-size:11px;color:rgba(33,31,24,.4)">{o.tecnica}</div>}
-                  </td>
-                  <td class="precios-cell">
-                    {o.precio_30x40 ? <div>30×40 → ${Number(o.precio_30x40).toLocaleString('es-CL')}</div> : null}
-                    {o.precio_40x50 ? <div>40×50 → ${Number(o.precio_40x50).toLocaleString('es-CL')}</div> : null}
-                    {o.precio_50x70 ? <div>50×70 → ${Number(o.precio_50x70).toLocaleString('es-CL')}</div> : null}
-                  </td>
-                  <td class="precios-cell">
-                    {o.costo_produccion ? <div>Producción: ${Number(o.costo_produccion).toLocaleString('es-CL')}</div> : <div style="color:rgba(33,31,24,.3)">Sin costos</div>}
-                    {o.costo_enmarcado ? <div>Enmarcado: ${Number(o.costo_enmarcado).toLocaleString('es-CL')}</div> : null}
-                    {o.pago_enmarcador_pendiente ? <div style="color:#a05020">⚠ Pendiente: ${Number(o.pago_enmarcador_pendiente).toLocaleString('es-CL')}</div> : null}
-                  </td>
-                  <td>
-                    {(o.costo_produccion || o.costo_enmarcado) ? (
-                      <span class="ganancia">${gananciaMin.toLocaleString('es-CL')} – ${gananciaMax.toLocaleString('es-CL')}</span>
-                    ) : <span style="color:rgba(33,31,24,.3)">—</span>}
-                  </td>
-                  <td>
-                    <span class={o.disponible ? 'badge badge-disp' : 'badge badge-vend'}>
-                      {o.disponible ? 'Disponible' : 'Vendida'}
-                    </span>
-                  </td>
-                  <td>
-                    <div class="actions">
-                      <a class="btn-edit" href={`/admin/editar/${o.id}`}>Editar</a>
-                      <form method="POST" action="/api/obras/delete" onsubmit="return confirm('¿Eliminar esta obra?')">
-                        <input type="hidden" name="id" value={o.id} />
-                        <button class="btn-del" type="submit">×</button>
-                      </form>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+  <!-- INVENTARIO -->
+  <div class="section-header">
+    <h1>Inventario de <em>obras</em></h1>
+    <div style="display:flex;gap:10px">
+      {obras.length === 0 && (
+        <form method="POST" action="/api/admin/seed">
+          <button class="btn-seed" type="submit">↓ Importar obras del sitio</button>
+        </form>
       )}
+      <a class="btn-new" href="/admin/nueva">+ Nueva obra</a>
     </div>
+  </div>
 
-    <!-- PEDIDOS RECIENTES -->
-    <div class="header-row">
-      <h2 class="section-title">Pedidos <em>recientes</em></h2>
-      <a class="btn-new" href="/admin/pedidos">Ver todos →</a>
-    </div>
-    <div class="table-wrap">
-      {pedidos.length === 0 ? (
-        <div class="empty">Aún no hay pedidos registrados.</div>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Cliente</th>
-              <th>Obra</th>
-              <th>Monto</th>
-              <th>Estado</th>
-              <th>Fecha pedido</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pedidos.map(p => (
+  <div class="table-wrap">
+    {obras.length === 0 ? (
+      <div class="empty">Sin obras. Usa "Importar obras del sitio" o agrega manualmente.</div>
+    ) : (
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Precios por talla</th>
+            <th>Costos</th>
+            <th>Ganancia neta</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {obras.map(o => {
+            const gananciaMin = (o.precio_30x40||0)-(o.costo_produccion||0)-(o.costo_enmarcado||0);
+            const gananciaMax = (o.precio_50x70||0)-(o.costo_produccion||0)-(o.costo_enmarcado||0);
+            return (
               <tr>
-                <td>{p.cliente_nombre || '—'}<br/><span style="font-size:11px;color:rgba(33,31,24,.4)">{p.cliente_email}</span></td>
-                <td>{p.obra_nombre || '—'}{p.talla && <span style="font-size:11px;color:rgba(33,31,24,.4)"> · {p.talla}</span>}</td>
-                <td>${Number(p.monto).toLocaleString('es-CL')}</td>
-                <td><span class={`estado-pill estado-${p.estado}`}>{p.estado?.replace('_',' ')}</span></td>
-                <td style="font-size:12px">{p.fecha_pedido || p.created_at?.slice(0,10)}</td>
+                <td>
+                  <strong>{o.nombre}</strong>
+                  {o.serie && <div style="font-size:11px;color:rgba(33,31,24,.4);margin-top:2px">{o.serie}</div>}
+                  {o.tecnica && <div style="font-size:11px;color:rgba(33,31,24,.4)">{o.tecnica}</div>}
+                </td>
+                <td class="precios-cell">
+                  {o.precio_30x40 ? <div>30×40 → ${Number(o.precio_30x40).toLocaleString('es-CL')}</div> : null}
+                  {o.precio_40x50 ? <div>40×50 → ${Number(o.precio_40x50).toLocaleString('es-CL')}</div> : null}
+                  {o.precio_50x70 ? <div>50×70 → ${Number(o.precio_50x70).toLocaleString('es-CL')}</div> : null}
+                  {!o.precio_30x40 && !o.precio_40x50 && !o.precio_50x70 && <span style="color:rgba(33,31,24,.3)">Sin precio</span>}
+                </td>
+                <td class="precios-cell">
+                  {o.costo_produccion ? <div>Prod: ${Number(o.costo_produccion).toLocaleString('es-CL')}</div> : null}
+                  {o.costo_enmarcado ? <div>Enmarcado: ${Number(o.costo_enmarcado).toLocaleString('es-CL')}</div> : null}
+                  {o.pago_enmarcador_pendiente ? <div style="color:#a05020">⚠ ${Number(o.pago_enmarcador_pendiente).toLocaleString('es-CL')}</div> : null}
+                  {!o.costo_produccion && !o.costo_enmarcado && <span style="color:rgba(33,31,24,.3)">—</span>}
+                </td>
+                <td>
+                  {(o.costo_produccion || o.costo_enmarcado) ? (
+                    <span class="ganancia">${gananciaMin.toLocaleString('es-CL')} – ${gananciaMax.toLocaleString('es-CL')}</span>
+                  ) : <span style="color:rgba(33,31,24,.3)">—</span>}
+                </td>
+                <td>
+                  <span class={o.disponible ? 'badge badge-disp' : 'badge badge-vend'}>
+                    {o.disponible ? 'Disponible' : 'Vendida'}
+                  </span>
+                </td>
+                <td>
+                  <div class="actions">
+                    <a class="btn-edit" href={`/admin/editar/${o.id}`}>Editar</a>
+                    <form method="POST" action="/api/obras/delete" onsubmit="return confirm('¿Eliminar esta obra?')">
+                      <input type="hidden" name="id" value={o.id} />
+                      <button class="btn-del" type="submit">×</button>
+                    </form>
+                  </div>
+                </td>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>
+            );
+          })}
+        </tbody>
+      </table>
+    )}
+  </div>
 
-  </main>
-</body>
-</html>
+  <!-- PEDIDOS RECIENTES -->
+  <div class="section-header">
+    <h2>Pedidos <em>recientes</em></h2>
+    <a class="btn-new" href="/admin/pedidos">Ver todos →</a>
+  </div>
+  <div class="table-wrap">
+    {pedidos.length === 0 ? (
+      <div class="empty">Aún no hay pedidos registrados.</div>
+    ) : (
+      <table>
+        <thead>
+          <tr><th>Cliente</th><th>Obra</th><th>Monto</th><th>Estado</th><th>Fecha</th></tr>
+        </thead>
+        <tbody>
+          {pedidos.map(p => (
+            <tr>
+              <td>{p.cliente_nombre || '—'}<br/><span style="font-size:11px;color:rgba(33,31,24,.4)">{p.cliente_email}</span></td>
+              <td>{p.obra_nombre || '—'}{p.talla && <span style="font-size:11px;color:rgba(33,31,24,.4)"> · {p.talla}</span>}</td>
+              <td>${Number(p.monto).toLocaleString('es-CL')}</td>
+              <td><span class={`pill pill-${p.estado}`}>{p.estado?.replace('_',' ')}</span></td>
+              <td style="font-size:11px">{p.fecha_pedido || p.created_at?.slice(0,10)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
+</AdminLayout>
