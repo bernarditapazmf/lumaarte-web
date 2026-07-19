@@ -1,0 +1,88 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { isAuthenticated } from '../../lib/auth.js';
+import { initDb } from '../../lib/db.js';
+
+if (!isAuthenticated(Astro.request)) return Astro.redirect('/admin/login');
+
+const db = await initDb();
+const { rows: cotizaciones } = await db.execute('SELECT * FROM cotizaciones ORDER BY created_at DESC');
+---
+<AdminLayout title="Cotizaciones" active="cotizaciones">
+  <style>
+    h1{font-family:'Mackinac',serif;font-size:26px;font-weight:400;margin-bottom:28px}
+    h1 em{font-style:italic}
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .btn-primary{display:inline-flex;align-items:center;gap:6px;background:#54582f;color:#fdfcf8;text-decoration:none;padding:9px 18px;border-radius:8px;font-size:12px;border:none;cursor:pointer;font-family:inherit}
+    .btn-primary:hover{background:#3a3d1f}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+    .stat{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:10px;padding:18px 20px}
+    .stat-num{font-family:'Mackinac',serif;font-size:28px;font-weight:400;line-height:1;margin-bottom:4px}
+    .stat-label{font-size:10px;color:rgba(33,31,24,.45);letter-spacing:.06em;text-transform:uppercase}
+    .table-wrap{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:10px;overflow:hidden}
+    table{width:100%;border-collapse:collapse}
+    th{text-align:left;padding:10px 16px;font-size:10px;letter-spacing:.08em;color:rgba(33,31,24,.4);border-bottom:.5px solid rgba(33,31,24,.08);font-weight:400;text-transform:uppercase}
+    td{padding:12px 16px;border-bottom:.5px solid rgba(33,31,24,.06);font-size:13px;vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:#faf9f5}
+    .empty{text-align:center;padding:60px 20px;color:rgba(33,31,24,.4);font-size:13px}
+    .pill{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px}
+    .pill-borrador{background:#f3f0e9;color:rgba(33,31,24,.5)}
+    .pill-enviada{background:#d8eafd;color:#103a7a}
+    .pill-aceptada{background:#e8eddd;color:#3a4020}
+    .pill-rechazada{background:#ede8e8;color:#5a2020}
+    .btn-ver{font-size:11px;color:#54582f;text-decoration:none;padding:4px 10px;border:.5px solid rgba(84,88,47,.35);border-radius:5px}
+    .btn-ver:hover{background:#54582f;color:#fdfcf8}
+    .btn-del{font-size:11px;color:#a33;background:none;border:.5px solid rgba(170,51,51,.3);border-radius:5px;padding:4px 10px;cursor:pointer;font-family:inherit}
+    .btn-del:hover{background:#a33;color:#fff}
+    .actions{display:flex;gap:6px}
+    @media(max-width:700px){.stats{grid-template-columns:1fr 1fr}}
+  </style>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num">{cotizaciones.length}</div><div class="stat-label">Total</div></div>
+    <div class="stat"><div class="stat-num">{cotizaciones.filter(c=>c.estado==='borrador').length}</div><div class="stat-label">Borradores</div></div>
+    <div class="stat"><div class="stat-num">{cotizaciones.filter(c=>c.estado==='aceptada').length}</div><div class="stat-label">Aceptadas</div></div>
+    <div class="stat"><div class="stat-num">${cotizaciones.filter(c=>c.estado==='aceptada').reduce((s,c)=>s+(Number(c.total)||0),0).toLocaleString('es-CL')}</div><div class="stat-label">Total aceptado</div></div>
+  </div>
+
+  <div class="section-header">
+    <h1>Cotizaciones <em>y propuestas</em></h1>
+    <a class="btn-primary" href="/admin/cotizaciones/nueva">+ Nueva cotización</a>
+  </div>
+
+  <div class="table-wrap">
+    {cotizaciones.length === 0 ? (
+      <div class="empty">Sin cotizaciones. Crea una para empresas o colaboraciones.</div>
+    ) : (
+      <table>
+        <thead>
+          <tr><th>Cliente / Empresa</th><th>Email</th><th>Total</th><th>Estado</th><th>Fecha</th><th></th></tr>
+        </thead>
+        <tbody>
+          {cotizaciones.map(c => (
+            <tr>
+              <td>
+                <strong>{c.cliente_nombre || '—'}</strong>
+                {c.cliente_empresa && <div style="font-size:11px;color:rgba(33,31,24,.4)">{c.cliente_empresa}</div>}
+              </td>
+              <td style="font-size:12px">{c.cliente_email || '—'}</td>
+              <td>${Number(c.total).toLocaleString('es-CL')}</td>
+              <td><span class={`pill pill-${c.estado}`}>{c.estado}</span></td>
+              <td style="font-size:11px">{c.created_at?.slice(0,10)}</td>
+              <td>
+                <div class="actions">
+                  <a class="btn-ver" href={`/admin/cotizaciones/${c.id}`}>Ver</a>
+                  <form method="POST" action="/api/cotizaciones/delete" onsubmit="return confirm('¿Eliminar cotización?')">
+                    <input type="hidden" name="id" value={c.id} />
+                    <button class="btn-del" type="submit">×</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
+</AdminLayout>

@@ -1,0 +1,144 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { isAuthenticated } from '../../lib/auth.js';
+import { initDb } from '../../lib/db.js';
+
+if (!isAuthenticated(Astro.request)) return Astro.redirect('/admin/login');
+
+const db = await initDb();
+const { rows: contactos } = await db.execute('SELECT * FROM contactos ORDER BY created_at DESC');
+const ok = Astro.url.searchParams.get('ok');
+---
+<AdminLayout title="Contactos" active="contactos">
+  <style>
+    h1{font-family:'Mackinac',serif;font-size:26px;font-weight:400;margin-bottom:28px}
+    h1 em{font-style:italic}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
+    .stat{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:10px;padding:18px 20px}
+    .stat-num{font-family:'Mackinac',serif;font-size:28px;font-weight:400;line-height:1;margin-bottom:4px}
+    .stat-label{font-size:10px;color:rgba(33,31,24,.45);letter-spacing:.06em;text-transform:uppercase}
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    h2{font-family:'Mackinac',serif;font-size:18px;font-weight:400}
+    h2 em{font-style:italic}
+    .btn-primary{display:inline-flex;align-items:center;gap:6px;background:#54582f;color:#fdfcf8;text-decoration:none;padding:9px 18px;border-radius:8px;font-size:12px;border:none;cursor:pointer;font-family:inherit}
+    .btn-primary:hover{background:#3a3d1f}
+    .btn-outline{display:inline-flex;align-items:center;gap:6px;background:none;border:.5px solid rgba(33,31,24,.25);color:#211f18;text-decoration:none;padding:9px 18px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit}
+    .btn-outline:hover{background:#211f18;color:#fdfcf8}
+    .table-wrap{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:10px;overflow:hidden;margin-bottom:28px}
+    table{width:100%;border-collapse:collapse}
+    th{text-align:left;padding:10px 16px;font-size:10px;letter-spacing:.08em;color:rgba(33,31,24,.4);border-bottom:.5px solid rgba(33,31,24,.08);font-weight:400;text-transform:uppercase}
+    td{padding:12px 16px;border-bottom:.5px solid rgba(33,31,24,.06);font-size:13px;vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:#faf9f5}
+    .empty{text-align:center;padding:48px 20px;color:rgba(33,31,24,.4);font-size:13px}
+    .tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;background:#f3f0e9;color:rgba(33,31,24,.6);margin-right:4px}
+    .btn-del{font-size:11px;color:#a33;background:none;border:.5px solid rgba(170,51,51,.3);border-radius:5px;padding:4px 10px;cursor:pointer;font-family:inherit}
+    .btn-del:hover{background:#a33;color:#fff}
+    /* ADD FORM */
+    .add-card{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:10px;padding:24px;margin-bottom:28px}
+    .add-card-title{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(33,31,24,.4);margin-bottom:16px}
+    .add-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end}
+    .field{display:flex;flex-direction:column;gap:5px}
+    label{font-size:11px;letter-spacing:.04em;color:rgba(33,31,24,.5);text-transform:uppercase}
+    input,select{padding:10px 12px;border:.5px solid rgba(33,31,24,.18);border-radius:7px;font-size:13px;font-family:inherit;color:#211f18;background:#fff;outline:none;width:100%}
+    input:focus{border-color:#54582f}
+    /* CAMPAÑA */
+    .campana-card{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:10px;padding:24px}
+    .campana-card-title{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(33,31,24,.4);margin-bottom:16px}
+    textarea{padding:10px 12px;border:.5px solid rgba(33,31,24,.18);border-radius:7px;font-size:13px;font-family:inherit;color:#211f18;background:#fff;outline:none;width:100%;resize:vertical;min-height:100px}
+    textarea:focus{border-color:#54582f}
+    .success{background:#e8f5e0;border:.5px solid #a0c878;border-radius:8px;padding:12px 16px;font-size:13px;color:#3a6020;margin-bottom:20px}
+    .info-box{background:#f3f0e9;border-radius:7px;padding:12px 14px;font-size:12px;color:rgba(33,31,24,.6);margin-top:12px;line-height:1.6}
+    @media(max-width:700px){.add-row{grid-template-columns:1fr};.stats{grid-template-columns:1fr 1fr}}
+  </style>
+
+  {ok && <div class="success">✓ Contacto agregado correctamente.</div>}
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">{contactos.length}</div>
+      <div class="stat-label">Total contactos</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">{contactos.filter(c => c.origen === 'compra').length}</div>
+      <div class="stat-label">Compradores</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">{contactos.filter(c => c.origen === 'manual').length}</div>
+      <div class="stat-label">Agregados manual</div>
+    </div>
+  </div>
+
+  <!-- AGREGAR CONTACTO -->
+  <div class="add-card">
+    <div class="add-card-title">Agregar contacto</div>
+    <form method="POST" action="/api/contactos/create">
+      <div class="add-row">
+        <div class="field"><label>Nombre</label><input name="nombre" type="text" placeholder="María González" /></div>
+        <div class="field"><label>Email *</label><input name="email" type="email" required placeholder="maria@email.com" /></div>
+        <div class="field"><label>Teléfono</label><input name="telefono" type="text" placeholder="+56 9 1234 5678" /></div>
+        <button class="btn-primary" type="submit">Agregar</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- LISTA -->
+  <div class="section-header">
+    <h1>Base de <em>contactos</em></h1>
+    <form method="POST" action="/api/contactos/importar-pedidos">
+      <button class="btn-outline" type="submit">↓ Importar desde pedidos</button>
+    </form>
+  </div>
+
+  <div class="table-wrap">
+    {contactos.length === 0 ? (
+      <div class="empty">Sin contactos aún. Agrega manualmente o importa desde pedidos.</div>
+    ) : (
+      <table>
+        <thead>
+          <tr><th>Nombre</th><th>Email</th><th>Teléfono</th><th>Origen</th><th>Fecha</th><th></th></tr>
+        </thead>
+        <tbody>
+          {contactos.map(c => (
+            <tr>
+              <td><strong>{c.nombre || '—'}</strong></td>
+              <td>{c.email}</td>
+              <td>{c.telefono || '—'}</td>
+              <td><span class="tag">{c.origen}</span></td>
+              <td style="font-size:11px">{c.created_at?.slice(0,10)}</td>
+              <td>
+                <form method="POST" action="/api/contactos/delete" onsubmit="return confirm('¿Eliminar contacto?')">
+                  <input type="hidden" name="id" value={c.id} />
+                  <button class="btn-del" type="submit">×</button>
+                </form>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
+
+  <!-- ENVIAR CAMPAÑA -->
+  <div class="section-header" style="margin-bottom:14px">
+    <h2>Enviar <em>campaña</em></h2>
+  </div>
+  <div class="campana-card">
+    <div class="campana-card-title">Nuevo mailing → {contactos.length} contacto{contactos.length !== 1 ? 's' : ''}</div>
+    <form method="POST" action="/api/contactos/campana">
+      <div class="field" style="margin-bottom:12px">
+        <label>Asunto</label>
+        <input name="asunto" type="text" placeholder="Nuevas obras disponibles en Luma Arte" required />
+      </div>
+      <div class="field" style="margin-bottom:16px">
+        <label>Mensaje (HTML o texto)</label>
+        <textarea name="cuerpo" placeholder="Hola {nombre},&#10;&#10;Quiero contarte que tenemos nuevas obras disponibles..."></textarea>
+      </div>
+      <button class="btn-primary" type="submit">Enviar a todos los contactos</button>
+    </form>
+    <div class="info-box">
+      Para enviar emails necesitas agregar <strong>RESEND_API_KEY</strong> en las variables de entorno de Render.
+      Crea tu cuenta gratuita en <strong>resend.com</strong> (3.000 emails/mes gratis) y verifica el dominio <strong>lumaarte.com</strong>.
+    </div>
+  </div>
+</AdminLayout>

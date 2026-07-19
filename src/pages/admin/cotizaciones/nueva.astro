@@ -1,0 +1,103 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { isAuthenticated } from '../../../lib/auth.js';
+if (!isAuthenticated(Astro.request)) return Astro.redirect('/admin/login');
+---
+<AdminLayout title="Nueva cotización" active="cotizaciones">
+  <style>
+    .back{display:inline-flex;align-items:center;gap:6px;color:rgba(33,31,24,.5);text-decoration:none;font-size:13px;margin-bottom:20px}
+    .back:hover{color:#211f18}
+    h1{font-family:'Mackinac',serif;font-size:26px;font-weight:400;margin-bottom:24px}
+    h1 em{font-style:italic}
+    .card{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:10px;padding:24px;margin-bottom:16px}
+    .card-title{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(33,31,24,.4);margin-bottom:16px;padding-bottom:10px;border-bottom:.5px solid rgba(33,31,24,.08)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+    .row.tri{grid-template-columns:1fr 1fr 1fr}
+    .row.full{grid-template-columns:1fr}
+    .field{display:flex;flex-direction:column;gap:5px}
+    label{font-size:11px;letter-spacing:.04em;color:rgba(33,31,24,.5);text-transform:uppercase}
+    input,select,textarea{padding:10px 12px;border:.5px solid rgba(33,31,24,.18);border-radius:7px;font-size:13px;font-family:inherit;color:#211f18;background:#fff;outline:none;width:100%}
+    input:focus,select:focus,textarea:focus{border-color:#54582f}
+    textarea{resize:vertical;min-height:70px}
+    /* ITEMS */
+    .items-list{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+    .item-row{display:grid;grid-template-columns:3fr 1fr 1fr auto;gap:10px;align-items:end}
+    .item-row input{margin:0}
+    .btn-add-item{background:none;border:.5px solid rgba(33,31,24,.2);border-radius:7px;padding:9px 16px;font-size:12px;cursor:pointer;font-family:inherit;color:#211f18;width:100%;text-align:left}
+    .btn-add-item:hover{background:#f3f0e9}
+    .btn-rem{background:none;border:.5px solid rgba(170,51,51,.25);border-radius:6px;padding:9px 12px;font-size:14px;color:#a33;cursor:pointer;line-height:1}
+    .btn-rem:hover{background:#a33;color:#fff}
+    .total-row{display:flex;justify-content:flex-end;gap:24px;padding:14px 0 4px;border-top:.5px solid rgba(33,31,24,.08);font-size:14px}
+    .total-label{color:rgba(33,31,24,.5)}
+    .total-val{font-family:'Mackinac',serif;font-size:18px;color:#3a4020}
+    .actions{display:flex;gap:12px;margin-top:20px}
+    .btn-save{flex:1;padding:12px;background:#54582f;color:#fdfcf8;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit}
+    .btn-save:hover{background:#3a3d1f}
+    .btn-cancel{padding:12px 20px;background:none;border:.5px solid rgba(33,31,24,.2);border-radius:8px;font-size:13px;color:#211f18;text-decoration:none;text-align:center}
+    @media(max-width:700px){.row,.row.tri{grid-template-columns:1fr}.item-row{grid-template-columns:1fr 1fr auto}}
+  </style>
+
+  <a class="back" href="/admin/cotizaciones">← Cotizaciones</a>
+  <h1>Nueva <em>cotización</em></h1>
+
+  <form method="POST" action="/api/cotizaciones/create" id="form-cot">
+    <div class="card">
+      <div class="card-title">Datos del cliente</div>
+      <div class="row tri">
+        <div class="field"><label>Nombre</label><input name="cliente_nombre" type="text" placeholder="María González" /></div>
+        <div class="field"><label>Email</label><input name="cliente_email" type="email" placeholder="maria@empresa.cl" /></div>
+        <div class="field"><label>Empresa</label><input name="cliente_empresa" type="text" placeholder="Empresa SA" /></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ítems</div>
+      <div class="items-list" id="items-list">
+        <div class="item-row">
+          <div class="field"><label>Descripción</label><input name="item_desc[]" type="text" placeholder="Obra 30×40 cm Paspartú blanco" /></div>
+          <div class="field"><label>Cantidad</label><input name="item_qty[]" type="number" min="1" value="1" /></div>
+          <div class="field"><label>Precio unit. (CLP)</label><input name="item_precio[]" type="number" min="0" placeholder="95000" oninput="calcTotal()" /></div>
+          <button type="button" class="btn-rem" onclick="removeItem(this)">×</button>
+        </div>
+      </div>
+      <button type="button" class="btn-add-item" onclick="addItem()">+ Agregar ítem</button>
+      <div class="total-row">
+        <span class="total-label">Total:</span>
+        <span class="total-val" id="total-display">$0</span>
+        <input type="hidden" name="total" id="total-input" value="0" />
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Notas y condiciones</div>
+      <div class="field"><textarea name="notas" placeholder="Validez de la cotización: 15 días. Envío incluido a todo Chile. Enmarcado en madera nativa reciclada."></textarea></div>
+    </div>
+
+    <div class="actions">
+      <a class="btn-cancel" href="/admin/cotizaciones">Cancelar</a>
+      <button class="btn-save" type="submit">Guardar cotización</button>
+    </div>
+  </form>
+
+  <script>
+    function addItem(){
+      const list = document.getElementById('items-list');
+      const div = document.createElement('div');
+      div.className = 'item-row';
+      div.innerHTML = `
+        <div class="field"><input name="item_desc[]" type="text" placeholder="Descripción" style="padding:10px 12px;border:.5px solid rgba(33,31,24,.18);border-radius:7px;font-size:13px;width:100%" /></div>
+        <div class="field"><input name="item_qty[]" type="number" min="1" value="1" style="padding:10px 12px;border:.5px solid rgba(33,31,24,.18);border-radius:7px;font-size:13px;width:100%" /></div>
+        <div class="field"><input name="item_precio[]" type="number" min="0" placeholder="0" oninput="calcTotal()" style="padding:10px 12px;border:.5px solid rgba(33,31,24,.18);border-radius:7px;font-size:13px;width:100%" /></div>
+        <button type="button" class="btn-rem" onclick="removeItem(this)">×</button>`;
+      list.appendChild(div);
+    }
+    function removeItem(btn){ btn.closest('.item-row').remove(); calcTotal(); }
+    function calcTotal(){
+      const qtys = [...document.querySelectorAll('[name="item_qty[]"]')].map(i=>Number(i.value)||1);
+      const precios = [...document.querySelectorAll('[name="item_precio[]"]')].map(i=>Number(i.value)||0);
+      const total = precios.reduce((s,p,i)=>s+p*qtys[i],0);
+      document.getElementById('total-display').textContent = '$'+total.toLocaleString('es-CL');
+      document.getElementById('total-input').value = total;
+    }
+  </script>
+</AdminLayout>

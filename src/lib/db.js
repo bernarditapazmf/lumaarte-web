@@ -101,5 +101,32 @@ export async function initDb() {
     )
   `);
 
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS cotizaciones (
+      id               INTEGER PRIMARY KEY AUTOINCREMENT,
+      cliente_nombre   TEXT,
+      cliente_email    TEXT,
+      cliente_empresa  TEXT,
+      items            TEXT DEFAULT '[]',
+      subtotal         INTEGER DEFAULT 0,
+      descuento        INTEGER DEFAULT 0,
+      total            INTEGER DEFAULT 0,
+      estado           TEXT DEFAULT 'borrador',
+      notas            TEXT,
+      created_at       TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS campanas (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      asunto     TEXT NOT NULL,
+      cuerpo     TEXT,
+      estado     TEXT DEFAULT 'borrador',
+      enviados   INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
   return db;
 }

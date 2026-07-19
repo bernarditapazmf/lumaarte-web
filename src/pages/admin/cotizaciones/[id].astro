@@ -1,0 +1,125 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { isAuthenticated } from '../../../lib/auth.js';
+import { initDb } from '../../../lib/db.js';
+
+if (!isAuthenticated(Astro.request)) return Astro.redirect('/admin/login');
+
+const { id } = Astro.params;
+const db = await initDb();
+const { rows } = await db.execute({ sql: 'SELECT * FROM cotizaciones WHERE id=?', args:[id] });
+if (!rows.length) return Astro.redirect('/admin/cotizaciones');
+const c = rows[0];
+const items = JSON.parse(c.items || '[]');
+---
+<AdminLayout title={`Cotización #${id}`} active="cotizaciones">
+  <style>
+    .back{display:inline-flex;align-items:center;gap:6px;color:rgba(33,31,24,.5);text-decoration:none;font-size:13px;margin-bottom:20px}
+    .back:hover{color:#211f18}
+    .top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+    h1{font-family:'Mackinac',serif;font-size:26px;font-weight:400}
+    h1 em{font-style:italic}
+    .actions{display:flex;gap:10px}
+    .btn-print{display:inline-flex;align-items:center;gap:6px;background:#54582f;color:#fdfcf8;padding:9px 18px;border-radius:8px;font-size:12px;border:none;cursor:pointer;font-family:inherit}
+    .btn-print:hover{background:#3a3d1f}
+    select.estado-sel{padding:8px 12px;border:.5px solid rgba(33,31,24,.2);border-radius:7px;font-size:12px;font-family:inherit;background:#fff;cursor:pointer}
+
+    /* COTIZACIÓN IMPRIMIBLE */
+    .cotizacion{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:10px;padding:40px;max-width:760px}
+    .cot-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px;padding-bottom:24px;border-bottom:.5px solid rgba(33,31,24,.1)}
+    .cot-brand{font-family:'Mackinac',serif;font-size:24px;color:#211f18}
+    .cot-brand em{font-style:italic}
+    .cot-brand-sub{font-size:11px;color:rgba(33,31,24,.4);margin-top:4px}
+    .cot-meta{text-align:right;font-size:12px;color:rgba(33,31,24,.6);line-height:1.8}
+    .cot-meta strong{color:#211f18}
+    .section-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(33,31,24,.35);margin-bottom:10px}
+    .cliente-info{margin-bottom:32px}
+    .cliente-name{font-family:'Mackinac',serif;font-size:18px;margin-bottom:4px}
+    .cliente-detail{font-size:13px;color:rgba(33,31,24,.6)}
+    table.items{width:100%;border-collapse:collapse;margin-bottom:24px}
+    table.items th{text-align:left;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(33,31,24,.4);padding:8px 0;border-bottom:.5px solid rgba(33,31,24,.12);font-weight:400}
+    table.items th:last-child,table.items td:last-child{text-align:right}
+    table.items td{padding:12px 0;border-bottom:.5px solid rgba(33,31,24,.06);font-size:13px}
+    table.items tr:last-child td{border-bottom:none}
+    .total-area{display:flex;justify-content:flex-end}
+    .total-box{background:#f3f0e9;border-radius:8px;padding:16px 24px;min-width:200px}
+    .total-line{display:flex;justify-content:space-between;gap:40px;font-size:13px;margin-bottom:6px;color:rgba(33,31,24,.6)}
+    .total-line.main{font-family:'Mackinac',serif;font-size:18px;color:#211f18;margin:0;padding-top:8px;border-top:.5px solid rgba(33,31,24,.15)}
+    .notas{margin-top:28px;padding-top:20px;border-top:.5px solid rgba(33,31,24,.08);font-size:12px;color:rgba(33,31,24,.55);line-height:1.7}
+    .pill{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px}
+    .pill-borrador{background:#f3f0e9;color:rgba(33,31,24,.5)}
+    .pill-enviada{background:#d8eafd;color:#103a7a}
+    .pill-aceptada{background:#e8eddd;color:#3a4020}
+    .pill-rechazada{background:#ede8e8;color:#5a2020}
+    @media print{
+      .back,.top-bar .actions{display:none}
+      .cotizacion{border:none;padding:0;border-radius:0}
+    }
+  </style>
+
+  <a class="back" href="/admin/cotizaciones">← Cotizaciones</a>
+
+  <div class="top-bar">
+    <h1>Cotización <em>#{id}</em></h1>
+    <div class="actions">
+      <form method="POST" action="/api/cotizaciones/estado" style="display:inline">
+        <input type="hidden" name="id" value={id} />
+        <select class="estado-sel" name="estado" onchange="this.form.submit()">
+          {['borrador','enviada','aceptada','rechazada'].map(e=>(
+            <option value={e} selected={c.estado===e}>{e}</option>
+          ))}
+        </select>
+      </form>
+      <button class="btn-print" onclick="window.print()">🖨 Imprimir / PDF</button>
+    </div>
+  </div>
+
+  <div class="cotizacion" id="cotizacion">
+    <div class="cot-header">
+      <div>
+        <div class="cot-brand">Luma <em>Arte</em></div>
+        <div class="cot-brand-sub">Arte patagónico original · www.lumaarte.com</div>
+      </div>
+      <div class="cot-meta">
+        <div>Cotización <strong>#{id}</strong></div>
+        <div>Fecha: <strong>{c.created_at?.slice(0,10)}</strong></div>
+        <div>Estado: <span class={`pill pill-${c.estado}`}>{c.estado}</span></div>
+      </div>
+    </div>
+
+    <div class="cliente-info">
+      <div class="section-label">Para</div>
+      <div class="cliente-name">{c.cliente_nombre || '—'}</div>
+      {c.cliente_empresa && <div class="cliente-detail">{c.cliente_empresa}</div>}
+      {c.cliente_email && <div class="cliente-detail">{c.cliente_email}</div>}
+    </div>
+
+    <div class="section-label">Detalle</div>
+    <table class="items">
+      <thead>
+        <tr><th>Descripción</th><th>Cant.</th><th>Precio unit.</th><th>Total</th></tr>
+      </thead>
+      <tbody>
+        {items.map((item: any) => (
+          <tr>
+            <td>{item.desc}</td>
+            <td>{item.qty}</td>
+            <td>${Number(item.precio).toLocaleString('es-CL')}</td>
+            <td>${(Number(item.precio)*Number(item.qty)).toLocaleString('es-CL')}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    <div class="total-area">
+      <div class="total-box">
+        <div class="total-line main">
+          <span>Total</span>
+          <strong>${Number(c.total).toLocaleString('es-CL')}</strong>
+        </div>
+      </div>
+    </div>
+
+    {c.notas && <div class="notas"><strong>Notas y condiciones:</strong><br/>{c.notas}</div>}
+  </div>
+</AdminLayout>
