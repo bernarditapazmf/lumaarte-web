@@ -18,6 +18,15 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const { title, description, image = FallbackImage } = Astro.props;
 ---
 
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VZNFX2FCYJ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-VZNFX2FCYJ');
+</script>
+
 <!-- Global Metadata -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
