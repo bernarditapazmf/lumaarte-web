@@ -1,0 +1,43 @@
+---
+import { isAuthenticated } from '../../lib/auth.js';
+if (isAuthenticated(Astro.request)) return Astro.redirect('/admin');
+const error = Astro.url.searchParams.get('error');
+---
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — Luma Arte</title>
+  <meta name="robots" content="noindex" />
+  <style>
+    @font-face{font-family:'Mackinac';src:url('/fonts/Mackinac-Book.otf') format('opentype');font-weight:400}
+    @font-face{font-family:'Mackinac';src:url('/fonts/Mackinac-BookItalic.otf') format('opentype');font-weight:400;font-style:italic}
+    @font-face{font-family:'CoFo Sans';src:url('/fonts/CoFoSans-Regular.otf') format('opentype');font-weight:400}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'CoFo Sans',system-ui,sans-serif;background:#f3f0e9;min-height:100vh;display:flex;align-items:center;justify-content:center}
+    .card{background:#fdfcf8;border:.5px solid rgba(33,31,24,.12);border-radius:12px;padding:48px 40px;width:100%;max-width:360px}
+    .logo{font-family:'Mackinac',serif;font-size:22px;letter-spacing:-.01em;margin-bottom:8px;color:#211f18}
+    .logo em{font-style:italic}
+    .sub{font-size:13px;color:rgba(33,31,24,.5);margin-bottom:32px}
+    label{display:block;font-size:12px;letter-spacing:.05em;color:rgba(33,31,24,.6);margin-bottom:6px}
+    input[type=password]{width:100%;padding:11px 14px;border:.5px solid rgba(33,31,24,.2);border-radius:8px;font-size:15px;font-family:inherit;background:#fff;color:#211f18;outline:none}
+    input[type=password]:focus{border-color:#54582f}
+    .btn{margin-top:20px;width:100%;padding:13px;background:#54582f;color:#fdfcf8;border:none;border-radius:8px;font-size:13px;letter-spacing:.08em;cursor:pointer}
+    .btn:hover{background:#3a3d1f}
+    .error{margin-top:14px;font-size:13px;color:#a33;text-align:center}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">Luma <em>Arte</em></div>
+    <p class="sub">Panel de administración</p>
+    <form method="POST" action="/api/admin/login">
+      <label for="pwd">Contraseña</label>
+      <input id="pwd" name="password" type="password" autofocus required />
+      <button class="btn" type="submit">Entrar</button>
+      {error && <p class="error">Contraseña incorrecta</p>}
+    </form>
+  </div>
+</body>
+</html>

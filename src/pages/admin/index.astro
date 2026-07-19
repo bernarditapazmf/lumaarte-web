@@ -1,0 +1,143 @@
+---
+import { isAuthenticated } from '../../lib/auth.js';
+import { initDb } from '../../lib/db.js';
+
+if (!isAuthenticated(Astro.request)) return Astro.redirect('/admin/login');
+
+const db = await initDb();
+const { rows } = await db.execute('SELECT * FROM obras ORDER BY orden ASC, id DESC');
+---
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Inventario — Luma Arte Admin</title>
+  <meta name="robots" content="noindex" />
+  <style>
+    @font-face{font-family:'Mackinac';src:url('/fonts/Mackinac-Book.otf') format('opentype');font-weight:400}
+    @font-face{font-family:'Mackinac';src:url('/fonts/Mackinac-BookItalic.otf') format('opentype');font-weight:400;font-style:italic}
+    @font-face{font-family:'CoFo Sans';src:url('/fonts/CoFoSans-Regular.otf') format('opentype');font-weight:400}
+    @font-face{font-family:'CoFo Sans';src:url('/fonts/CoFoSans-Light.otf') format('opentype');font-weight:300}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'CoFo Sans',system-ui,sans-serif;background:#f3f0e9;color:#211f18;min-height:100vh}
+    .topbar{background:#211f18;color:#fdfcf8;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:56px}
+    .topbar-brand{font-family:'Mackinac',serif;font-size:18px;letter-spacing:-.01em}
+    .topbar-brand em{font-style:italic}
+    .topbar-right{display:flex;align-items:center;gap:16px}
+    .topbar-link{color:rgba(253,252,248,.6);font-size:13px;text-decoration:none}
+    .topbar-link:hover{color:#fdfcf8}
+    .logout-btn{background:none;border:.5px solid rgba(253,252,248,.3);color:rgba(253,252,248,.7);padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit}
+    .logout-btn:hover{background:rgba(253,252,248,.1)}
+    .main{max-width:1100px;margin:0 auto;padding:40px 24px}
+    .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
+    .title{font-family:'Mackinac',serif;font-size:28px;font-weight:400}
+    .title em{font-style:italic}
+    .btn-new{display:inline-flex;align-items:center;gap:8px;background:#54582f;color:#fdfcf8;text-decoration:none;padding:10px 20px;border-radius:8px;font-size:13px}
+    .btn-new:hover{background:#3a3d1f}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+    .stat{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:10px;padding:20px 24px}
+    .stat-num{font-family:'Mackinac',serif;font-size:32px;font-weight:400;margin-bottom:4px}
+    .stat-label{font-size:12px;color:rgba(33,31,24,.5);letter-spacing:.04em}
+    .table-wrap{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:10px;overflow:hidden}
+    table{width:100%;border-collapse:collapse}
+    th{text-align:left;padding:12px 20px;font-size:11px;letter-spacing:.06em;color:rgba(33,31,24,.45);border-bottom:.5px solid rgba(33,31,24,.08);font-weight:400;text-transform:uppercase}
+    td{padding:14px 20px;border-bottom:.5px solid rgba(33,31,24,.06);font-size:14px;vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:#faf9f5}
+    .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:400}
+    .badge-disp{background:#e8eddd;color:#3a4020}
+    .badge-vend{background:#ede8e8;color:#5a2020}
+    .precio{font-variant-numeric:tabular-nums}
+    .actions{display:flex;gap:8px}
+    .btn-edit{font-size:12px;color:#54582f;text-decoration:none;padding:5px 12px;border:.5px solid rgba(84,88,47,.4);border-radius:6px}
+    .btn-edit:hover{background:#54582f;color:#fdfcf8}
+    .btn-del{font-size:12px;color:#a33;background:none;border:.5px solid rgba(170,51,51,.3);border-radius:6px;padding:5px 12px;cursor:pointer;font-family:inherit}
+    .btn-del:hover{background:#a33;color:#fff}
+    .empty{text-align:center;padding:60px 20px;color:rgba(33,31,24,.4)}
+    @media(max-width:700px){
+      .stats{grid-template-columns:1fr 1fr}
+      th:nth-child(3),td:nth-child(3),th:nth-child(4),td:nth-child(4){display:none}
+    }
+  </style>
+</head>
+<body>
+  <nav class="topbar">
+    <span class="topbar-brand">Luma <em>Arte</em> · Admin</span>
+    <div class="topbar-right">
+      <a class="topbar-link" href="/" target="_blank">Ver sitio →</a>
+      <form method="POST" action="/api/admin/logout">
+        <button class="logout-btn" type="submit">Salir</button>
+      </form>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="header">
+      <h1 class="title">Inventario de <em>obras</em></h1>
+      <a class="btn-new" href="/admin/nueva">+ Nueva obra</a>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num">{rows.length}</div>
+        <div class="stat-label">Total obras</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">{rows.filter(r => r.disponible).length}</div>
+        <div class="stat-label">Disponibles</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">{rows.filter(r => !r.disponible).length}</div>
+        <div class="stat-label">Vendidas</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      {rows.length === 0 ? (
+        <div class="empty">Aún no hay obras. <a href="/admin/nueva">Agrega la primera →</a></div>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Técnica</th>
+              <th>Dimensiones</th>
+              <th>Precio</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(obra => (
+              <tr>
+                <td>
+                  <strong>{obra.nombre}</strong>
+                  {obra.serie && <div style="font-size:12px;color:rgba(33,31,24,.4)">{obra.serie}</div>}
+                </td>
+                <td style="color:rgba(33,31,24,.6)">{obra.tecnica || '—'}</td>
+                <td style="color:rgba(33,31,24,.6)">{obra.dimensiones || '—'}</td>
+                <td class="precio">{obra.precio ? `$${Number(obra.precio).toLocaleString('es-CL')}` : '—'}</td>
+                <td>
+                  <span class={obra.disponible ? 'badge badge-disp' : 'badge badge-vend'}>
+                    {obra.disponible ? 'Disponible' : 'Vendida'}
+                  </span>
+                </td>
+                <td>
+                  <div class="actions">
+                    <a class="btn-edit" href={`/admin/editar/${obra.id}`}>Editar</a>
+                    <form method="POST" action="/api/obras/delete" onsubmit="return confirm('¿Eliminar esta obra?')">
+                      <input type="hidden" name="id" value={obra.id} />
+                      <button class="btn-del" type="submit">Eliminar</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  </main>
+</body>
+</html>

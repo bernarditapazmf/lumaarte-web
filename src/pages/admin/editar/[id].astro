@@ -1,0 +1,124 @@
+---
+import { isAuthenticated } from '../../../lib/auth.js';
+import { initDb } from '../../../lib/db.js';
+
+if (!isAuthenticated(Astro.request)) return Astro.redirect('/admin/login');
+
+const { id } = Astro.params;
+const db = await initDb();
+const { rows } = await db.execute({ sql: 'SELECT * FROM obras WHERE id = ?', args: [id] });
+
+if (!rows.length) return Astro.redirect('/admin');
+const obra = rows[0];
+const error = Astro.url.searchParams.get('error');
+---
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Editar obra — Luma Arte Admin</title>
+  <meta name="robots" content="noindex" />
+  <style>
+    @font-face{font-family:'Mackinac';src:url('/fonts/Mackinac-Book.otf') format('opentype');font-weight:400}
+    @font-face{font-family:'Mackinac';src:url('/fonts/Mackinac-BookItalic.otf') format('opentype');font-weight:400;font-style:italic}
+    @font-face{font-family:'CoFo Sans';src:url('/fonts/CoFoSans-Regular.otf') format('opentype');font-weight:400}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'CoFo Sans',system-ui,sans-serif;background:#f3f0e9;color:#211f18;min-height:100vh}
+    .topbar{background:#211f18;color:#fdfcf8;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:56px}
+    .topbar-brand{font-family:'Mackinac',serif;font-size:18px;letter-spacing:-.01em}
+    .topbar-brand em{font-style:italic}
+    .back{color:rgba(253,252,248,.6);font-size:13px;text-decoration:none}
+    .back:hover{color:#fdfcf8}
+    .main{max-width:680px;margin:0 auto;padding:40px 24px}
+    h1{font-family:'Mackinac',serif;font-size:28px;font-weight:400;margin-bottom:32px}
+    h1 em{font-style:italic}
+    .card{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:10px;padding:32px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+    .row.full{grid-template-columns:1fr}
+    .field{display:flex;flex-direction:column;gap:6px}
+    label{font-size:12px;letter-spacing:.04em;color:rgba(33,31,24,.55);text-transform:uppercase}
+    input,select,textarea{padding:10px 14px;border:.5px solid rgba(33,31,24,.2);border-radius:8px;font-size:15px;font-family:inherit;color:#211f18;background:#fff;outline:none;width:100%}
+    input:focus,select:focus,textarea:focus{border-color:#54582f}
+    textarea{resize:vertical;min-height:80px}
+    .check-row{display:flex;align-items:center;gap:10px;margin-top:4px}
+    input[type=checkbox]{width:18px;height:18px;accent-color:#54582f;cursor:pointer}
+    .actions{display:flex;gap:12px;margin-top:28px}
+    .btn-save{flex:1;padding:13px;background:#54582f;color:#fdfcf8;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-family:inherit}
+    .btn-save:hover{background:#3a3d1f}
+    .btn-cancel{padding:13px 20px;background:none;border:.5px solid rgba(33,31,24,.2);border-radius:8px;font-size:14px;color:#211f18;text-decoration:none;text-align:center}
+    .error{background:#fde8e8;border:.5px solid #e8b4b4;border-radius:8px;padding:12px 16px;font-size:13px;color:#a33;margin-bottom:20px}
+    @media(max-width:600px){.row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <nav class="topbar">
+    <span class="topbar-brand">Luma <em>Arte</em> · Admin</span>
+    <a class="back" href="/admin">← Inventario</a>
+  </nav>
+  <main class="main">
+    <h1>Editar <em>{obra.nombre}</em></h1>
+    {error && <div class="error">Hubo un error al guardar. Intenta nuevamente.</div>}
+    <div class="card">
+      <form method="POST" action="/api/obras/update">
+        <input type="hidden" name="id" value={obra.id} />
+        <div class="row">
+          <div class="field">
+            <label for="nombre">Nombre *</label>
+            <input id="nombre" name="nombre" type="text" required value={obra.nombre} />
+          </div>
+          <div class="field">
+            <label for="serie">Serie</label>
+            <input id="serie" name="serie" type="text" value={obra.serie ?? ''} />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="tecnica">Técnica</label>
+            <select id="tecnica" name="tecnica">
+              <option value="">— Seleccionar —</option>
+              {['Acuarela sobre papel','Pastel al óleo sobre papel','Bordado sobre papel','Técnica mixta'].map(t => (
+                <option selected={obra.tecnica === t}>{t}</option>
+              ))}
+            </select>
+          </div>
+          <div class="field">
+            <label for="dimensiones">Dimensiones</label>
+            <input id="dimensiones" name="dimensiones" type="text" value={obra.dimensiones ?? ''} />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="precio">Precio (CLP)</label>
+            <input id="precio" name="precio" type="number" min="0" value={obra.precio ?? ''} />
+          </div>
+          <div class="field">
+            <label for="orden">Orden en sitio</label>
+            <input id="orden" name="orden" type="number" min="0" value={obra.orden ?? 0} />
+          </div>
+        </div>
+        <div class="row full">
+          <div class="field">
+            <label for="imagen">Nombre de imagen</label>
+            <input id="imagen" name="imagen" type="text" value={obra.imagen ?? ''} />
+          </div>
+        </div>
+        <div class="row full">
+          <div class="field">
+            <label for="notas">Notas internas</label>
+            <textarea id="notas" name="notas">{obra.notas ?? ''}</textarea>
+          </div>
+        </div>
+        <div class="check-row">
+          <input id="disponible" name="disponible" type="checkbox" checked={!!obra.disponible} />
+          <label for="disponible" style="text-transform:none;font-size:14px;letter-spacing:0">Disponible para venta</label>
+        </div>
+        <div class="actions">
+          <a class="btn-cancel" href="/admin">Cancelar</a>
+          <button class="btn-save" type="submit">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</body>
+</html>
