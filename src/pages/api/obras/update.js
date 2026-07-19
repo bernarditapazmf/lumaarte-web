@@ -15,17 +15,23 @@ export async function POST({ request, redirect }) {
     const db = await initDb();
     await db.execute({
       sql: `UPDATE obras SET
-              nombre=?, serie=?, tecnica=?, dimensiones=?,
-              precio=?, disponible=?, imagen=?, notas=?, orden=?
+              nombre=?, serie=?, tecnica=?, imagen=?,
+              precio_30x40=?, precio_40x50=?, precio_50x70=?,
+              costo_produccion=?, costo_enmarcado=?, pago_enmarcador_pendiente=?,
+              disponible=?, notas=?, orden=?
             WHERE id=?`,
       args: [
         nombre,
         form.get('serie') || null,
         form.get('tecnica') || null,
-        form.get('dimensiones') || null,
-        Number(form.get('precio')) || 0,
-        form.get('disponible') === 'on' ? 1 : 0,
         form.get('imagen') || null,
+        Number(form.get('precio_30x40')) || 0,
+        Number(form.get('precio_40x50')) || 0,
+        Number(form.get('precio_50x70')) || 0,
+        Number(form.get('costo_produccion')) || 0,
+        Number(form.get('costo_enmarcado')) || 0,
+        Number(form.get('pago_enmarcador_pendiente')) || 0,
+        form.get('disponible') === 'on' ? 1 : 0,
         form.get('notas') || null,
         Number(form.get('orden')) || 0,
         id,
