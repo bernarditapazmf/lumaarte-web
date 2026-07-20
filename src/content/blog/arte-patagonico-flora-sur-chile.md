@@ -2,7 +2,7 @@
 title: '¿Qué es el arte patagónico? Flora y naturaleza del sur de Chile en pintura original'
 description: 'El arte patagónico captura la flora salvaje del sur de Chile: chilcos, hortensias, arrayanes y volcanes. Descubre qué lo hace único y cómo reconocerlo.'
 pubDate: 'Jul 15 2026'
-heroImage: '../../assets/blog-placeholder-1.jpg'
+heroImage: '/img/field.jpg'
 ---
 
 El arte patagónico es una expresión visual que nace de la naturaleza más salvaje de Chile. No es un movimiento artístico formal con manifiesto ni escuela: es una sensibilidad. Es la manera en que los ojos y las manos de una artista del sur procesan la luz fría de los volcanes, el rojo intenso de los chilcos silvestres, el blanco extraño de las flores de arrayán.

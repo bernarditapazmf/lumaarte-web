@@ -2,7 +2,7 @@
 title: 'Técnica mixta: acuarela, pastel al óleo y bordado — qué es y por qué es especial'
 description: 'La técnica mixta combina medios distintos en una sola obra. En Luma Arte: acuarela, pastel al óleo y bordado a mano sobre papel. Te explicamos cómo funciona y qué produce.'
 pubDate: 'Jul 19 2026'
-heroImage: '../../assets/blog-placeholder-3.jpg'
+heroImage: '/img/oficio.jpg'
 ---
 
 Cuando ves por primera vez una obra de Luma Arte, algo en ella llama la atención sin que puedas nombrar exactamente qué es. Los pétalos tienen una textura que no parece solo pintura. Hay hilos. La superficie no es plana.

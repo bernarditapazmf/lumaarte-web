@@ -163,9 +163,8 @@ a:hover{color:#3c3f21}
     <p class="articulos-eyebrow">Artículos</p>
     <h2 class="articulos-h2">Arte, naturaleza y oficio desde la Patagonia</h2>
     <div class="cards">
-      {posts.map((post, i) => {
-        const placeholders = ['/img/o1.jpg', '/img/o2.jpg', '/img/o3.jpg'];
-        const thumb = placeholders[i % placeholders.length];
+      {posts.map((post) => {
+        const thumb = post.data.heroImage || '/img/field.jpg';
         const d = post.data.pubDate;
         const fecha = d.toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' });
         return (

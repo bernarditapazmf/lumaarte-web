@@ -2,7 +2,7 @@
 title: 'Cómo elegir una pintura original para regalar (aunque no sepas nada de arte)'
 description: 'Guía práctica para regalar arte sin miedo a equivocarse: tamaño, técnica, precio y cómo saber si una obra encajará en el hogar de quien la recibe.'
 pubDate: 'Jul 17 2026'
-heroImage: '../../assets/blog-placeholder-2.jpg'
+heroImage: '/img/insp1.jpg'
 ---
 
 Regalar arte tiene fama de ser difícil. "¿Y si no le gusta?" "¿No sé nada de esto." "¿Cuánto debería gastar?" Son las tres preguntas que casi siempre aparecen.
