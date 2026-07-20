@@ -681,9 +681,11 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
       <h3 class="newsletter-h3">Cartas desde el Sur</h3>
       <p class="newsletter-p">Un correo pausado: nuevas obras, aquello que nos inspira, y artículos sobre cómo el arte sana — sus beneficios para el alma y para el cuerpo — junto a panoramas de arte y cultura de la Región de Los Lagos.</p>
       <div class="newsletter-row">
-        <input class="newsletter-input" placeholder="tucorreo@mail.com" type="email" />
-        <button class="newsletter-btn">Suscribirme →</button>
+        <input id="nl-email" class="newsletter-input" placeholder="tucorreo@mail.com" type="email" />
+        <button id="btn-nl" class="newsletter-btn" type="button">Suscribirme →</button>
       </div>
+      <p id="nl-ok"  style="display:none;margin-top:14px;font:400 13px/1.6 'CoFo Sans';color:#54582f">✓ ¡Listo! Te escribimos pronto desde el Sur.</p>
+      <p id="nl-err" style="display:none;margin-top:14px;font:400 13px/1.6 'CoFo Sans';color:#a33">Por favor ingresa un correo válido.</p>
     </div>
   </div>
 </div>
@@ -1183,6 +1185,28 @@ window.addEventListener('pageshow', (e) => {
       renderCart();
     } catch {}
   }
+});
+
+// ── NEWSLETTER ──────────────────────────────────────
+document.getElementById('btn-nl').addEventListener('click', async () => {
+  const email  = document.getElementById('nl-email').value.trim();
+  const okEl   = document.getElementById('nl-ok');
+  const errEl  = document.getElementById('nl-err');
+  const btn    = document.getElementById('btn-nl');
+  okEl.style.display = 'none';
+  errEl.style.display = 'none';
+  if (!email || !email.includes('@')) { errEl.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = 'Enviando…';
+  try {
+    const res = await fetch('/api/newsletter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    if (res.ok) { okEl.style.display = 'block'; document.getElementById('nl-email').value = ''; }
+    else { errEl.style.display = 'block'; }
+  } catch { errEl.style.display = 'block'; }
+  btn.disabled = false; btn.textContent = 'Suscribirme →';
 });
 
 // ── FORMULARIO COLABOREMOS ───────────────────────────
