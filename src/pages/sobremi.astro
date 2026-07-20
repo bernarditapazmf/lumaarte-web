@@ -130,6 +130,8 @@ a:hover{color:#3c3f21}
 .nav-link{font:500 12px/1 'Spline Sans Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#fdfcf8;text-decoration:none;padding-bottom:3px;border-bottom:1px solid transparent;transition:border-color .2s}
 .nav-link:hover{border-bottom-color:rgba(253,252,248,.7)}
 .nav-link--active{border-bottom-color:rgba(253,252,248,.8)}
+.nav-cart{display:flex;align-items:center;gap:8px;background:none;border:none;color:#fdfcf8;padding:6px 2px;cursor:pointer}
+.nav-cart:hover{opacity:.8}
 
 /* HERO */
 .hero{position:relative;min-height:100vh;overflow:hidden;background:#20241a}
@@ -244,6 +246,9 @@ a:hover{color:#3c3f21}
       <a class="nav-link" href="/blog">Blog</a>
       <a class="nav-link" href="/#giftcards">Giftcard</a>
       <a class="nav-link" href="/#contacto">Contacto</a>
+      <button class="nav-cart" onclick="window.location.href='/#pinturas'" aria-label="Ver pinturas">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      </button>
     </div>
   </nav>
   <div class="hero-body">
