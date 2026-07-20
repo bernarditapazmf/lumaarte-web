@@ -19,8 +19,7 @@
   "alternateName": "Luma Producciones",
   "url": "https://www.lumaarte.com",
   "logo": "https://www.lumaarte.com/img/luma-logo.png",
-  "description": "Arte original inspirado en la naturaleza del sur de Chile. Pinturas únicas de Bernardita Paz Mir.",
-  "founder": { "@type": "Person", "name": "Bernardita Paz Mir" },
+  "description": "Arte original inspirado en la naturaleza del sur de Chile. Pinturas originales en técnica mixta — acuarela, pastel al óleo y bordado sobre papel.",
   "areaServed": "CL",
   "sameAs": ["https://www.instagram.com/lumaartechile"]
 }
@@ -37,7 +36,7 @@
       "name": "¿Cuánto cuesta una pintura original de Luma Arte?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Las obras de Luma Arte parten desde $95.000 CLP en formato 30×40 cm, $145.000 en 40×50 cm y $220.000 en 50×70 cm. Cada pintura es única e incluye paspartú en madera nativa reciclada."
+        "text": "Las obras originales de Luma Arte tienen tres tamaños: 30×40 cm ($95.000 CLP), 40×50 cm ($145.000 CLP) y 50×70 cm ($220.000 CLP). Todos los precios incluyen paspartú en madera nativa reciclada del sur de Chile — la obra llega lista para colgar. Los pagos se realizan vía Flow (tarjeta, transferencia o débito)."
       }
     },
     {
@@ -45,7 +44,7 @@
       "name": "¿Las obras de Luma Arte vienen enmarcadas?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sí. Todas las obras se entregan con paspartú en madera nativa reciclada del sur de Chile, disponible en versión blanca o negra según la preferencia del comprador."
+        "text": "Sí. Todas las obras se entregan con paspartú artesanal en madera nativa reciclada del sur de Chile (mañío, laurel, coihue o roble), disponible en versión blanca o negra según la preferencia del comprador. El enmarcado es parte del precio — no tiene costo adicional."
       }
     },
     {
@@ -53,7 +52,7 @@
       "name": "¿Hacen envíos a todo Chile?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sí, Luma Arte hace despachos a todo Chile. El envío se coordina directamente con el comprador una vez confirmado el pago."
+        "text": "Sí. Luma Arte despacha a todo Chile. Una vez confirmado el pago, se coordina el envío directamente con el comprador. Las obras se embalan con protección especial para asegurar que lleguen en perfecto estado."
       }
     },
     {
@@ -61,15 +60,15 @@
       "name": "¿Cuánto tiempo tarda el despacho?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "El proceso de enmarcado toma entre 5 y 10 días hábiles. Una vez listo, coordinamos el envío directamente con el comprador."
+        "text": "El proceso completo toma entre 8 y 15 días hábiles desde el pago: el enmarcado artesanal tarda entre 5 y 10 días hábiles, y el envío por courier entre 3 y 5 días hábiles adicionales según destino. Al confirmar el pedido se informa el plazo estimado."
       }
     },
     {
       "@type": "Question",
-      "name": "¿Qué técnica usa Bernardita Paz Mir en sus pinturas?",
+      "name": "¿Qué técnica usa Luma en sus pinturas?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Bernardita Paz Mir trabaja en técnica mixta que combina acuarela, pastel al óleo y bordado sobre papel. La técnica está inspirada en la flora y naturaleza salvaje del sur de Chile."
+        "text": "Luma trabaja en técnica mixta sobre papel: acuarela para los fondos y veladuras de color, pastel al óleo para el volumen y la luz en los pétalos, y bordado a mano para añadir una dimensión táctil que recuerda los tejidos del sur de Chile. Cada obra es única e irrepetible."
       }
     },
     {
@@ -496,7 +495,7 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
     <nav class="nav-links">
       <a class="nav-link" href="#pinturas">Pinturas</a>
       <a class="nav-link" href="/sobremi">Sobre mí</a>
-      <a class="nav-link" href="#blog">Blog</a>
+      <a class="nav-link" href="/blog">Blog</a>
       <a class="nav-link" href="#giftcards">Giftcard</a>
       <a class="nav-link" href="#contacto">Contacto</a>
       <button class="nav-cart" id="btn-cart">
@@ -668,11 +667,13 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
       <div class="contacto-eyebrow">Colaboremos</div>
       <h2 class="contacto-h2">¿Trabajamos <em>juntos</em>?</h2>
       <p class="contacto-sub">Si te interesa una colaboración, comisión o llevar el Sur a tu espacio, escríbenos.</p>
-      <div class="contacto-form">
-        <input class="contacto-input" placeholder="Tu nombre" />
-        <input class="contacto-input" placeholder="Tu correo" type="email" />
-        <textarea class="contacto-textarea" rows="3" placeholder="Cuéntanos tu idea"></textarea>
-        <button class="contacto-submit">Enviar mensaje</button>
+      <div class="contacto-form" id="colab-form-wrap">
+        <input id="colab-nombre" class="contacto-input" placeholder="Tu nombre" />
+        <input id="colab-email" class="contacto-input" placeholder="Tu correo" type="email" />
+        <textarea id="colab-mensaje" class="contacto-textarea" rows="3" placeholder="Cuéntanos tu idea"></textarea>
+        <button class="contacto-submit" id="btn-colab-send" type="button">Enviar mensaje</button>
+        <p id="colab-ok" style="display:none;margin-top:14px;font:400 14px/1.6 'CoFo Sans';color:#54582f">✓ Mensaje enviado. Te respondemos pronto.</p>
+        <p id="colab-err" style="display:none;margin-top:14px;font:400 14px/1.6 'CoFo Sans';color:#a33">Hubo un error. Por favor escríbenos a contacto@lumaproducciones.cl</p>
       </div>
     </div>
     <div class="newsletter">
@@ -1157,6 +1158,36 @@ document.getElementById('pedido-form').addEventListener('submit',async(e)=>{
 renderObras();
 updateGCPreview();
 fitCollage();
+
+// ── FORMULARIO COLABOREMOS ───────────────────────────
+document.getElementById('btn-colab-send').addEventListener('click', async () => {
+  const nombre  = document.getElementById('colab-nombre').value.trim();
+  const email   = document.getElementById('colab-email').value.trim();
+  const mensaje = document.getElementById('colab-mensaje').value.trim();
+  const okEl    = document.getElementById('colab-ok');
+  const errEl   = document.getElementById('colab-err');
+  const btn     = document.getElementById('btn-colab-send');
+  okEl.style.display = 'none';
+  errEl.style.display = 'none';
+  if (!nombre || !email) { errEl.textContent = 'Por favor completa tu nombre y correo.'; errEl.style.display = 'block'; return; }
+  btn.disabled = true;
+  btn.textContent = 'Enviando…';
+  try {
+    const res = await fetch('/api/contacto', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre, email, mensaje }),
+    });
+    if (res.ok) {
+      okEl.style.display = 'block';
+      document.getElementById('colab-nombre').value = '';
+      document.getElementById('colab-email').value = '';
+      document.getElementById('colab-mensaje').value = '';
+    } else { errEl.style.display = 'block'; }
+  } catch { errEl.style.display = 'block'; }
+  btn.disabled = false;
+  btn.textContent = 'Enviar mensaje';
+});
 </script>
 </body>
 </html>
