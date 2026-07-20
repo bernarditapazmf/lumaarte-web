@@ -1,0 +1,130 @@
+---
+// Carrito persistente para páginas fuera de index.astro
+// Lee y escribe en localStorage('luma_cart')
+---
+
+<!-- SCRIM + DRAWER -->
+<div class="cs-scrim" id="cs-scrim"></div>
+<div class="cs-drawer" id="cs-drawer">
+  <div class="cs-inner">
+    <div class="cs-header">
+      <div class="cs-title">Tu carrito <span id="cs-count">(0)</span></div>
+      <button class="cs-close" id="cs-close" aria-label="Cerrar carrito">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="cs-body" id="cs-body"></div>
+    <div class="cs-total-wrap" id="cs-total-wrap">
+      <span class="cs-total-label">Total</span>
+      <span class="cs-total-val" id="cs-total-val"></span>
+    </div>
+    <div class="cs-footer">
+      <button class="cs-checkout" id="cs-checkout">IR A PAGAR →</button>
+      <div class="cs-pay-label">Pago seguro · Flow · Webpay · Tarjetas</div>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+.cs-scrim{position:fixed;inset:0;z-index:900;background:rgba(24,22,14,.34);cursor:pointer;opacity:0;visibility:hidden;transition:opacity .45s ease}
+.cs-scrim.open{opacity:1;visibility:visible}
+.cs-drawer{position:fixed;top:0;right:0;height:100vh;width:360px;max-width:92vw;z-index:1000;transform:translateX(105%);transition:transform .6s cubic-bezier(.16,1,.3,1)}
+.cs-drawer.open{transform:translateX(0)}
+.cs-inner{height:100%;background:#FDFCF8;border-left:.5px solid rgba(33,31,24,.14);box-shadow:-16px 0 50px rgba(30,26,15,.18);display:flex;flex-direction:column}
+.cs-header{display:flex;align-items:center;justify-content:space-between;padding:24px 24px 18px;border-bottom:.5px solid rgba(33,31,24,.14);flex:none}
+.cs-title{font-family:'Mackinac',serif;font-size:20px;color:#211f18}
+#cs-count{color:rgba(33,31,24,.45)}
+.cs-close{background:none;border:none;color:#211f18;padding:4px;cursor:pointer}
+.cs-body{flex:1 1 auto;min-height:0;overflow-y:auto;padding:8px 24px}
+.cs-empty{padding:48px 6px;text-align:center}
+.cs-empty-title{font-family:'Mackinac',serif;font-style:italic;font-size:19px;color:rgba(33,31,24,.6);line-height:1.4}
+.cs-empty-sub{margin:14px 0 0;font:300 13px/1.6 'CoFo Sans';color:rgba(33,31,24,.5)}
+.cs-item{display:flex;gap:16px;padding:18px 0;border-bottom:.5px solid rgba(33,31,24,.1);align-items:flex-start}
+.cs-item-thumb{width:72px;height:88px;flex:none;border-radius:4px;overflow:hidden;background:#f0ede6}
+.cs-item-thumb img{width:100%;height:100%;object-fit:contain;object-position:center}
+.cs-item-title{font-family:'Mackinac',serif;font-size:15px;line-height:1.3;color:#211f18}
+.cs-item-price{font:500 13px/1 'Spline Sans Mono',monospace;color:#211f18;white-space:nowrap;flex-shrink:0;padding-top:2px}
+.cs-item-detail{font:400 12px/1.5 'CoFo Sans';color:rgba(33,31,24,.55);margin-top:3px}
+.cs-item-remove{margin-top:10px;background:none;border:none;padding:0;font:400 11.5px 'CoFo Sans';color:rgba(33,31,24,.45);text-decoration:underline;cursor:pointer}
+.cs-total-wrap{display:none;align-items:center;justify-content:space-between;padding:16px 24px 0;border-top:.5px solid rgba(33,31,24,.14);margin-top:4px;flex:none}
+.cs-total-label{font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:rgba(33,31,24,.55)}
+.cs-total-val{font-family:'Mackinac',serif;font-size:20px;color:#211f18}
+.cs-note{font:300 13px/1.6 'CoFo Sans';color:rgba(33,31,24,.55);margin:22px 0 0}
+.cs-footer{flex:none;padding:22px 24px;border-top:.5px solid rgba(33,31,24,.14);background:#FDFCF8}
+.cs-checkout{width:100%;padding:17px;border:none;border-radius:60px;background:#54582f;color:#fdfcf8;font:500 12px/1 'Spline Sans Mono',monospace;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:background .2s}
+.cs-checkout:hover{background:#3c3f21}
+.cs-pay-label{text-align:center;margin-top:12px;font:400 11px/1 'Spline Sans Mono',monospace;letter-spacing:.06em;color:rgba(33,31,24,.45)}
+</style>
+
+<script>
+const CART_KEY = 'luma_cart';
+
+function csLoad() {
+  try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); }
+  catch { return []; }
+}
+function csSave(items) {
+  localStorage.setItem(CART_KEY, JSON.stringify(items));
+}
+function csClp(n) { return '$' + Math.round(n).toLocaleString('es-CL'); }
+
+function csRender() {
+  const items = csLoad();
+  const count = items.length;
+
+  document.getElementById('cs-count').textContent = `(${count})`;
+  const navCount = document.getElementById('cart-count-shared');
+  if (navCount) navCount.textContent = `(${count})`;
+
+  const body = document.getElementById('cs-body');
+  const totalWrap = document.getElementById('cs-total-wrap');
+
+  if (count === 0) {
+    body.innerHTML = `<div class="cs-empty">
+      <div class="cs-empty-title">Tu carrito está vacío.</div>
+      <p class="cs-empty-sub">Elige una obra y su tamaño para agregarla aquí.</p>
+    </div>`;
+    totalWrap.style.display = 'none';
+    return;
+  }
+
+  const total = items.reduce((s, c) => s + (c.precio || 0), 0);
+  body.innerHTML = items.map(c => `
+    <div class="cs-item">
+      <div class="cs-item-thumb"><img src="${c.img}" alt="${c.title}" /></div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+          <div class="cs-item-title">${c.title}</div>
+          <div class="cs-item-price">${c.precio ? csClp(c.precio) : ''}</div>
+        </div>
+        <div class="cs-item-detail">${c.detail}</div>
+        <button class="cs-item-remove" onclick="csRemove('${c.key}')">Quitar</button>
+      </div>
+    </div>`).join('')
+    + `<p class="cs-note">Coordinamos envío y embalaje contigo. Los valores son referenciales.</p>`;
+
+  totalWrap.style.display = 'flex';
+  document.getElementById('cs-total-val').textContent = csClp(total);
+}
+
+window.csRemove = (key) => {
+  csSave(csLoad().filter(c => c.key !== key));
+  csRender();
+};
+
+function csOpen() { csRender(); document.getElementById('cs-drawer').classList.add('open'); document.getElementById('cs-scrim').classList.add('open'); }
+function csClose() { document.getElementById('cs-drawer').classList.remove('open'); document.getElementById('cs-scrim').classList.remove('open'); }
+
+document.getElementById('btn-cart-shared')?.addEventListener('click', csOpen);
+document.getElementById('cs-close').addEventListener('click', csClose);
+document.getElementById('cs-scrim').addEventListener('click', csClose);
+document.getElementById('cs-checkout').addEventListener('click', () => {
+  if (typeof window.openPedido === 'function') {
+    window.openPedido();
+  } else {
+    window.location.href = '/?pagar=1';
+  }
+});
+
+csRender();
+</script>

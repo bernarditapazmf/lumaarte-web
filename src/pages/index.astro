@@ -955,7 +955,9 @@ window.removeItem = (key)=>{
   S.cart = S.cart.filter(c=>c.key!==key);
   renderCart();
 };
+function saveCart(){ try{ localStorage.setItem('luma_cart', JSON.stringify(S.cart)); }catch{} }
 function renderCart(){
+  saveCart();
   const count = S.cart.length;
   document.getElementById('cart-count-nav').textContent = `(${count})`;
   document.getElementById('cart-count-drawer').textContent = `(${count})`;
@@ -1155,9 +1157,33 @@ document.getElementById('pedido-form').addEventListener('submit',async(e)=>{
 });
 
 // ── INIT ────────────────────────────────────────────
+// Restaurar carrito desde localStorage (persistencia entre páginas)
+try {
+  const saved = JSON.parse(localStorage.getItem('luma_cart') || '[]');
+  if (Array.isArray(saved) && saved.length) S.cart = saved;
+} catch {}
+
 renderObras();
 updateGCPreview();
 fitCollage();
+renderCart();
+
+// Si viene de otra página pidiendo ir a pagar
+if (new URLSearchParams(window.location.search).get('pagar') === '1') {
+  window.history.replaceState({}, '', '/');
+  setTimeout(() => { if (S.cart.length) openPedido(); }, 200);
+}
+
+// Re-sincronizar si el usuario vuelve con el botón atrás del navegador (bfcache)
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) {
+    try {
+      const saved = JSON.parse(localStorage.getItem('luma_cart') || '[]');
+      S.cart = Array.isArray(saved) ? saved : [];
+      renderCart();
+    } catch {}
+  }
+});
 
 // ── FORMULARIO COLABOREMOS ───────────────────────────
 document.getElementById('btn-colab-send').addEventListener('click', async () => {
