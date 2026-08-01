@@ -33,7 +33,7 @@ export async function POST({ request }) {
         method: 'POST',
         headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'Luma Arte <hola@lumaarte.com>',
+          from: 'Luma Arte <contacto@lumaproducciones.cl>',
           to: [email],
           subject: 'Bienvenida a Cartas desde el Sur — Luma Arte',
           html: `

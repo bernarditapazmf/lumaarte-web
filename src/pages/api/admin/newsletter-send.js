@@ -15,7 +15,7 @@ export async function POST({ request }) {
       method: 'POST',
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'Luma Arte <hola@lumaarte.com>',
+        from: 'Luma Arte <contacto@lumaproducciones.cl>',
         to: ['bernimirf@gmail.com'],
         subject: `[PRUEBA] ${asunto}`,
         html,
@@ -40,7 +40,7 @@ export async function POST({ request }) {
         method: 'POST',
         headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'Luma Arte <hola@lumaarte.com>',
+          from: 'Luma Arte <contacto@lumaproducciones.cl>',
           to: [sub.email],
           subject: asunto,
           html,

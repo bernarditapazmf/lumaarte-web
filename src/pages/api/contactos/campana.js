@@ -23,7 +23,7 @@ export async function POST({ request, redirect }) {
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from: 'Luma Arte <hola@lumaarte.com>', to: [c.email], subject: asunto, html }),
+        body: JSON.stringify({ from: 'Luma Arte <contacto@lumaproducciones.cl>', to: [c.email], subject: asunto, html }),
       });
       if (res.ok) enviados++;
     } catch {}
