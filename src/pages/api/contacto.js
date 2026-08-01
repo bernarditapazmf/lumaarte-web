@@ -43,7 +43,7 @@ export async function POST({ request }) {
         headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           from: 'Luma Arte <hola@lumaarte.com>',
-          to: ['contacto@lumaproducciones.cl'],
+          to: ['hola@lumaarte.com'],
           reply_to: email,
           subject: `✉️ Nuevo mensaje de ${nombre} — Luma Arte`,
           html: htmlBody,
