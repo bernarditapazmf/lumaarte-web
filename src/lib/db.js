@@ -161,11 +161,20 @@ export async function initDb() {
     )
   `);
 
-  // Seed costos de enmarcado si no existen
+  // Seed costos de enmarcado e impresión si no existen
   const costosSeed = [
-    ['costo_enmarcado_30x40', '39900', 'Enmarcado con paspartú 3cm — talla 30×40 cm (proveedor: Maderarte Frutillar)'],
-    ['costo_enmarcado_40x50', '54900', 'Enmarcado con paspartú 3cm — talla 40×50 cm (proveedor: Maderarte Frutillar)'],
-    ['costo_enmarcado_50x70', '',      'Enmarcado con paspartú 3cm — talla 50×70 cm (pendiente de proveedor)'],
+    // Talla A4 (impresión 22×15 cm, marco A4 con paspartú 3cm)
+    ['costo_impresion_A4',    '3117',  'Impresión obra 22×15 cm — talla A4 con paspartú 3cm'],
+    ['costo_enmarcado_A4',    '',      'Enmarcado A4 con paspartú 3cm (pendiente valor Maderarte Frutillar)'],
+    // Talla 30×40 (impresión 30×21 cm, marco 30×35 + paspartú 3cm Maderarte)
+    ['costo_impresion_30x40', '7000',  'Impresión obra 30×21 cm — talla 30×40 con paspartú 3cm'],
+    ['costo_enmarcado_30x40', '39900', 'Enmarcado 30×35 con paspartú 3cm — talla 30×40 (Maderarte Frutillar)'],
+    // Talla 40×50
+    ['costo_impresion_40x50', '',      'Impresión obra para talla 40×50 cm (pendiente)'],
+    ['costo_enmarcado_40x50', '54900', 'Enmarcado 40×50 con paspartú 3cm — talla 40×50 (Maderarte Frutillar)'],
+    // Talla 50×70
+    ['costo_impresion_50x70', '',      'Impresión obra para talla 50×70 cm (pendiente)'],
+    ['costo_enmarcado_50x70', '',      'Enmarcado 50×70 con paspartú 3cm (pendiente de proveedor)'],
   ];
   for (const [clave, valor, descripcion] of costosSeed) {
     await db.execute({
