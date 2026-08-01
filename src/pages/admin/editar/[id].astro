@@ -78,7 +78,8 @@ const error = Astro.url.searchParams.get('error');
 
     <div class="card">
       <div class="card-title">Precios por talla (CLP)</div>
-      <div class="row tri">
+      <div class="row" style="grid-template-columns:1fr 1fr 1fr 1fr">
+        <div class="field"><label>21 × 30 cm (A4)</label><input name="precio_A4" type="number" min="0" value={o.precio_A4 ?? ''} placeholder="75000" /></div>
         <div class="field"><label>30 × 40 cm</label><input name="precio_30x40" type="number" min="0" value={o.precio_30x40 ?? ''} /></div>
         <div class="field"><label>40 × 50 cm</label><input name="precio_40x50" type="number" min="0" value={o.precio_40x50 ?? ''} /></div>
         <div class="field"><label>50 × 70 cm</label><input name="precio_50x70" type="number" min="0" value={o.precio_50x70 ?? ''} /></div>

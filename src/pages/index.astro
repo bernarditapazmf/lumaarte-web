@@ -53,7 +53,7 @@ export const prerender = true;
       "name": "¿Cuánto cuesta una pintura original de Luma Arte?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Las obras originales de Luma Arte tienen tres tamaños: 30×40 cm ($95.000 CLP), 40×50 cm ($145.000 CLP) y 50×70 cm ($220.000 CLP). Todos los precios incluyen paspartú en madera nativa reciclada del sur de Chile — la obra llega lista para colgar. Los pagos se realizan vía Flow (tarjeta, transferencia o débito)."
+        "text": "Las obras originales de Luma Arte tienen cuatro tamaños: 21×30 cm A4 ($75.000 CLP), 30×40 cm ($95.000 CLP), 40×50 cm ($145.000 CLP) y 50×70 cm ($220.000 CLP). Todos los precios incluyen paspartú en madera nativa reciclada del sur de Chile — la obra llega lista para colgar. Los pagos se realizan vía Flow (tarjeta, transferencia o débito)."
       }
     },
     {
@@ -123,7 +123,7 @@ export const prerender = true;
         "description": "Pintura original en técnica mixta. Acuarela, pastel al óleo y bordado sobre papel. Inspirada en la flora volcánica del sur de Chile.",
         "image": "https://www.lumaarte.com/img/obra1.png",
         "brand": { "@type": "Brand", "name": "Luma Arte" },
-        "offers": { "@type": "AggregateOffer", "priceCurrency": "CLP", "lowPrice": "95000", "highPrice": "220000", "availability": "https://schema.org/InStock", "url": "https://www.lumaarte.com/#pinturas" }
+        "offers": { "@type": "AggregateOffer", "priceCurrency": "CLP", "lowPrice": "75000", "highPrice": "220000", "availability": "https://schema.org/InStock", "url": "https://www.lumaarte.com/#pinturas" }
       }
     },
     {
@@ -134,7 +134,7 @@ export const prerender = true;
         "description": "Pintura original en técnica mixta. Acuarela, pastel al óleo y bordado sobre papel.",
         "image": "https://www.lumaarte.com/img/obra2.png",
         "brand": { "@type": "Brand", "name": "Luma Arte" },
-        "offers": { "@type": "AggregateOffer", "priceCurrency": "CLP", "lowPrice": "95000", "highPrice": "220000", "availability": "https://schema.org/InStock", "url": "https://www.lumaarte.com/#pinturas" }
+        "offers": { "@type": "AggregateOffer", "priceCurrency": "CLP", "lowPrice": "75000", "highPrice": "220000", "availability": "https://schema.org/InStock", "url": "https://www.lumaarte.com/#pinturas" }
       }
     },
     {
@@ -145,7 +145,7 @@ export const prerender = true;
         "description": "Pintura original en técnica mixta. Chilcos nativos del sur de Chile en acuarela, pastel al óleo y bordado sobre papel.",
         "image": "https://www.lumaarte.com/img/obra3.png",
         "brand": { "@type": "Brand", "name": "Luma Arte" },
-        "offers": { "@type": "AggregateOffer", "priceCurrency": "CLP", "lowPrice": "95000", "highPrice": "220000", "availability": "https://schema.org/InStock", "url": "https://www.lumaarte.com/#pinturas" }
+        "offers": { "@type": "AggregateOffer", "priceCurrency": "CLP", "lowPrice": "75000", "highPrice": "220000", "availability": "https://schema.org/InStock", "url": "https://www.lumaarte.com/#pinturas" }
       }
     },
     {
@@ -156,7 +156,7 @@ export const prerender = true;
         "description": "Pintura original en técnica mixta. Figura femenina entre hortensias en acuarela, pastel al óleo y bordado sobre papel.",
         "image": "https://www.lumaarte.com/img/obra4.png",
         "brand": { "@type": "Brand", "name": "Luma Arte" },
-        "offers": { "@type": "AggregateOffer", "priceCurrency": "CLP", "lowPrice": "95000", "highPrice": "220000", "availability": "https://schema.org/InStock", "url": "https://www.lumaarte.com/#pinturas" }
+        "offers": { "@type": "AggregateOffer", "priceCurrency": "CLP", "lowPrice": "75000", "highPrice": "220000", "availability": "https://schema.org/InStock", "url": "https://www.lumaarte.com/#pinturas" }
       }
     },
     {
@@ -167,7 +167,7 @@ export const prerender = true;
         "description": "Pintura original horizontal en técnica mixta. El icónico bosque de arrayanes patagónico en acuarela, pastel al óleo y bordado sobre papel.",
         "image": "https://www.lumaarte.com/img/obra5.png",
         "brand": { "@type": "Brand", "name": "Luma Arte" },
-        "offers": { "@type": "AggregateOffer", "priceCurrency": "CLP", "lowPrice": "95000", "highPrice": "220000", "availability": "https://schema.org/InStock", "url": "https://www.lumaarte.com/#pinturas" }
+        "offers": { "@type": "AggregateOffer", "priceCurrency": "CLP", "lowPrice": "75000", "highPrice": "220000", "availability": "https://schema.org/InStock", "url": "https://www.lumaarte.com/#pinturas" }
       }
     }
   ]
@@ -843,17 +843,17 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
 // ── PRECIOS: actualiza estos valores antes de publicar ─
 const OBRAS = [
   { base:'obra1', title:'Dúo Lilium y Volcanes I',  disponible:true, horizontal:false,
-    precios:{'30 × 40 cm':95000,'40 × 50 cm':145000,'50 × 70 cm':220000} },
+    precios:{'21 × 30 cm':75000,'30 × 40 cm':95000,'40 × 50 cm':145000,'50 × 70 cm':220000} },
   { base:'obra2', title:'Dúo Lilium y Volcanes II', disponible:true, horizontal:false,
-    precios:{'30 × 40 cm':95000,'40 × 50 cm':145000,'50 × 70 cm':220000} },
+    precios:{'21 × 30 cm':75000,'30 × 40 cm':95000,'40 × 50 cm':145000,'50 × 70 cm':220000} },
   { base:'obra3', title:'Rostro de Chilcos',         disponible:true, horizontal:false, imgPos:'top center',
-    precios:{'30 × 40 cm':95000,'40 × 50 cm':145000,'50 × 70 cm':220000} },
+    precios:{'21 × 30 cm':75000,'30 × 40 cm':95000,'40 × 50 cm':145000,'50 × 70 cm':220000} },
   { base:'obra4', title:'Mujer Hortensia',           disponible:true, horizontal:false,
-    precios:{'30 × 40 cm':95000,'40 × 50 cm':145000,'50 × 70 cm':220000} },
+    precios:{'21 × 30 cm':75000,'30 × 40 cm':95000,'40 × 50 cm':145000,'50 × 70 cm':220000} },
   { base:'obra5', title:'Bosque de Arrayanes',       disponible:true, horizontal:true,
-    precios:{'30 × 40 cm':95000,'40 × 50 cm':145000,'50 × 70 cm':220000} },
+    precios:{'21 × 30 cm':75000,'30 × 40 cm':95000,'40 × 50 cm':145000,'50 × 70 cm':220000} },
 ];
-const SIZES = ['30 × 40 cm','40 × 50 cm','50 × 70 cm'];
+const SIZES = ['21 × 30 cm','30 × 40 cm','40 × 50 cm','50 × 70 cm'];
 const GC_IMGS = ['/img/gc1.jpg','/img/gc2.jpg','/img/gc3.jpg','/img/gc4.jpg','/img/gc5.jpg','/img/gc6.jpg'];
 
 // ── ESTADO ─────────────────────────────────────────
@@ -957,7 +957,7 @@ window.selectSize = (i,sz)=>{
 };
 window.comprar = (i)=>{
   const o=OBRAS[i];
-  const size=S.sizes[i]||'30 × 40 cm';
+  const size=S.sizes[i]||'21 × 30 cm';
   const precio=o.precios[size]||0;
   const matLabel=S.mat[i]==='black'?'Paspartú negro':'Paspartú blanco';
   S.cart.push({title:o.title,img:`/img/${o.base}.png`,detail:`${size} · ${matLabel}`,precio,key:Date.now()+'-'+i});

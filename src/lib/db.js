@@ -13,8 +13,8 @@ async function migrate(db) {
   const existing = cols.map(r => r.name);
 
   const newCols = [
-    ['precio_30x40',              'INTEGER DEFAULT 0'],
-    ['precio_40x50',              'INTEGER DEFAULT 0'],
+    ['precio_A4',                 'INTEGER DEFAULT 0'],
+    ['precio_30x40',              'INTEGER DEFAULT 0'],    ['precio_40x50',              'INTEGER DEFAULT 0'],
     ['precio_50x70',              'INTEGER DEFAULT 0'],
     ['costo_produccion',          'INTEGER DEFAULT 0'],
     ['costo_enmarcado',           'INTEGER DEFAULT 0'],
@@ -38,6 +38,7 @@ export async function initDb() {
       serie                     TEXT,
       tecnica                   TEXT,
       dimensiones               TEXT,
+      precio_A4                 INTEGER DEFAULT 0,
       precio_30x40              INTEGER DEFAULT 0,
       precio_40x50              INTEGER DEFAULT 0,
       precio_50x70              INTEGER DEFAULT 0,
@@ -161,11 +162,14 @@ export async function initDb() {
     )
   `);
 
+  // Migración puntual: actualizar costo_enmarcado_A4 si aún está vacío
+  await db.execute(`UPDATE configuracion SET valor='33900', descripcion='Enmarcado A4 con paspartú 3cm (Maderarte Frutillar)' WHERE clave='costo_enmarcado_A4' AND (valor IS NULL OR valor='')`);
+
   // Seed costos de enmarcado e impresión si no existen
   const costosSeed = [
     // Talla A4 (impresión 22×15 cm, marco A4 con paspartú 3cm)
     ['costo_impresion_A4',    '3117',  'Impresión obra 22×15 cm — talla A4 con paspartú 3cm'],
-    ['costo_enmarcado_A4',    '',      'Enmarcado A4 con paspartú 3cm (pendiente valor Maderarte Frutillar)'],
+    ['costo_enmarcado_A4',    '33900', 'Enmarcado A4 con paspartú 3cm (Maderarte Frutillar)'],
     // Talla 30×40 (impresión 30×21 cm, marco 30×35 + paspartú 3cm Maderarte)
     ['costo_impresion_30x40', '7000',  'Impresión obra 30×21 cm — talla 30×40 con paspartú 3cm'],
     ['costo_enmarcado_30x40', '39900', 'Enmarcado 30×35 con paspartú 3cm — talla 30×40 (Maderarte Frutillar)'],
