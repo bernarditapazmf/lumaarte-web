@@ -9,6 +9,12 @@ export default defineConfig({
 	site: 'https://www.lumaarte.com',
 	output: 'server',
 	adapter: node({ mode: 'standalone' }),
-	integrations: [mdx(), sitemap()],
+	integrations: [mdx(), sitemap({
+		filter: (page) =>
+			!page.includes('/admin/') &&
+			!page.includes('/api/') &&
+			!page.endsWith('/pago-resultado/') &&
+			!page.endsWith('/about/'),
+	})],
 	security: { checkOrigin: false },
 });

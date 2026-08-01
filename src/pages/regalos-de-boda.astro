@@ -1,0 +1,411 @@
+---
+export const prerender = true;
+import CartDrawer from '../components/CartDrawer.astro';
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Regalos de Boda Originales — Pinturas del Sur de Chile | Luma Arte</title>
+<meta name="description" content="El regalo de boda que no se olvida: una pintura original del sur de Chile en técnica mixta. Acuarela, pastel al óleo y bordado a mano. Con paspartú artesanal en madera nativa. Envíos a todo Chile." />
+<link rel="canonical" href="https://www.lumaarte.com/regalos-de-boda" />
+<meta name="robots" content="index, follow" />
+
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="es_CL" />
+<meta property="og:site_name" content="Luma Arte" />
+<meta property="og:title" content="Regalos de Boda Originales — Pinturas del Sur de Chile | Luma Arte" />
+<meta property="og:description" content="El regalo de boda que no se olvida: una pintura original del sur de Chile en técnica mixta. Con paspartú en madera nativa." />
+<meta property="og:image" content="https://www.lumaarte.com/img/insp1.jpg" />
+<meta property="og:url" content="https://www.lumaarte.com/regalos-de-boda" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Regalos de Boda Originales — Pinturas del Sur de Chile | Luma Arte" />
+<meta name="twitter:description" content="El regalo de boda que no se olvida: una pintura original del sur de Chile." />
+<meta name="twitter:image" content="https://www.lumaarte.com/img/insp1.jpg" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Regalos de Boda Originales — Luma Arte",
+  "description": "Pinturas originales del sur de Chile como regalo de boda. Arte en técnica mixta con paspartú en madera nativa.",
+  "url": "https://www.lumaarte.com/regalos-de-boda",
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://www.lumaarte.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Regalos de Boda", "item": "https://www.lumaarte.com/regalos-de-boda" }
+    ]
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "¿Por qué una pintura original es un buen regalo de boda?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Una pintura original es un regalo de boda único e irrepetible que la pareja conservará toda la vida. A diferencia de los regalos convencionales, una obra de arte del sur de Chile tiene historia, origen y alma — algo que se lleva a cualquier hogar. Cada pieza de Luma Arte viene con paspartú artesanal en madera nativa reciclada, lista para colgar."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Qué tamaños hay disponibles para regalar en una boda?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Para regalo de boda hay tres tamaños: 30×40 cm ($95.000 CLP) ideal como detalle íntimo, 40×50 cm ($145.000 CLP) para una pieza con presencia, y 50×70 cm ($220.000 CLP) para un regalo de boda principal que impacte. Todos incluyen paspartú artesanal."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Se puede encargar una obra para una fecha de matrimonio específica?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sí. Para regalos de boda con fecha específica se recomienda contactar con al menos 3 semanas de anticipación para asegurar disponibilidad y tiempo de enmarcado artesanal. Puedes escribir directamente desde la sección Colaboremos en el sitio web."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Qué es una giftcard de arte como regalo de boda?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Una giftcard de Luma Arte es un regalo de boda digital que la pareja puede usar para elegir su propia pintura original del sur de Chile. Viene con diseño artístico personalizable y mensaje de dedicatoria. Se envía por correo electrónico de forma inmediata."
+      }
+    }
+  ]
+}
+</script>
+
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style is:global>
+@font-face{font-family:'Mackinac';src:url('/fonts/Mackinac-Book.otf') format('opentype');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Mackinac';src:url('/fonts/Mackinac-BookItalic.otf') format('opentype');font-weight:400;font-style:italic;font-display:swap}
+@font-face{font-family:'Mackinac';src:url('/fonts/Mackinac-Medium.otf') format('opentype');font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:'Mackinac';src:url('/fonts/Mackinac-MediumItalic.otf') format('opentype');font-weight:500;font-style:italic;font-display:swap}
+@font-face{font-family:'CoFo Sans';src:url('/fonts/CoFoSans-Light.otf') format('opentype');font-weight:300;font-style:normal;font-display:swap}
+@font-face{font-family:'CoFo Sans';src:url('/fonts/CoFoSans-Regular.otf') format('opentype');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'CoFo Sans';src:url('/fonts/CoFoSans-Medium.otf') format('opentype');font-weight:500;font-style:normal;font-display:swap}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{background:#FDFCF8;font-family:'CoFo Sans',system-ui,sans-serif;color:#211f18;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:#54582f}
+a:hover{color:#3c3f21}
+
+@keyframes lumaDrift{0%{transform:scale(1.08) translate(0,0)}50%{transform:scale(1.14) translate(-1%,-.8%)}100%{transform:scale(1.08) translate(0,0)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+
+.nav{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:26px 48px;z-index:20}
+.nav-logo{height:60px;width:104px;filter:brightness(0) invert(1);opacity:.97;object-fit:contain}
+.nav-links{display:flex;align-items:center;gap:36px}
+.nav-link{font:500 12px/1 'Spline Sans Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#fdfcf8;text-decoration:none;padding-bottom:3px;border-bottom:1px solid transparent;transition:border-color .2s}
+.nav-link:hover{border-bottom-color:rgba(253,252,248,.7)}
+.nav-cart{display:flex;align-items:center;gap:8px;background:none;border:none;color:#fdfcf8;padding:6px 2px;font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.06em;cursor:pointer}
+.nav-cart:hover{opacity:.8}
+
+.hero{position:relative;height:70vh;min-height:500px;overflow:hidden;background:#1a1f14}
+.hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 40%;animation:lumaDrift 52s ease-in-out infinite}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,22,14,.52) 0%,rgba(20,22,14,.1) 30%,rgba(20,22,14,.28) 58%,rgba(20,22,14,.85) 100%)}
+.hero-body{position:absolute;left:48px;right:48px;bottom:72px;z-index:10;max-width:900px}
+.hero-eyebrow{font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.3em;text-transform:uppercase;color:rgba(253,252,248,.7);margin-bottom:18px}
+.hero-h1{font-family:'Mackinac',serif;font-weight:400;font-size:clamp(36px,5vw,60px);line-height:1.08;letter-spacing:-.02em;color:#fdfcf8}
+.hero-sub{margin:20px 0 0;font:300 17px/1.65 'CoFo Sans';color:rgba(253,252,248,.88);max-width:48ch}
+.hero-cta{display:inline-block;margin-top:30px;padding:15px 32px;border-radius:60px;background:#FDFCF8;color:#211f18;font:500 12px/1 'Spline Sans Mono',monospace;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;transition:background .2s}
+.hero-cta:hover{background:#efece3;color:#211f18}
+
+.section{padding:88px 48px;max-width:1100px;margin:0 auto}
+.section--alt{background:#F3F0E9;max-width:none;padding:88px 48px}
+.section--alt .section-inner{max-width:1100px;margin:0 auto}
+.eyebrow{font:500 12px/1 'Spline Sans Mono',monospace;letter-spacing:.3em;text-transform:uppercase;color:#54582f;margin-bottom:16px}
+.h2{font-family:'Mackinac',serif;font-weight:400;font-size:clamp(28px,3.5vw,44px);line-height:1.1;letter-spacing:-.02em;margin-bottom:20px}
+.lead{font:300 17px/1.75 'CoFo Sans';color:rgba(33,31,24,.8);max-width:58ch;margin-bottom:36px}
+
+.obras-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:36px 28px;margin-top:52px}
+.obra-card{border-radius:8px;overflow:hidden;background:#F3F0E9;text-decoration:none;color:#211f18;display:flex;flex-direction:column}
+.obra-card img{width:100%;aspect-ratio:4/5;object-fit:cover;transition:transform .9s cubic-bezier(.16,1,.3,1)}
+.obra-card:hover img{transform:scale(1.06)}
+.obra-card-body{padding:20px 18px}
+.obra-card-title{font-family:'Mackinac',serif;font-weight:400;font-size:18px;margin-bottom:6px}
+.obra-card-price{font:500 12px/1 'Spline Sans Mono',monospace;letter-spacing:.08em;color:#54582f}
+
+.por-que{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.por-que-img{border-radius:12px;overflow:hidden;aspect-ratio:4/3}
+.por-que-img img{width:100%;height:100%;object-fit:cover}
+.beneficios{display:flex;flex-direction:column;gap:28px;margin-top:32px}
+.beneficio{display:flex;gap:18px;align-items:flex-start}
+.beneficio-num{font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.2em;color:#54582f;min-width:28px;padding-top:3px}
+.beneficio-txt h3{font-family:'Mackinac',serif;font-weight:400;font-size:20px;margin-bottom:6px}
+.beneficio-txt p{font:300 15px/1.65 'CoFo Sans';color:rgba(33,31,24,.7)}
+
+.precios-tabla{width:100%;border-collapse:collapse;margin-top:36px}
+.precios-tabla th{font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.18em;text-transform:uppercase;color:rgba(33,31,24,.5);padding:12px 16px;border-bottom:.5px solid rgba(33,31,24,.2);text-align:left}
+.precios-tabla td{padding:14px 16px;border-bottom:.5px solid rgba(33,31,24,.1);font:300 15px/1.5 'CoFo Sans';color:rgba(33,31,24,.85)}
+.precios-tabla tr:last-child td{border-bottom:none}
+.precio-tag{font:500 14px/1 'CoFo Sans';color:#54582f}
+
+.faq{margin-top:56px;display:flex;flex-direction:column;gap:0}
+.faq-item{border-top:.5px solid rgba(33,31,24,.2);padding:28px 0}
+.faq-item:last-child{border-bottom:.5px solid rgba(33,31,24,.2)}
+.faq-q{font-family:'Mackinac',serif;font-weight:400;font-size:20px;line-height:1.3;margin-bottom:12px}
+.faq-a{font:300 15px/1.72 'CoFo Sans';color:rgba(33,31,24,.75);max-width:72ch}
+
+.cta-band{background:#211f18;color:#f3f0e9;padding:80px 48px;text-align:center}
+.cta-band h2{font-family:'Mackinac',serif;font-weight:400;font-size:clamp(28px,3.5vw,42px);line-height:1.12;letter-spacing:-.015em;margin-bottom:18px}
+.cta-band p{font:300 16px/1.7 'CoFo Sans';color:rgba(243,240,233,.75);max-width:52ch;margin:0 auto 36px}
+.cta-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.cta-btn{padding:15px 32px;border-radius:60px;font:500 12px/1 'Spline Sans Mono',monospace;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;transition:all .2s}
+.cta-btn--primary{background:#FDFCF8;color:#211f18}
+.cta-btn--primary:hover{background:#efece3;color:#211f18}
+.cta-btn--outline{background:transparent;color:#f3f0e9;border:1px solid rgba(243,240,233,.4)}
+.cta-btn--outline:hover{border-color:#f3f0e9}
+
+.footer{background:#211f18;color:#f3f0e9;padding:64px 48px 38px}
+.footer-inner{max-width:1000px;margin:0 auto}
+.footer-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:36px;padding-bottom:42px;border-bottom:.5px solid rgba(243,240,233,.18)}
+.footer-logo{height:52px;filter:brightness(0) invert(1);opacity:.95}
+.footer-tagline{margin:22px 0 0;font:300 14px/1.7 'CoFo Sans';color:rgba(243,240,233,.65)}
+.footer-col-label{font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.22em;text-transform:uppercase;color:rgba(243,240,233,.5);margin-bottom:14px}
+.footer-email{display:block;color:#f3f0e9;font:400 14px 'CoFo Sans';text-decoration:none;margin-bottom:8px}
+.footer-email:hover{color:#cdd3ae}
+.footer-address{font:300 13px/1.7 'CoFo Sans';color:rgba(243,240,233,.55)}
+.footer-ig{display:inline-flex;align-items:center;gap:10px;color:#f3f0e9;text-decoration:none;font:400 15px 'CoFo Sans'}
+.footer-ig:hover{color:#cdd3ae}
+.footer-copy{padding-top:22px;font:400 11.5px/1 'CoFo Sans';color:rgba(243,240,233,.45)}
+.footer-links{display:flex;gap:52px}
+
+@media(max-width:900px){
+  .nav{padding:20px 24px}.nav-links{gap:20px}.nav-link{font-size:10px}
+  .hero-body{left:24px;right:24px;bottom:48px}
+  .section{padding:56px 24px}.section--alt{padding:56px 24px}
+  .por-que{grid-template-columns:1fr}
+  .obras-grid{grid-template-columns:1fr 1fr;gap:24px}
+  .cta-band{padding:56px 24px}
+  .footer{padding:48px 24px 32px}.footer-top{flex-direction:column}.footer-links{gap:32px}
+}
+@media(max-width:600px){
+  .nav-links{display:none}.nav-logo{height:50px;width:87px}
+  .obras-grid{grid-template-columns:1fr}
+  .hero-h1{font-size:32px}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero" aria-label="Regalos de boda originales — Luma Arte">
+  <img class="hero-bg" src="/img/insp1.jpg" alt="Pintura original del sur de Chile — regalo de boda" fetchpriority="high" decoding="async" />
+  <div class="hero-overlay" aria-hidden="true"></div>
+  <nav class="nav" aria-label="Navegación principal">
+    <a href="/" aria-label="Ir al inicio — Luma Arte">
+      <img class="nav-logo" src="/img/luma-logo.png" alt="Luma Arte" />
+    </a>
+    <div class="nav-links">
+      <a class="nav-link" href="/#pinturas">Pinturas</a>
+      <a class="nav-link" href="/sobremi">Sobre mí</a>
+      <a class="nav-link" href="/blog">Blog</a>
+      <a class="nav-link" href="/#giftcards">Giftcard</a>
+      <a class="nav-link" href="/#contacto">Contacto</a>
+      <button class="nav-cart" id="btn-cart-shared" aria-label="Ver carrito">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span id="cart-count-shared">(0)</span>
+      </button>
+    </div>
+  </nav>
+  <div class="hero-body">
+    <p class="hero-eyebrow">Luma Arte · Regalos de Boda</p>
+    <h1 class="hero-h1">El regalo de boda que<br><em>no se olvida.</em></h1>
+    <p class="hero-sub">Una pintura original del sur de Chile — arte en técnica mixta con alma patagónica. El regalo de matrimonio más especial que encontrarás.</p>
+    <a class="hero-cta" href="/#pinturas">Ver obras disponibles</a>
+  </div>
+</section>
+
+<!-- POR QUÉ UNA PINTURA -->
+<div class="section">
+  <div class="por-que">
+    <div>
+      <p class="eyebrow">Por qué funciona</p>
+      <h2 class="h2">Un regalo de boda que vive con la pareja para siempre</h2>
+      <p class="lead">Los regalos de boda convencionales se usan y se olvidan. Una pintura original se cuelga en el primer hogar de la pareja y los acompaña en cada etapa de su vida.</p>
+      <div class="beneficios">
+        <div class="beneficio">
+          <span class="beneficio-num">01</span>
+          <div class="beneficio-txt">
+            <h3>Única e irrepetible</h3>
+            <p>Cada obra de Luma Arte es original — no hay dos iguales. La pareja recibirá algo que nadie más tiene en el mundo.</p>
+          </div>
+        </div>
+        <div class="beneficio">
+          <span class="beneficio-num">02</span>
+          <div class="beneficio-txt">
+            <h3>Arte del sur de Chile con historia</h3>
+            <p>Técnica mixta — acuarela, pastel al óleo y bordado a mano — inspirada en la flora nativa patagónica. Arte con origen, con tierra.</p>
+          </div>
+        </div>
+        <div class="beneficio">
+          <span class="beneficio-num">03</span>
+          <div class="beneficio-txt">
+            <h3>Lista para colgar desde el primer día</h3>
+            <p>Todas las obras incluyen paspartú artesanal en madera nativa reciclada del sur de Chile. No necesitan nada más — llegan listas para el nuevo hogar.</p>
+          </div>
+        </div>
+        <div class="beneficio">
+          <span class="beneficio-num">04</span>
+          <div class="beneficio-txt">
+            <h3>Envío a todo Chile</h3>
+            <p>Embalaje protegido especialmente diseñado para garantizar que la obra llegue perfecta hasta la dirección de los novios.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="por-que-img">
+      <img src="/img/oficio.jpg" alt="Pinturas originales del sur de Chile — arte patagónico técnica mixta" loading="lazy" decoding="async" />
+    </div>
+  </div>
+</div>
+
+<!-- PRECIOS -->
+<div class="section--alt">
+  <div class="section-inner">
+    <p class="eyebrow">Tamaños y precios</p>
+    <h2 class="h2">¿Cuánto cuesta un regalo de boda en arte original?</h2>
+    <p class="lead">Tres tamaños disponibles — todos incluyen enmarcado artesanal en madera nativa reciclada (mañío, laurel, coihue o roble).</p>
+    <table class="precios-tabla">
+      <thead>
+        <tr>
+          <th>Tamaño</th>
+          <th>Formato</th>
+          <th>Precio</th>
+          <th>Ideal para</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>30 × 40 cm</td>
+          <td>Vertical</td>
+          <td class="precio-tag">$95.000 CLP</td>
+          <td>Regalo de boda complementario o detalle</td>
+        </tr>
+        <tr>
+          <td>40 × 50 cm</td>
+          <td>Vertical</td>
+          <td class="precio-tag">$145.000 CLP</td>
+          <td>Regalo de boda principal con presencia</td>
+        </tr>
+        <tr>
+          <td>50 × 70 cm</td>
+          <td>Vertical u horizontal</td>
+          <td class="precio-tag">$220.000 CLP</td>
+          <td>Regalo de boda memorable — pieza central</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- OBRAS DESTACADAS -->
+<div class="section">
+  <p class="eyebrow">Obras disponibles</p>
+  <h2 class="h2">Pinturas originales para regalar en una boda</h2>
+  <p class="lead">Cada obra de Luma Arte está inspirada en la flora y paisajes del sur de Chile — chilcos, hortensias, volcanes, arrayanes. Arte vivo para un hogar nuevo.</p>
+  <div class="obras-grid">
+    <a class="obra-card" href="/#pinturas">
+      <img src="/img/obra1.png" alt="Dúo Lilium y Volcanes I — pintura original regalo de boda" loading="lazy" decoding="async" />
+      <div class="obra-card-body">
+        <div class="obra-card-title">Dúo Lilium y Volcanes I</div>
+        <div class="obra-card-price">Desde $95.000 CLP</div>
+      </div>
+    </a>
+    <a class="obra-card" href="/#pinturas">
+      <img src="/img/obra3.png" alt="Rostro de Chilcos — pintura original técnica mixta sur de Chile" loading="lazy" decoding="async" />
+      <div class="obra-card-body">
+        <div class="obra-card-title">Rostro de Chilcos</div>
+        <div class="obra-card-price">Desde $95.000 CLP</div>
+      </div>
+    </a>
+    <a class="obra-card" href="/#pinturas">
+      <img src="/img/obra4.png" alt="Mujer Hortensia — pintura original acuarela bordado sur de Chile" loading="lazy" decoding="async" />
+      <div class="obra-card-body">
+        <div class="obra-card-title">Mujer Hortensia</div>
+        <div class="obra-card-price">Desde $95.000 CLP</div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="section--alt">
+  <div class="section-inner">
+    <p class="eyebrow">Preguntas frecuentes</p>
+    <h2 class="h2">Todo sobre regalos de boda en arte original</h2>
+    <div class="faq">
+      <div class="faq-item">
+        <h3 class="faq-q">¿Por qué una pintura original es un buen regalo de boda?</h3>
+        <p class="faq-a">Porque es única, tiene alma y los acompaña toda la vida. A diferencia de los regalos convencionales, una pintura original del sur de Chile tiene historia, origen y una estética que no pasa de moda. Viene lista para colgar desde el primer día en el nuevo hogar.</p>
+      </div>
+      <div class="faq-item">
+        <h3 class="faq-q">¿Con cuánta anticipación hay que hacer el pedido para una boda?</h3>
+        <p class="faq-a">Se recomienda contactar con al menos 3 semanas de anticipación a la fecha del matrimonio. El enmarcado artesanal toma entre 5 y 10 días hábiles, más el envío. Para bodas con fechas muy específicas, escríbenos por la sección Colaboremos.</p>
+      </div>
+      <div class="faq-item">
+        <h3 class="faq-q">¿Se puede regalar una giftcard para que los novios elijan su obra?</h3>
+        <p class="faq-a">Sí. La giftcard de Luma Arte es perfecta si quieres que los novios elijan la obra que más les gusta. La giftcard tiene diseño artístico personalizable, mensaje de dedicatoria y se envía por correo electrónico de forma inmediata. Disponible desde $95.000 CLP.</p>
+      </div>
+      <div class="faq-item">
+        <h3 class="faq-q">¿Hacen envíos a todo Chile para regalos de boda?</h3>
+        <p class="faq-a">Sí. Luma Arte despacha a todo Chile con embalaje especial para obras de arte. El envío toma entre 3 y 5 días hábiles adicionales al tiempo de enmarcado. Se coordina directamente con el comprador para asegurar que llegue a tiempo para el matrimonio.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA FINAL -->
+<div class="cta-band">
+  <h2>¿Lista para encontrar el regalo de boda perfecto?</h2>
+  <p>Elige una pintura original del sur de Chile o regala una giftcard de arte para que los novios elijan ellos mismos.</p>
+  <div class="cta-btns">
+    <a class="cta-btn cta-btn--primary" href="/#pinturas">Ver pinturas originales</a>
+    <a class="cta-btn cta-btn--outline" href="/#giftcards">Regalar una giftcard</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <img class="footer-logo" src="/img/luma-logo.png" alt="Luma Arte" />
+        <p class="footer-tagline">Arte original inspirado en la naturaleza del sur de Chile.</p>
+      </div>
+      <div class="footer-links">
+        <div>
+          <div class="footer-col-label">Contacto</div>
+          <a class="footer-email" href="mailto:contacto@lumaproducciones.cl">contacto@lumaproducciones.cl</a>
+          <div class="footer-address">Puerto Varas, Región de Los Lagos</div>
+        </div>
+        <div>
+          <div class="footer-col-label">Síguenos</div>
+          <a class="footer-ig" href="https://www.instagram.com/lumaartechile" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5.5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+            @lumaartechile
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-copy">© 2026 Luma Producciones · Todas las obras son originales de Luma.</div>
+  </div>
+</footer>
+
+<CartDrawer />
+</body>
+</html>

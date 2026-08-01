@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /api/
+Disallow: /admin/
+Disallow: /cms/
+Disallow: /pago-resultado
+
+Sitemap: https://www.lumaarte.com/sitemap-index.xml
