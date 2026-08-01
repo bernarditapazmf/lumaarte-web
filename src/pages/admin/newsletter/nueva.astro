@@ -1,0 +1,299 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { isAuthenticated } from '../../../lib/auth.js';
+import { initDb } from '../../../lib/db.js';
+
+if (!isAuthenticated(Astro.request)) return Astro.redirect('/admin/login');
+
+const id = Astro.url.searchParams.get('id');
+let campana = null;
+if (id) {
+  const db = await initDb();
+  const { rows } = await db.execute({ sql: 'SELECT * FROM campanas WHERE id=?', args: [id] });
+  campana = rows[0] ?? null;
+}
+
+const cuerpoInicial = campana?.cuerpo ? JSON.parse(campana.cuerpo) : [{ type: 'text', content: '' }];
+---
+<AdminLayout title={campana ? 'Editar campaña' : 'Nueva campaña'} active="newsletter">
+<style>
+  .composer{display:grid;grid-template-columns:1fr 480px;gap:24px;height:calc(100vh - 90px)}
+  .panel{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+  .panel-head{padding:16px 20px;border-bottom:.5px solid rgba(33,31,24,.08);display:flex;align-items:center;justify-content:space-between}
+  .panel-title{font-family:'Mackinac',serif;font-size:15px;font-weight:400}
+  .panel-body{flex:1;overflow-y:auto;padding:20px}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(33,31,24,.45);margin-bottom:6px}
+  .field input,.field textarea,.field select{width:100%;border:.5px solid rgba(33,31,24,.2);border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;color:#211f18;background:#fff;outline:none;resize:vertical}
+  .field input:focus,.field textarea:focus{border-color:#54582f}
+  .sections{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
+  .section-block{border:.5px solid rgba(33,31,24,.12);border-radius:8px;padding:14px;background:#faf9f5;position:relative}
+  .section-type{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#54582f;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+  .section-del{background:none;border:none;color:rgba(170,51,51,.6);font-size:11px;cursor:pointer;padding:0}
+  .section-del:hover{color:#a33}
+  .section-block textarea{width:100%;border:.5px solid rgba(33,31,24,.15);border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit;resize:vertical;min-height:80px;background:#fff;outline:none}
+  .section-block textarea:focus{border-color:#54582f}
+  .section-block input{width:100%;border:.5px solid rgba(33,31,24,.15);border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit;background:#fff;outline:none;margin-bottom:6px}
+  .section-block input:focus{border-color:#54582f}
+  .add-section{display:flex;gap:8px;flex-wrap:wrap}
+  .btn-add{padding:7px 14px;border-radius:8px;font-size:11px;border:.5px solid rgba(33,31,24,.25);background:transparent;color:rgba(33,31,24,.6);cursor:pointer;font-family:inherit;transition:all .15s}
+  .btn-add:hover{background:#54582f;border-color:#54582f;color:#fdfcf8}
+  .actions-bar{padding:14px 20px;border-top:.5px solid rgba(33,31,24,.08);display:flex;gap:10px;flex-wrap:wrap}
+  .btn{padding:9px 18px;border-radius:8px;font-size:12px;font-family:inherit;cursor:pointer;transition:all .15s;letter-spacing:.03em}
+  .btn-save{background:transparent;border:.5px solid rgba(33,31,24,.25);color:rgba(33,31,24,.7)}
+  .btn-save:hover{background:rgba(33,31,24,.06)}
+  .btn-test{background:#f0ede5;border:.5px solid rgba(33,31,24,.15);color:#211f18}
+  .btn-test:hover{background:#e8e4d8}
+  .btn-send{background:#54582f;border:.5px solid #54582f;color:#fdfcf8}
+  .btn-send:hover{background:#3a3d1f}
+  .btn-send:disabled{opacity:.5;cursor:not-allowed}
+  .status{font-size:12px;padding:8px 12px;border-radius:6px;display:none}
+  .status.ok{background:#e8eddd;color:#3a4020;display:block}
+  .status.err{background:#fde8d8;color:#7a2010;display:block}
+  /* PREVIEW */
+  .preview-frame{flex:1;overflow-y:auto;background:#e8e4dc}
+  .preview-frame iframe{width:100%;height:100%;border:none}
+  @media(max-width:1100px){.composer{grid-template-columns:1fr}}
+</style>
+
+<div class="composer">
+  <!-- EDITOR -->
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-title">Composición</span>
+      <a href="/admin/newsletter" style="font-size:12px;color:rgba(33,31,24,.45);text-decoration:none">← Volver</a>
+    </div>
+    <div class="panel-body">
+      <div class="field">
+        <label>Asunto del correo *</label>
+        <input id="f-asunto" type="text" placeholder="Ej: Nuevas obras disponibles — Luma Arte" value={campana?.asunto ?? ''} />
+      </div>
+      <div class="field">
+        <label>Texto de previsualización (preheader)</label>
+        <input id="f-preheader" type="text" placeholder="Texto breve que se ve en bandeja de entrada..." value={campana?.preheader ?? ''} />
+      </div>
+      <div class="field">
+        <label>Imagen de header (URL completa o /img/...)</label>
+        <input id="f-header-img" type="text" placeholder="https://www.lumaarte.com/img/field.jpg" value={campana?.header_img ?? ''} />
+      </div>
+
+      <div class="field" style="margin-bottom:8px">
+        <label>Secciones de contenido</label>
+      </div>
+      <div class="sections" id="sections-wrap"></div>
+      <div class="add-section">
+        <button class="btn-add" onclick="addSection('text')">+ Párrafo</button>
+        <button class="btn-add" onclick="addSection('heading')">+ Título</button>
+        <button class="btn-add" onclick="addSection('image')">+ Imagen</button>
+        <button class="btn-add" onclick="addSection('button')">+ Botón CTA</button>
+        <button class="btn-add" onclick="addSection('divider')">+ Separador</button>
+      </div>
+    </div>
+    <div class="actions-bar">
+      <button class="btn btn-save" onclick="save()">Guardar borrador</button>
+      <button class="btn btn-test" onclick="sendTest()">Enviar prueba a mí</button>
+      <button class="btn btn-send" id="btn-send" onclick="sendAll()">
+        Enviar a suscriptores →
+      </button>
+    </div>
+    <div style="padding:0 20px 14px">
+      <div class="status" id="status-msg"></div>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-title">Vista previa</span>
+      <button onclick="refreshPreview()" style="font-size:11px;border:none;background:none;color:#54582f;cursor:pointer">↺ Actualizar</button>
+    </div>
+    <div class="preview-frame">
+      <iframe id="preview-frame" title="Vista previa del email"></iframe>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ cuerpoInicial, campanaId: campana?.id ?? null, campanaEstado: campana?.estado ?? 'borrador' }}>
+let sections = cuerpoInicial.map((s, i) => ({ ...s, _id: i }));
+let nextId = sections.length;
+
+function addSection(type) {
+  const s = { type, _id: nextId++ };
+  if (type === 'text') s.content = '';
+  if (type === 'heading') s.content = '';
+  if (type === 'image') { s.url = ''; s.alt = ''; }
+  if (type === 'button') { s.label = 'Ver obras →'; s.url = 'https://www.lumaarte.com/#pinturas'; }
+  if (type === 'divider') {}
+  sections.push(s);
+  renderSections();
+  refreshPreview();
+}
+
+function removeSection(id) {
+  sections = sections.filter(s => s._id !== id);
+  renderSections();
+  refreshPreview();
+}
+
+function renderSections() {
+  const wrap = document.getElementById('sections-wrap');
+  wrap.innerHTML = sections.map(s => {
+    const typeLabel = { text: 'Párrafo', heading: 'Título', image: 'Imagen', button: 'Botón CTA', divider: 'Separador' }[s.type] || s.type;
+    let fields = '';
+    if (s.type === 'text') {
+      fields = `<textarea rows="4" oninput="updateSection(${s._id},'content',this.value)" placeholder="Escribe el contenido del párrafo...">${s.content ?? ''}</textarea>`;
+    } else if (s.type === 'heading') {
+      fields = `<input type="text" oninput="updateSection(${s._id},'content',this.value)" placeholder="Título de sección..." value="${(s.content??'').replace(/"/g,'&quot;')}" />`;
+    } else if (s.type === 'image') {
+      fields = `<input type="text" oninput="updateSection(${s._id},'url',this.value)" placeholder="URL de la imagen..." value="${(s.url??'').replace(/"/g,'&quot;')}" />`
+             + `<input type="text" oninput="updateSection(${s._id},'alt',this.value)" placeholder="Texto alternativo (descripción)..." value="${(s.alt??'').replace(/"/g,'&quot;')}" />`;
+    } else if (s.type === 'button') {
+      fields = `<input type="text" oninput="updateSection(${s._id},'label',this.value)" placeholder="Texto del botón..." value="${(s.label??'').replace(/"/g,'&quot;')}" />`
+             + `<input type="text" oninput="updateSection(${s._id},'url',this.value)" placeholder="URL de destino..." value="${(s.url??'').replace(/"/g,'&quot;')}" />`;
+    } else if (s.type === 'divider') {
+      fields = '<div style="height:1px;background:rgba(33,31,24,.15);border-radius:2px;margin:4px 0"></div>';
+    }
+    return `<div class="section-block">
+      <div class="section-type">${typeLabel}<button class="section-del" onclick="removeSection(${s._id})">✕ Eliminar</button></div>
+      ${fields}
+    </div>`;
+  }).join('');
+}
+
+function updateSection(id, key, value) {
+  const s = sections.find(x => x._id === id);
+  if (s) { s[key] = value; refreshPreview(); }
+}
+
+function getAsunto() { return document.getElementById('f-asunto').value.trim(); }
+function getPreheader() { return document.getElementById('f-preheader').value.trim(); }
+function getHeaderImg() { return document.getElementById('f-header-img').value.trim(); }
+
+function buildEmailHtml(asunto, preheader, headerImg, secs) {
+  const logo = 'https://www.lumaarte.com/img/luma-logo.png';
+  const sitio = 'https://www.lumaarte.com';
+
+  const headerBlock = headerImg
+    ? `<div style="width:100%;max-height:320px;overflow:hidden"><img src="${headerImg}" alt="${asunto}" style="width:100%;max-height:320px;object-fit:cover;display:block" /></div>`
+    : `<div style="background:#1a1f14;height:12px"></div>`;
+
+  const sectionsHtml = secs.map(s => {
+    if (s.type === 'text') return `<p style="font-family:Georgia,serif;font-size:16px;line-height:1.78;color:rgba(33,31,24,.85);margin:0 0 20px">${(s.content||'').replace(/\n/g,'<br/>')}</p>`;
+    if (s.type === 'heading') return `<h2 style="font-family:Georgia,serif;font-size:24px;font-weight:400;line-height:1.2;color:#211f18;margin:32px 0 14px;letter-spacing:-.01em">${s.content||''}</h2>`;
+    if (s.type === 'image' && s.url) return `<div style="margin:24px 0"><img src="${s.url}" alt="${s.alt||''}" style="width:100%;border-radius:8px;display:block" /></div>`;
+    if (s.type === 'button') return `<div style="text-align:center;margin:28px 0"><a href="${s.url||sitio}" style="display:inline-block;padding:14px 30px;border-radius:60px;background:#54582f;color:#fdfcf8;font-family:monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none">${s.label||'Ver obras →'}</a></div>`;
+    if (s.type === 'divider') return `<hr style="border:none;border-top:.5px solid rgba(33,31,24,.2);margin:28px 0" />`;
+    return '';
+  }).join('');
+
+  return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${asunto}</title></head>
+<body style="margin:0;padding:0;background:#e8e4dc;font-family:Georgia,serif">
+${preheader ? `<div style="display:none;max-height:0;overflow:hidden;color:transparent">${preheader}</div>` : ''}
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#e8e4dc;padding:32px 16px">
+  <tr><td align="center">
+    <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fdfcf8;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08)">
+      <!-- HEADER con logo -->
+      <tr><td style="background:#211f18;padding:22px 32px;text-align:center">
+        <a href="${sitio}"><img src="${logo}" alt="Luma Arte" style="height:44px;filter:brightness(0) invert(1);opacity:.96" /></a>
+      </td></tr>
+      <!-- IMAGEN HEADER -->
+      <tr><td>${headerBlock}</td></tr>
+      <!-- CONTENIDO -->
+      <tr><td style="padding:40px 40px 28px">
+        ${sectionsHtml}
+      </td></tr>
+      <!-- FOOTER -->
+      <tr><td style="background:#f3f0e9;padding:28px 40px;border-top:.5px solid rgba(33,31,24,.1)">
+        <p style="font-family:monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(33,31,24,.4);margin:0 0 8px">Luma Arte · Puerto Varas, Región de Los Lagos</p>
+        <p style="font-size:12px;color:rgba(33,31,24,.4);margin:0"><a href="${sitio}" style="color:#54582f">lumaarte.com</a> · <a href="${sitio}/#contacto" style="color:rgba(33,31,24,.4)">Cancelar suscripción</a></p>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body></html>`;
+}
+
+function refreshPreview() {
+  const html = buildEmailHtml(getAsunto() || 'Vista previa', getPreheader(), getHeaderImg(), sections);
+  const frame = document.getElementById('preview-frame');
+  const doc = frame.contentDocument || frame.contentWindow.document;
+  doc.open(); doc.write(html); doc.close();
+}
+
+function showStatus(msg, ok) {
+  const el = document.getElementById('status-msg');
+  el.textContent = msg;
+  el.className = 'status ' + (ok ? 'ok' : 'err');
+  setTimeout(() => { el.className = 'status'; }, 5000);
+}
+
+async function save() {
+  const asunto = getAsunto();
+  if (!asunto) { showStatus('El asunto es obligatorio.', false); return; }
+  const html = buildEmailHtml(asunto, getPreheader(), getHeaderImg(), sections);
+  const body = { id: campanaId, asunto, preheader: getPreheader(), header_img: getHeaderImg(), cuerpo: JSON.stringify(sections.map(({ _id, ...s }) => s)), html };
+  const res = await fetch('/api/admin/campana-save', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const data = await res.json();
+  if (data.ok) {
+    showStatus('Guardado correctamente.', true);
+    if (!campanaId && data.id) { history.replaceState(null,'',`/admin/newsletter/nueva?id=${data.id}`); campanaId = data.id; }
+  } else {
+    showStatus('Error al guardar: ' + (data.error||''), false);
+  }
+}
+
+async function sendTest() {
+  const asunto = getAsunto();
+  if (!asunto) { showStatus('El asunto es obligatorio.', false); return; }
+  await save();
+  const html = buildEmailHtml(asunto, getPreheader(), getHeaderImg(), sections);
+  const res = await fetch('/api/admin/newsletter-send', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ test: true, asunto, html })
+  });
+  const data = await res.json();
+  showStatus(data.ok ? '✓ Prueba enviada a tu correo.' : 'Error: ' + (data.error||''), data.ok);
+}
+
+async function sendAll() {
+  const asunto = getAsunto();
+  if (!asunto) { showStatus('El asunto es obligatorio.', false); return; }
+  if (campanaEstado === 'enviado') { showStatus('Esta campaña ya fue enviada.', false); return; }
+  if (!confirm(`¿Enviar "${asunto}" a todos los suscriptores? Esta acción no se puede deshacer.`)) return;
+  await save();
+  const btn = document.getElementById('btn-send');
+  btn.disabled = true; btn.textContent = 'Enviando…';
+  const html = buildEmailHtml(asunto, getPreheader(), getHeaderImg(), sections);
+  const res = await fetch('/api/admin/newsletter-send', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ test: false, asunto, html, campanaId })
+  });
+  const data = await res.json();
+  btn.disabled = false; btn.textContent = 'Enviar a suscriptores →';
+  if (data.ok) {
+    showStatus(`✓ Enviado a ${data.enviados} suscriptores.`, true);
+    setTimeout(() => location.href = '/admin/newsletter', 2000);
+  } else {
+    showStatus('Error al enviar: ' + (data.error||''), false);
+  }
+}
+
+window.addSection = addSection;
+window.removeSection = removeSection;
+window.updateSection = updateSection;
+window.refreshPreview = refreshPreview;
+window.save = save;
+window.sendTest = sendTest;
+window.sendAll = sendAll;
+
+// Inputs que regeneran el preview
+['f-asunto','f-preheader','f-header-img'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', refreshPreview);
+});
+
+renderSections();
+refreshPreview();
+</script>
+</AdminLayout>

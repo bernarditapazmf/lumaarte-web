@@ -1,0 +1,171 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { isAuthenticated } from '../../lib/auth.js';
+import { initDb } from '../../lib/db.js';
+
+if (!isAuthenticated(Astro.request)) return Astro.redirect('/admin/login');
+
+const db = await initDb();
+const { rows } = await db.execute(
+  "SELECT clave, valor, descripcion FROM configuracion WHERE clave LIKE 'costo_enmarcado_%' ORDER BY clave"
+);
+
+const costos = {};
+for (const r of rows) costos[r.clave] = r.valor ?? '';
+---
+<AdminLayout title="Costos de enmarcado" active="costos">
+<style>
+  .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+  .page-title{font-family:'Mackinac',serif;font-size:22px;font-weight:400}
+  .info-box{background:#f5f0e8;border:.5px solid rgba(33,31,24,.12);border-radius:10px;padding:14px 18px;font-size:13px;color:rgba(33,31,24,.65);line-height:1.7;margin-bottom:28px}
+  .info-box strong{color:#211f18}
+  .card{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:12px;overflow:hidden;margin-bottom:20px}
+  .card-head{padding:16px 22px;border-bottom:.5px solid rgba(33,31,24,.08);display:flex;align-items:center;justify-content:space-between}
+  .card-title{font-family:'Mackinac',serif;font-size:15px;font-weight:400}
+  .card-badge{font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:20px;background:rgba(84,88,47,.12);color:#54582f}
+  .card-badge.pending{background:rgba(180,130,30,.12);color:#7a5a10}
+  .card-body{padding:22px}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(33,31,24,.45);margin-bottom:6px}
+  .price-row{display:flex;align-items:center;gap:12px}
+  .price-prefix{font-size:18px;font-weight:300;color:rgba(33,31,24,.4);flex-shrink:0}
+  .price-input{width:180px;border:.5px solid rgba(33,31,24,.2);border-radius:8px;padding:10px 14px;font-size:20px;font-family:inherit;color:#211f18;background:#fff;outline:none;font-weight:300}
+  .price-input:focus{border-color:#54582f}
+  .price-hint{font-size:11px;color:rgba(33,31,24,.4);margin-top:6px}
+  .desc-text{font-size:12px;color:rgba(33,31,24,.5);margin-top:4px}
+  .actions-row{padding:14px 22px;border-top:.5px solid rgba(33,31,24,.08);display:flex;gap:10px;align-items:center}
+  .btn{padding:9px 20px;border-radius:8px;font-size:12px;font-family:inherit;cursor:pointer;transition:all .15s;letter-spacing:.03em}
+  .btn-save{background:#54582f;border:.5px solid #54582f;color:#fdfcf8}
+  .btn-save:hover{background:#3a3d1f}
+  .status{font-size:12px;padding:6px 12px;border-radius:6px;display:none}
+  .status.ok{background:#e8eddd;color:#3a4020;display:inline-block}
+  .status.err{background:#fde8d8;color:#7a2010;display:inline-block}
+  .divider{height:.5px;background:rgba(33,31,24,.08);margin:8px 0 16px}
+  .summary-table{width:100%;border-collapse:collapse;font-size:13px}
+  .summary-table th{text-align:left;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(33,31,24,.4);padding:8px 0;border-bottom:.5px solid rgba(33,31,24,.1)}
+  .summary-table td{padding:10px 0;border-bottom:.5px solid rgba(33,31,24,.06)}
+  .summary-table td:last-child{text-align:right;font-weight:500}
+  .tag-pending{font-size:10px;background:rgba(180,130,30,.12);color:#7a5a10;padding:2px 7px;border-radius:10px;margin-left:8px}
+</style>
+
+<div class="page-header">
+  <h1 class="page-title">Costos de <em>enmarcado</em></h1>
+</div>
+
+<div class="info-box">
+  <strong>Proveedor:</strong> Maderarte Frutillar — Lista Mayorista 2026.<br>
+  Todos los precios son con paspartú 3 cm. Ingresa el costo neto que te cobra el proveedor (sin IVA si aplica).
+  Estos valores son de referencia interna para calcular márgenes — no se muestran al cliente.
+</div>
+
+<!-- TABLA RESUMEN -->
+<div class="card">
+  <div class="card-head">
+    <span class="card-title">Resumen costos actuales</span>
+  </div>
+  <div class="card-body" style="padding:16px 22px">
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th>Talla obra</th>
+          <th>Marco + paspartú 3cm</th>
+          <th>Costo proveedor</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>30 × 40 cm</td>
+          <td>30 × 35 cm con paspartú 3 cm</td>
+          <td>{costos['costo_enmarcado_30x40'] ? `$${Number(costos['costo_enmarcado_30x40']).toLocaleString('es-CL')}` : <span class="tag-pending">pendiente</span>}</td>
+        </tr>
+        <tr>
+          <td>40 × 50 cm</td>
+          <td>40 × 50 cm con paspartú 3 cm</td>
+          <td>{costos['costo_enmarcado_40x50'] ? `$${Number(costos['costo_enmarcado_40x50']).toLocaleString('es-CL')}` : <span class="tag-pending">pendiente</span>}</td>
+        </tr>
+        <tr>
+          <td>50 × 70 cm</td>
+          <td>50 × 70 cm con paspartú 3 cm</td>
+          <td>{costos['costo_enmarcado_50x70'] ? `$${Number(costos['costo_enmarcado_50x70']).toLocaleString('es-CL')}` : <span class="tag-pending">pendiente</span>}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- FORMULARIO EDICIÓN -->
+<div class="card">
+  <div class="card-head">
+    <span class="card-title">Editar costos</span>
+    <span class="card-badge">Solo visible internamente</span>
+  </div>
+  <div class="card-body">
+    <div class="field">
+      <label>Talla 30 × 40 cm — Marco 30×35 con paspartú 3 cm</label>
+      <div class="price-row">
+        <span class="price-prefix">$</span>
+        <input class="price-input" id="c-30x40" type="number" placeholder="39900" value={costos['costo_enmarcado_30x40']} min="0" step="100" />
+      </div>
+      <div class="price-hint">Valor actual en Maderarte: $39.900</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label>Talla 40 × 50 cm — Marco 40×50 con paspartú 3 cm</label>
+      <div class="price-row">
+        <span class="price-prefix">$</span>
+        <input class="price-input" id="c-40x50" type="number" placeholder="54900" value={costos['costo_enmarcado_40x50']} min="0" step="100" />
+      </div>
+      <div class="price-hint">Valor actual en Maderarte: $54.900</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label>Talla 50 × 70 cm — Marco 50×70 con paspartú 3 cm <span class="tag-pending">pendiente de proveedor</span></label>
+      <div class="price-row">
+        <span class="price-prefix">$</span>
+        <input class="price-input" id="c-50x70" type="number" placeholder="Ingresa cuando lo recibas" value={costos['costo_enmarcado_50x70']} min="0" step="100" />
+      </div>
+      <div class="price-hint">Deja en blanco hasta recibir el precio de Maderarte.</div>
+    </div>
+  </div>
+  <div class="actions-row">
+    <button class="btn btn-save" onclick="guardar()">Guardar costos</button>
+    <span class="status" id="status-msg"></span>
+  </div>
+</div>
+
+<script>
+function showStatus(msg, ok) {
+  const el = document.getElementById('status-msg');
+  el.textContent = msg;
+  el.className = 'status ' + (ok ? 'ok' : 'err');
+  setTimeout(() => { el.className = 'status'; }, 4000);
+}
+
+async function guardar() {
+  const costos = {
+    costo_enmarcado_30x40: document.getElementById('c-30x40').value.trim(),
+    costo_enmarcado_40x50: document.getElementById('c-40x50').value.trim(),
+    costo_enmarcado_50x70: document.getElementById('c-50x70').value.trim(),
+  };
+
+  const res = await fetch('/api/admin/costos-save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(costos),
+  });
+  const data = await res.json();
+  if (data.ok) {
+    showStatus('✓ Costos guardados correctamente.', true);
+    setTimeout(() => location.reload(), 1500);
+  } else {
+    showStatus('Error al guardar: ' + (data.error || 'desconocido'), false);
+  }
+}
+
+window.guardar = guardar;
+</script>
+</AdminLayout>

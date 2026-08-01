@@ -1,0 +1,224 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { isAuthenticated } from '../../../lib/auth.js';
+import { initDb } from '../../../lib/db.js';
+
+if (!isAuthenticated(Astro.request)) return Astro.redirect('/admin/login');
+
+const id = Astro.url.searchParams.get('id');
+let post = null;
+if (id) {
+  const db = await initDb();
+  const { rows } = await db.execute({ sql: 'SELECT * FROM blog_posts WHERE id=?', args: [id] });
+  post = rows[0] ?? null;
+}
+---
+<AdminLayout title={post ? 'Editar artículo' : 'Nuevo artículo'} active="blog">
+<style>
+  .editor-layout{display:grid;grid-template-columns:1fr 340px;gap:24px}
+  .panel{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:12px;overflow:hidden}
+  .panel-head{padding:16px 20px;border-bottom:.5px solid rgba(33,31,24,.08);display:flex;align-items:center;justify-content:space-between}
+  .panel-title{font-family:'Mackinac',serif;font-size:15px;font-weight:400}
+  .panel-body{padding:20px}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(33,31,24,.45);margin-bottom:6px}
+  .field input,.field textarea,.field select{width:100%;border:.5px solid rgba(33,31,24,.2);border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;color:#211f18;background:#fff;outline:none}
+  .field input:focus,.field textarea:focus,.field select:focus{border-color:#54582f}
+  .field textarea{resize:vertical}
+  .content-area{width:100%;min-height:420px;border:.5px solid rgba(33,31,24,.2);border-radius:8px;padding:12px;font-size:14px;font-family:inherit;color:#211f18;background:#fff;outline:none;resize:vertical;line-height:1.7}
+  .content-area:focus{border-color:#54582f}
+  .actions-bar{padding:14px 20px;border-top:.5px solid rgba(33,31,24,.08);display:flex;gap:10px;align-items:center}
+  .btn{padding:9px 18px;border-radius:8px;font-size:12px;font-family:inherit;cursor:pointer;transition:all .15s;letter-spacing:.03em}
+  .btn-save{background:#54582f;border:.5px solid #54582f;color:#fdfcf8}
+  .btn-save:hover{background:#3a3d1f}
+  .btn-draft{background:transparent;border:.5px solid rgba(33,31,24,.25);color:rgba(33,31,24,.7)}
+  .btn-draft:hover{background:rgba(33,31,24,.06)}
+  .status{font-size:12px;padding:7px 12px;border-radius:6px;display:none}
+  .status.ok{background:#e8eddd;color:#3a4020;display:inline-block}
+  .status.err{background:#fde8d8;color:#7a2010;display:inline-block}
+  .markdown-tip{background:#f5f0e8;border:.5px solid rgba(33,31,24,.12);border-radius:8px;padding:10px 14px;font-size:11px;color:rgba(33,31,24,.6);line-height:1.7;margin-bottom:10px}
+  .markdown-tip strong{color:#211f18}
+  .slug-preview{font-size:11px;color:rgba(33,31,24,.4);margin-top:4px}
+  .slug-preview span{color:#54582f}
+  @media(max-width:1000px){.editor-layout{grid-template-columns:1fr}}
+</style>
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+  <h1 style="font-family:'Mackinac',serif;font-size:22px;font-weight:400">{post ? 'Editar artículo' : 'Nuevo <em>artículo</em>'}</h1>
+  <a href="/admin/blog" style="font-size:12px;color:rgba(33,31,24,.45);text-decoration:none">← Volver al blog</a>
+</div>
+
+<div class="editor-layout">
+  <!-- EDITOR PRINCIPAL -->
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-title">Contenido</span>
+    </div>
+    <div class="panel-body">
+      <div class="field">
+        <label>Título del artículo *</label>
+        <input id="f-titulo" type="text" placeholder="Ej: Cómo el arte patagónico inspira el diseño de interiores" value={post?.titulo ?? ''} oninput="autoSlug()" />
+      </div>
+      <div class="field">
+        <label>Descripción / bajada (para SEO y tarjeta)</label>
+        <textarea id="f-descripcion" rows="2" placeholder="Descripción breve del artículo (160 caracteres aprox)...">{post?.descripcion ?? ''}</textarea>
+      </div>
+      <div class="field">
+        <label>Cuerpo del artículo (Markdown)</label>
+        <div class="markdown-tip">
+          <strong>Markdown soportado:</strong> ## Título, **negrita**, *cursiva*, [texto](url), ![alt](url-imagen)<br>
+          Para párrafos: deja una línea en blanco entre bloques.
+        </div>
+        <textarea id="f-contenido" class="content-area" placeholder="Escribe aquí el contenido del artículo en Markdown...">{post?.contenido ?? ''}</textarea>
+      </div>
+    </div>
+    <div class="actions-bar">
+      <button class="btn btn-draft" onclick="guardar('borrador')">Guardar borrador</button>
+      <button class="btn btn-save" onclick="guardar('publicado')">Publicar artículo →</button>
+      <span class="status" id="status-msg"></span>
+    </div>
+  </div>
+
+  <!-- SIDEBAR METADATA -->
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div class="panel">
+      <div class="panel-head"><span class="panel-title">Metadatos</span></div>
+      <div class="panel-body">
+        <div class="field">
+          <label>Slug (URL del artículo)</label>
+          <input id="f-slug" type="text" placeholder="mi-titulo-del-articulo" value={post?.slug ?? ''} />
+          <div class="slug-preview">lumaarte.com/blog/<span id="slug-preview">{post?.slug ?? 'slug-del-articulo'}</span></div>
+        </div>
+        <div class="field">
+          <label>Imagen de portada (URL)</label>
+          <input id="f-hero" type="text" placeholder="/img/field.jpg o URL completa" value={post?.hero_image ?? ''} />
+        </div>
+        <div class="field">
+          <label>Fecha de publicación</label>
+          <input id="f-fecha" type="date" value={post?.pub_date?.slice(0,10) ?? new Date().toISOString().slice(0,10)} />
+        </div>
+        <div class="field">
+          <label>Estado</label>
+          <select id="f-estado">
+            <option value="borrador" selected={!post || post.estado === 'borrador'}>Borrador</option>
+            <option value="publicado" selected={post?.estado === 'publicado'}>Publicado</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><span class="panel-title">Vista previa portada</span></div>
+      <div class="panel-body" style="padding:12px">
+        <div id="card-preview" style="border:.5px solid rgba(33,31,24,.1);border-radius:8px;overflow:hidden;background:#f5f2ec">
+          <div id="card-img" style="height:140px;background:#e8e4dc;background-size:cover;background-position:center"></div>
+          <div style="padding:12px 14px">
+            <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(33,31,24,.4);margin-bottom:6px" id="card-fecha"></div>
+            <div style="font-family:'Mackinac',serif;font-size:15px;line-height:1.3;margin-bottom:6px" id="card-titulo">Título del artículo</div>
+            <div style="font-size:12px;color:rgba(33,31,24,.55);line-height:1.5" id="card-desc">Descripción del artículo...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ postId: post?.id ?? null }}>
+function toSlug(str) {
+  return str.toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim().replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+}
+
+function autoSlug() {
+  const titulo = document.getElementById('f-titulo').value;
+  const slug = toSlug(titulo);
+  if (!postId) document.getElementById('f-slug').value = slug;
+  document.getElementById('slug-preview').textContent = slug || 'slug-del-articulo';
+  document.getElementById('card-titulo').textContent = titulo || 'Título del artículo';
+}
+
+document.getElementById('f-slug').addEventListener('input', function() {
+  document.getElementById('slug-preview').textContent = this.value || 'slug-del-articulo';
+});
+
+document.getElementById('f-descripcion').addEventListener('input', function() {
+  document.getElementById('card-desc').textContent = this.value || 'Descripción del artículo...';
+});
+
+document.getElementById('f-hero').addEventListener('input', function() {
+  const url = this.value;
+  const imgUrl = url.startsWith('/') ? 'https://www.lumaarte.com' + url : url;
+  document.getElementById('card-img').style.backgroundImage = url ? `url(${imgUrl})` : '';
+});
+
+document.getElementById('f-fecha').addEventListener('input', function() {
+  const d = new Date(this.value);
+  document.getElementById('card-fecha').textContent = d.toLocaleDateString('es-CL', {day:'numeric',month:'long',year:'numeric'});
+});
+
+// Init preview
+{
+  const h = document.getElementById('f-hero').value;
+  if (h) {
+    const u = h.startsWith('/') ? 'https://www.lumaarte.com' + h : h;
+    document.getElementById('card-img').style.backgroundImage = `url(${u})`;
+  }
+  const fd = document.getElementById('f-fecha').value;
+  if (fd) {
+    const d = new Date(fd);
+    document.getElementById('card-fecha').textContent = d.toLocaleDateString('es-CL', {day:'numeric',month:'long',year:'numeric'});
+  }
+  const t = document.getElementById('f-titulo').value;
+  if (t) document.getElementById('card-titulo').textContent = t;
+  const dc = document.getElementById('f-descripcion').value;
+  if (dc) document.getElementById('card-desc').textContent = dc;
+}
+
+function showStatus(msg, ok) {
+  const el = document.getElementById('status-msg');
+  el.textContent = msg;
+  el.className = 'status ' + (ok ? 'ok' : 'err');
+  setTimeout(() => { el.className = 'status'; }, 4000);
+}
+
+async function guardar(estadoOverride) {
+  const titulo = document.getElementById('f-titulo').value.trim();
+  const slug = document.getElementById('f-slug').value.trim();
+  if (!titulo) { showStatus('El título es obligatorio.', false); return; }
+  if (!slug) { showStatus('El slug es obligatorio.', false); return; }
+
+  const body = {
+    id: postId,
+    titulo,
+    slug,
+    descripcion: document.getElementById('f-descripcion').value.trim(),
+    contenido: document.getElementById('f-contenido').value,
+    hero_image: document.getElementById('f-hero').value.trim(),
+    pub_date: document.getElementById('f-fecha').value,
+    estado: estadoOverride || document.getElementById('f-estado').value,
+  };
+
+  const res = await fetch('/api/admin/blog-save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  if (data.ok) {
+    showStatus(estadoOverride === 'publicado' ? '✓ Artículo publicado.' : '✓ Borrador guardado.', true);
+    if (!postId && data.id) {
+      history.replaceState(null, '', `/admin/blog/nueva?id=${data.id}`);
+      window.__postId = data.id;
+    }
+    document.getElementById('f-estado').value = estadoOverride || body.estado;
+  } else {
+    showStatus('Error: ' + (data.error || 'desconocido'), false);
+  }
+}
+
+window.guardar = guardar;
+</script>
+</AdminLayout>

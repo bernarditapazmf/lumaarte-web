@@ -119,14 +119,60 @@ export async function initDb() {
 
   await db.execute(`
     CREATE TABLE IF NOT EXISTS campanas (
-      id         INTEGER PRIMARY KEY AUTOINCREMENT,
-      asunto     TEXT NOT NULL,
-      cuerpo     TEXT,
-      estado     TEXT DEFAULT 'borrador',
-      enviados   INTEGER DEFAULT 0,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      asunto       TEXT NOT NULL,
+      preheader    TEXT,
+      cuerpo       TEXT,
+      html         TEXT,
+      header_img   TEXT,
+      estado       TEXT DEFAULT 'borrador',
+      enviados     INTEGER DEFAULT 0,
+      created_at   TEXT DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Migrar campanas si faltan columnas
+  const { rows: campCols } = await db.execute('PRAGMA table_info(campanas)');
+  const campExisting = campCols.map(r => r.name);
+  for (const [col, def] of [['preheader','TEXT'],['html','TEXT'],['header_img','TEXT']]) {
+    if (!campExisting.includes(col)) await db.execute(`ALTER TABLE campanas ADD COLUMN ${col} ${def}`);
+  }
+
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS blog_posts (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      slug        TEXT UNIQUE NOT NULL,
+      titulo      TEXT NOT NULL,
+      descripcion TEXT,
+      contenido   TEXT,
+      hero_image  TEXT,
+      pub_date    TEXT DEFAULT CURRENT_TIMESTAMP,
+      estado      TEXT DEFAULT 'borrador',
+      created_at  TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS configuracion (
+      clave       TEXT PRIMARY KEY,
+      valor       TEXT,
+      descripcion TEXT,
+      updated_at  TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // Seed costos de enmarcado si no existen
+  const costosSeed = [
+    ['costo_enmarcado_30x40', '39900', 'Enmarcado con paspartú 3cm — talla 30×40 cm (proveedor: Maderarte Frutillar)'],
+    ['costo_enmarcado_40x50', '54900', 'Enmarcado con paspartú 3cm — talla 40×50 cm (proveedor: Maderarte Frutillar)'],
+    ['costo_enmarcado_50x70', '',      'Enmarcado con paspartú 3cm — talla 50×70 cm (pendiente de proveedor)'],
+  ];
+  for (const [clave, valor, descripcion] of costosSeed) {
+    await db.execute({
+      sql: 'INSERT OR IGNORE INTO configuracion (clave, valor, descripcion) VALUES (?,?,?)',
+      args: [clave, valor, descripcion],
+    });
+  }
 
   return db;
 }

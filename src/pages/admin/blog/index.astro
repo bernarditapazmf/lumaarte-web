@@ -1,0 +1,89 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { isAuthenticated } from '../../../lib/auth.js';
+import { initDb } from '../../../lib/db.js';
+
+if (!isAuthenticated(Astro.request)) return Astro.redirect('/admin/login');
+
+const db = await initDb();
+const { rows: posts } = await db.execute('SELECT * FROM blog_posts ORDER BY pub_date DESC');
+---
+<AdminLayout title="Blog" active="blog">
+  <style>
+    .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+    h1{font-family:'Mackinac',serif;font-size:26px;font-weight:400}
+    h1 em{font-style:italic}
+    .btn-new{display:inline-flex;align-items:center;gap:6px;background:#54582f;color:#fdfcf8;text-decoration:none;padding:9px 18px;border-radius:8px;font-size:12px;letter-spacing:.04em}
+    .btn-new:hover{background:#3a3d1f}
+    .table-wrap{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:10px;overflow:hidden}
+    table{width:100%;border-collapse:collapse}
+    th{text-align:left;padding:10px 16px;font-size:10px;letter-spacing:.08em;color:rgba(33,31,24,.4);border-bottom:.5px solid rgba(33,31,24,.08);font-weight:400;text-transform:uppercase}
+    td{padding:12px 16px;border-bottom:.5px solid rgba(33,31,24,.06);font-size:13px;vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:#faf9f5}
+    .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px}
+    .badge-borrador{background:#f5f0e8;color:#7a6030}
+    .badge-publicado{background:#e8eddd;color:#3a4020}
+    .actions{display:flex;gap:6px}
+    .btn-edit{font-size:11px;color:#54582f;text-decoration:none;padding:4px 10px;border:.5px solid rgba(84,88,47,.35);border-radius:5px}
+    .btn-edit:hover{background:#54582f;color:#fdfcf8}
+    .btn-view{font-size:11px;color:#3a7;text-decoration:none;padding:4px 10px;border:.5px solid rgba(51,170,119,.35);border-radius:5px}
+    .btn-del{font-size:11px;color:#a33;background:none;border:.5px solid rgba(170,51,51,.3);border-radius:5px;padding:4px 10px;cursor:pointer;font-family:inherit}
+    .btn-del:hover{background:#a33;color:#fff}
+    .empty{text-align:center;padding:48px 20px;color:rgba(33,31,24,.4);font-size:13px}
+    .info-tip{background:#f5f0e8;border:.5px solid rgba(33,31,24,.12);border-radius:8px;padding:12px 16px;font-size:12px;color:rgba(33,31,24,.65);margin-bottom:20px}
+  </style>
+
+  <div class="page-header">
+    <h1>Artículos del <em>Blog</em></h1>
+    <a class="btn-new" href="/admin/blog/nueva">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Nuevo artículo
+    </a>
+  </div>
+
+  <div class="info-tip">
+    Los artículos creados aquí se publican en <strong>/blog</strong> de forma inmediata al guardar con estado "publicado". No requieren deploy.
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Título</th>
+          <th>Slug / URL</th>
+          <th>Estado</th>
+          <th>Fecha</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {posts.length === 0
+          ? <tr><td colspan="5" class="empty">Aún no hay artículos creados desde el CMS.</td></tr>
+          : posts.map(p => (
+            <tr>
+              <td style="font-weight:400;max-width:280px">{p.titulo}</td>
+              <td style="font-size:11px;color:rgba(33,31,24,.45)">/blog/{p.slug}</td>
+              <td><span class={`badge badge-${p.estado}`}>{p.estado}</span></td>
+              <td style="color:rgba(33,31,24,.45);font-size:12px">{p.pub_date?.slice(0,10)}</td>
+              <td class="actions">
+                <a class="btn-edit" href={`/admin/blog/nueva?id=${p.id}`}>Editar</a>
+                {p.estado === 'publicado' && <a class="btn-view" href={`/blog/${p.slug}`} target="_blank">Ver</a>}
+                <button class="btn-del" data-id={p.id} onclick="del(this)">Eliminar</button>
+              </td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+</AdminLayout>
+
+<script>
+async function del(btn) {
+  if (!confirm('¿Eliminar este artículo?')) return;
+  await fetch('/api/admin/blog-delete', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ id: btn.dataset.id }) });
+  location.reload();
+}
+window.del = del;
+</script>

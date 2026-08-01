@@ -1,22 +1,43 @@
 ---
-import { type CollectionEntry, getCollection, render } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
+import { initDb } from '../../lib/db.js';
+import { marked } from 'marked';
 
-export const prerender = true;
+const { slug } = Astro.params;
 
-export async function getStaticPaths() {
-	const posts = await getCollection('blog');
-	return posts.map((post) => ({
-		params: { slug: post.id },
-		props: post,
-	}));
+// 1. Buscar en colección de archivos (MDX/MD)
+const allPosts = await getCollection('blog');
+const filePost = allPosts.find(p => p.id === slug);
+
+let Content = null;
+let postData = null;
+let dbPost = null;
+let dbHtml = '';
+
+if (filePost) {
+  const rendered = await render(filePost);
+  Content = rendered.Content;
+  postData = filePost.data;
+} else {
+  // 2. Buscar en DB (posts del CMS)
+  const db = await initDb();
+  const { rows } = await db.execute({
+    sql: "SELECT * FROM blog_posts WHERE slug=? AND estado='publicado'",
+    args: [slug],
+  });
+  if (!rows.length) return Astro.redirect('/blog', 302);
+  dbPost = rows[0];
+  dbHtml = marked.parse(dbPost.contenido || '');
 }
-type Props = CollectionEntry<'blog'>;
-
-const post = Astro.props;
-const { Content } = await render(post);
 ---
 
-<BlogPost {...post.data}>
-	<Content />
-</BlogPost>
+{Content
+  ? <BlogPost {...postData}><Content /></BlogPost>
+  : <BlogPost
+      title={dbPost.titulo}
+      description={dbPost.descripcion ?? ''}
+      pubDate={new Date(dbPost.pub_date || dbPost.created_at)}
+      heroImage={dbPost.hero_image ?? undefined}
+    ><Fragment set:html={dbHtml} /></BlogPost>
+}

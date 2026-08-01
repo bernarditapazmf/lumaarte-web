@@ -1,10 +1,29 @@
 ---
-export const prerender = true;
 import { getCollection } from 'astro:content';
 import CartDrawer from '../../components/CartDrawer.astro';
-const posts = (await getCollection('blog')).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+import { initDb } from '../../lib/db.js';
+
+const filePosts = (await getCollection('blog')).map(p => ({
+  slug: p.id,
+  title: p.data.title,
+  description: p.data.description,
+  pubDate: p.data.pubDate,
+  heroImage: p.data.heroImage,
+}));
+
+const db = await initDb();
+const { rows: dbPostsRaw } = await db.execute(
+  "SELECT slug, titulo as title, descripcion as description, pub_date, hero_image FROM blog_posts WHERE estado='publicado' ORDER BY pub_date DESC"
 );
+const dbPosts = dbPostsRaw.map(p => ({
+  slug: p.slug,
+  title: p.title,
+  description: p.description,
+  pubDate: new Date(p.pub_date),
+  heroImage: p.hero_image,
+}));
+
+const posts = [...filePosts, ...dbPosts].sort((a, b) => b.pubDate - a.pubDate);
 ---
 <!DOCTYPE html>
 <html lang="es">
@@ -166,17 +185,17 @@ a:hover{color:#3c3f21}
     <h2 class="articulos-h2">Arte, naturaleza y oficio desde la Patagonia</h2>
     <div class="cards">
       {posts.map((post) => {
-        const thumb = post.data.heroImage || '/img/field.jpg';
-        const d = post.data.pubDate;
+        const thumb = post.heroImage || '/img/field.jpg';
+        const d = post.pubDate;
         const fecha = d.toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' });
         return (
-          <a class="card" href={`/blog/${post.id}/`}>
+          <a class="card" href={`/blog/${post.slug}/`}>
             <div class="card-img">
-              <img src={thumb} alt={post.data.title} loading="lazy" decoding="async" />
+              <img src={thumb} alt={post.title} loading="lazy" decoding="async" />
             </div>
             <p class="card-date">{fecha}</p>
-            <h3 class="card-title">{post.data.title}</h3>
-            <p class="card-desc">{post.data.description}</p>
+            <h3 class="card-title">{post.title}</h3>
+            <p class="card-desc">{post.description}</p>
             <span class="card-read">Leer artículo →</span>
           </a>
         );

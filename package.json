@@ -19,6 +19,7 @@
     "@astrojs/sitemap": "^3.7.3",
     "@libsql/client": "^0.17.4",
     "astro": "^6.4.4",
+    "marked": "^18.0.7",
     "sharp": "^0.34.3"
   }
 }
