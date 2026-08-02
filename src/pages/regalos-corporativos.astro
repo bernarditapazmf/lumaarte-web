@@ -138,17 +138,17 @@ a:hover{color:#3c3f21}
 
 .opciones{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:48px}
 .opcion{background:#FDFCF8;border-radius:16px;padding:36px 32px;border:.5px solid rgba(33,31,24,.12)}
-.opcion--featured{background:#211f18;border-color:#211f18;position:relative}
-.opcion--featured .opcion-num{color:#cdd3ae}
-.opcion--featured h3{color:#fdfcf8}
-.opcion--featured p{color:rgba(253,252,248,.72)}
-.opcion--featured .opcion-link{color:#cdd3ae;border-bottom-color:rgba(205,211,174,.4)}
-.opcion--featured .opcion-link:hover{border-bottom-color:#cdd3ae}
 .opcion-num{font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.2em;text-transform:uppercase;color:#54582f;margin-bottom:16px}
 .opcion h3{font-family:'Mackinac',serif;font-weight:400;font-size:24px;margin-bottom:12px}
 .opcion p{font:300 15px/1.65 'CoFo Sans';color:rgba(33,31,24,.7);margin-bottom:20px}
 .opcion-link{display:inline-flex;align-items:center;gap:8px;font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#54582f;text-decoration:none;border-bottom:1px solid rgba(84,88,47,.35);padding-bottom:3px;transition:border-color .2s}
 .opcion-link:hover{border-bottom-color:#54582f}
+.opcion.opcion--featured{background:#211f18;border-color:#211f18}
+.opcion.opcion--featured .opcion-num{color:#cdd3ae}
+.opcion.opcion--featured h3{color:#fdfcf8}
+.opcion.opcion--featured p{color:rgba(253,252,248,.82)}
+.opcion.opcion--featured .opcion-link{color:#cdd3ae;border-bottom-color:rgba(205,211,174,.4)}
+.opcion.opcion--featured .opcion-link:hover{border-bottom-color:#cdd3ae}
 
 /* COTIZACIÓN FORM */
 .cotizar-wrap{max-width:680px;margin:0 auto}
