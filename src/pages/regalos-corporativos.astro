@@ -7,8 +7,8 @@ import CartDrawer from '../components/CartDrawer.astro';
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Regalos Corporativos Originales — Arte del Sur de Chile | Luma Arte</title>
-<meta name="description" content="Regalos de empresa originales que dejan huella: pinturas y giftcards de arte del sur de Chile para clientes, equipos y eventos corporativos. Único, con alma, envíos a todo Chile." />
+<title>Regalos Corporativos para Colaboradores — Arte Original del Sur de Chile | Luma Arte</title>
+<meta name="description" content="Regala obras de arte originales a tus colaboradores: compra 20, 40 o 100 pinturas enmarcadas del sur de Chile para navidad, aniversario o reconocimiento. Armadas, empaquetadas y despachadas. Cotización a medida." />
 <link rel="canonical" href="https://www.lumaarte.com/regalos-corporativos" />
 <meta name="robots" content="index, follow" />
 
@@ -59,7 +59,7 @@ import CartDrawer from '../components/CartDrawer.astro';
       "name": "¿Cuánto cuesta un regalo corporativo de arte original?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Las pinturas originales de Luma Arte tienen tres tamaños: 30×40 cm ($95.000 CLP), 40×50 cm ($145.000 CLP) y 50×70 cm ($220.000 CLP). Para regalos corporativos en volumen, se recomienda la giftcard de arte (desde $95.000 CLP) — cada destinatario elige su propia obra. Consulta por cotizaciones para grupos."
+        "text": "Las pinturas originales de Luma Arte tienen cuatro tamaños: 21×30 cm A4 ($75.000 CLP), 30×40 cm ($95.000 CLP), 40×50 cm ($145.000 CLP) y 50×70 cm ($220.000 CLP). Para regalos corporativos en volumen, el tamaño A4 es el más accesible: 40 obras enmarcadas tienen un costo total estimado de $3.000.000 CLP."
       }
     },
     {
@@ -138,11 +138,48 @@ a:hover{color:#3c3f21}
 
 .opciones{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:48px}
 .opcion{background:#FDFCF8;border-radius:16px;padding:36px 32px;border:.5px solid rgba(33,31,24,.12)}
+.opcion--featured{background:#211f18;border-color:#211f18;position:relative}
+.opcion--featured .opcion-num{color:#cdd3ae}
+.opcion--featured h3{color:#fdfcf8}
+.opcion--featured p{color:rgba(253,252,248,.72)}
+.opcion--featured .opcion-link{color:#cdd3ae;border-bottom-color:rgba(205,211,174,.4)}
+.opcion--featured .opcion-link:hover{border-bottom-color:#cdd3ae}
 .opcion-num{font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.2em;text-transform:uppercase;color:#54582f;margin-bottom:16px}
 .opcion h3{font-family:'Mackinac',serif;font-weight:400;font-size:24px;margin-bottom:12px}
 .opcion p{font:300 15px/1.65 'CoFo Sans';color:rgba(33,31,24,.7);margin-bottom:20px}
 .opcion-link{display:inline-flex;align-items:center;gap:8px;font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#54582f;text-decoration:none;border-bottom:1px solid rgba(84,88,47,.35);padding-bottom:3px;transition:border-color .2s}
 .opcion-link:hover{border-bottom-color:#54582f}
+
+/* COTIZACIÓN FORM */
+.cotizar-wrap{max-width:680px;margin:0 auto}
+.cotizar-form{background:#FDFCF8;border-radius:16px;border:.5px solid rgba(33,31,24,.1);padding:40px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.form-grid.full{grid-template-columns:1fr}
+.form-field{display:flex;flex-direction:column;gap:6px}
+.form-field label{font:500 10px/1 'Spline Sans Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:rgba(33,31,24,.5)}
+.form-field input,.form-field select,.form-field textarea{padding:11px 14px;border:.5px solid rgba(33,31,24,.18);border-radius:9px;font:400 14px/1 'CoFo Sans',sans-serif;color:#211f18;background:#fff;outline:none;transition:border-color .18s}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:#54582f}
+.form-field textarea{resize:vertical;line-height:1.65}
+.size-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.size-opt{position:relative}
+.size-opt input[type=radio]{position:absolute;opacity:0;width:0;height:0}
+.size-opt label{display:flex;flex-direction:column;border:.5px solid rgba(33,31,24,.18);border-radius:9px;padding:12px 14px;cursor:pointer;transition:all .18s}
+.size-opt input:checked+label{border-color:#54582f;background:rgba(84,88,47,.04)}
+.size-opt label .size-name{font:500 13px/1.2 'CoFo Sans';color:#211f18;margin-bottom:3px}
+.size-opt label .size-price{font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.06em;color:#54582f}
+.size-opt label .size-note{font:300 11px/1.4 'CoFo Sans';color:rgba(33,31,24,.45);margin-top:3px}
+.form-submit{width:100%;padding:15px;border-radius:60px;border:none;background:#54582f;color:#fdfcf8;font:500 12px/1 'Spline Sans Mono',monospace;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;transition:background .2s;margin-top:6px}
+.form-submit:hover{background:#3a3d1f}
+.form-submit:disabled{background:rgba(33,31,24,.2);cursor:not-allowed}
+.form-msg{text-align:center;padding:14px 0;font:400 15px/1.6 'CoFo Sans';display:none}
+.form-msg.ok{color:#3a4020;display:block}
+.form-msg.err{color:#a33;display:block}
+.ocas-tags{display:flex;flex-wrap:wrap;gap:8px}
+.ocas-tag{position:relative}
+.ocas-tag input[type=radio]{position:absolute;opacity:0;width:0;height:0}
+.ocas-tag label{padding:8px 15px;border-radius:60px;border:.5px solid rgba(33,31,24,.2);font:400 13px/1 'CoFo Sans';color:rgba(33,31,24,.7);cursor:pointer;transition:all .15s;display:block}
+.ocas-tag input:checked+label{background:#54582f;border-color:#54582f;color:#fdfcf8}
+.ocas-tag label:hover{border-color:#54582f}
 
 .clientes{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:52px}
 .cliente-card{background:#FDFCF8;border-radius:12px;padding:28px 24px;border:.5px solid rgba(33,31,24,.1)}
@@ -195,20 +232,28 @@ a:hover{color:#3c3f21}
 .footer-copy{padding-top:22px;font:400 11.5px/1 'CoFo Sans';color:rgba(243,240,233,.45)}
 .footer-links{display:flex;gap:52px}
 
+@media(max-width:1050px){
+  .opciones[style*="1fr 1fr 1fr"]{grid-template-columns:1fr 1fr!important}
+}
 @media(max-width:900px){
   .nav{padding:20px 24px}.nav-links{gap:20px}.nav-link{font-size:10px}
   .hero-body{left:24px;right:24px;bottom:48px}
   .section{padding:56px 24px}.section--alt{padding:56px 24px}.section--dark{padding:56px 24px}
   .opciones{grid-template-columns:1fr}
+  .opciones[style*="1fr 1fr 1fr"]{grid-template-columns:1fr!important}
   .clientes{grid-template-columns:1fr 1fr}
   .por-que-grid{grid-template-columns:1fr}
   .cta-band{padding:56px 24px}
   .footer{padding:48px 24px 32px}.footer-top{flex-direction:column}.footer-links{gap:32px}
+  .cotizar-form{padding:28px 20px}
+  .form-grid{grid-template-columns:1fr}
+  .size-options{grid-template-columns:1fr 1fr}
 }
 @media(max-width:600px){
   .nav-links{display:none}.nav-logo{height:50px;width:87px}
   .clientes{grid-template-columns:1fr}
   .hero-h1{font-size:32px}
+  .size-options{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -236,28 +281,34 @@ a:hover{color:#3c3f21}
   </nav>
   <div class="hero-body">
     <p class="hero-eyebrow">Luma Arte · Regalos Corporativos</p>
-    <h1 class="hero-h1">Regalos de empresa<br><em>que dejan huella.</em></h1>
-    <p class="hero-sub">Arte original del sur de Chile para clientes, equipos y eventos corporativos. El regalo de empresa más original que existe — único, con alma, con historia.</p>
-    <a class="hero-cta" href="/#contacto">Cotizar regalos corporativos</a>
+    <h1 class="hero-h1">Obras de arte para tus<br><em>colaboradores.</em></h1>
+    <p class="hero-sub">Regala pinturas originales del sur de Chile en volumen — enmarcadas, empaquetadas y despachadas a tu empresa. El regalo corporativo que nadie espera y todos recuerdan.</p>
+    <a class="hero-cta" href="#cotizar">Solicitar cotización</a>
   </div>
 </section>
 
 <!-- OPCIONES CORPORATIVAS -->
 <div class="section">
   <p class="eyebrow">Opciones para empresas</p>
-  <h2 class="h2">Dos formas de regalar arte como empresa</h2>
-  <p class="lead">Tanto si quieres regalar una obra específica a un cliente VIP como si necesitas un regalo corporativo en volumen para todo un equipo, Luma Arte tiene la solución.</p>
-  <div class="opciones">
-    <div class="opcion">
-      <div class="opcion-num">Opción 01</div>
-      <h3>Pintura original para cliente VIP</h3>
-      <p>Una obra original del sur de Chile seleccionada por la empresa para un cliente importante. Viene con paspartú artesanal en madera nativa y lista para colgar. Un regalo corporativo que transmite los valores de tu marca.</p>
-      <a class="opcion-link" href="/#pinturas">Ver obras disponibles →</a>
+  <h2 class="h2">Tres formas de regalar arte como empresa</h2>
+  <p class="lead">Desde regalos masivos a todo el equipo hasta un detalle único para un cliente VIP — Luma Arte tiene la solución para cada ocasión corporativa.</p>
+  <div class="opciones" style="grid-template-columns:1fr 1fr 1fr">
+    <div class="opcion opcion--featured">
+      <div class="opcion-num">Opción 01 — Destacada</div>
+      <h3>Obras en volumen para colaboradores</h3>
+      <p>Compra 20, 40 o 100 pinturas originales del sur de Chile para regalar a tu equipo. Cada obra viene enmarcada, empaquetada y lista para entregar. Ideal para paseo de fin de año, navidad, aniversario de empresa o premios al colaborador.</p>
+      <a class="opcion-link" href="#cotizar">Solicitar cotización →</a>
     </div>
     <div class="opcion">
       <div class="opcion-num">Opción 02</div>
-      <h3>Giftcards de arte para equipos o eventos</h3>
-      <p>Regala una giftcard de Luma Arte a cada miembro de tu equipo o asistente de tu evento. Cada persona elige la obra que más le gusta. Se gestiona en volumen con cotización personalizada.</p>
+      <h3>Pintura original para cliente VIP</h3>
+      <p>Una obra seleccionada para un cliente o directivo importante. Viene con paspartú artesanal en madera nativa y lista para colgar. El regalo corporativo que comunica los valores de tu marca.</p>
+      <a class="opcion-link" href="/#pinturas">Ver obras disponibles →</a>
+    </div>
+    <div class="opcion">
+      <div class="opcion-num">Opción 03</div>
+      <h3>Giftcards de arte para eventos</h3>
+      <p>Regala una giftcard de Luma Arte a cada persona de tu equipo o evento. Cada quien elige la obra que más le gusta. Fácil de gestionar en volumen, con cotización personalizada.</p>
       <a class="opcion-link" href="/#giftcards">Ver giftcards →</a>
     </div>
   </div>
@@ -351,29 +402,35 @@ a:hover{color:#3c3f21}
 <div class="section--alt">
   <div class="section-inner">
     <p class="eyebrow">Tamaños y precios</p>
-    <h2 class="h2">Inversión en un regalo corporativo original</h2>
-    <p class="lead">Tres tamaños disponibles — todos incluyen paspartú artesanal en madera nativa reciclada del sur de Chile.</p>
+    <h2 class="h2">Inversión por obra — cuatro formatos</h2>
+    <p class="lead">Todos los formatos incluyen enmarcado artesanal con paspartú, listos para entregar. El tamaño A4 es el favorito para regalos masivos en volumen.</p>
     <table class="precios-tabla">
       <thead>
         <tr>
           <th>Formato</th>
           <th>Tamaño</th>
-          <th>Precio</th>
+          <th>Precio / obra</th>
           <th>Ideal para</th>
         </tr>
       </thead>
       <tbody>
+        <tr style="background:rgba(84,88,47,.04)">
+          <td><strong>Pintura original</strong></td>
+          <td><strong>21 × 30 cm (A4)</strong> ★</td>
+          <td class="precio-tag"><strong>$75.000 CLP</strong></td>
+          <td><strong>Regalos masivos a colaboradores — el más solicitado</strong></td>
+        </tr>
         <tr>
           <td>Pintura original</td>
           <td>30 × 40 cm</td>
           <td class="precio-tag">$95.000 CLP</td>
-          <td>Regalo corporativo complementario o masivo</td>
+          <td>Regalo corporativo destacado para equipo</td>
         </tr>
         <tr>
           <td>Pintura original</td>
           <td>40 × 50 cm</td>
           <td class="precio-tag">$145.000 CLP</td>
-          <td>Regalo corporativo principal de alta percepción</td>
+          <td>Regalo principal de alta percepción</td>
         </tr>
         <tr>
           <td>Pintura original</td>
@@ -384,11 +441,114 @@ a:hover{color:#3c3f21}
         <tr>
           <td>Giftcard de arte</td>
           <td>Monto a elegir</td>
-          <td class="precio-tag">Desde $95.000 CLP</td>
-          <td>Equipos, eventos, celebraciones masivas</td>
+          <td class="precio-tag">Desde $75.000 CLP</td>
+          <td>Eventos, celebraciones, equipos grandes</td>
         </tr>
       </tbody>
     </table>
+    <p style="font:300 13px/1.6 'CoFo Sans';color:rgba(33,31,24,.5);margin-top:16px">★ El formato A4 es el más accesible para pedidos de volumen. Para 40 obras en A4: inversión total estimada $3.000.000 CLP.</p>
+  </div>
+</div>
+
+<!-- FORMULARIO COTIZACIÓN -->
+<div class="section--alt" id="cotizar">
+  <div class="section-inner">
+    <div style="text-align:center;max-width:580px;margin:0 auto 48px">
+      <p class="eyebrow">Cotización personalizada</p>
+      <h2 class="h2">Cuéntanos tu solicitud — <em>te la armamos a la medida</em></h2>
+      <p class="lead" style="margin-bottom:0">Completa el formulario y te respondemos en menos de 24 horas con una cotización detallada, incluyendo logística de envíos y opciones de personalización.</p>
+    </div>
+    <div class="cotizar-wrap">
+      <form class="cotizar-form" id="cot-form">
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Nombre del contacto *</label>
+            <input type="text" name="nombre" placeholder="Nombre Apellido" required />
+          </div>
+          <div class="form-field">
+            <label>Email *</label>
+            <input type="email" name="email" placeholder="correo@empresa.cl" required />
+          </div>
+        </div>
+        <div class="form-grid full" style="margin-bottom:18px">
+          <div class="form-field">
+            <label>Empresa *</label>
+            <input type="text" name="empresa" placeholder="Nombre de la empresa" required />
+          </div>
+        </div>
+
+        <div class="form-field" style="margin-bottom:18px">
+          <label style="margin-bottom:12px">¿Para qué ocasión?</label>
+          <div class="ocas-tags">
+            <div class="ocas-tag"><input type="radio" name="ocasion" id="oc1" value="Paseo o fiesta de fin de año" /><label for="oc1">Paseo / fin de año</label></div>
+            <div class="ocas-tag"><input type="radio" name="ocasion" id="oc2" value="Navidad o Año Nuevo" /><label for="oc2">Navidad / Año Nuevo</label></div>
+            <div class="ocas-tag"><input type="radio" name="ocasion" id="oc3" value="Colaborador del mes o del año" /><label for="oc3">Colaborador del mes/año</label></div>
+            <div class="ocas-tag"><input type="radio" name="ocasion" id="oc4" value="Aniversario de empresa" /><label for="oc4">Aniversario de empresa</label></div>
+            <div class="ocas-tag"><input type="radio" name="ocasion" id="oc5" value="Onboarding / bienvenida" /><label for="oc5">Onboarding / bienvenida</label></div>
+            <div class="ocas-tag"><input type="radio" name="ocasion" id="oc6" value="Otra ocasión" /><label for="oc6">Otra ocasión</label></div>
+          </div>
+        </div>
+
+        <div class="form-grid" style="margin-bottom:18px">
+          <div class="form-field">
+            <label>Cantidad aproximada de obras</label>
+            <input type="number" name="cantidad" placeholder="Ej: 40" min="1" />
+          </div>
+          <div class="form-field">
+            <label>Presupuesto total estimado</label>
+            <input type="text" name="presupuesto" placeholder="Ej: $3.000.000 CLP" />
+          </div>
+        </div>
+
+        <div class="form-field" style="margin-bottom:18px">
+          <label style="margin-bottom:12px">Tamaño preferido</label>
+          <div class="size-options">
+            <div class="size-opt">
+              <input type="radio" name="tamano" id="sz1" value="A4 — 21 × 30 cm" />
+              <label for="sz1">
+                <span class="size-name">A4 — 21 × 30 cm</span>
+                <span class="size-price">$75.000 / obra</span>
+                <span class="size-note">El más solicitado en volumen</span>
+              </label>
+            </div>
+            <div class="size-opt">
+              <input type="radio" name="tamano" id="sz2" value="30 × 40 cm" />
+              <label for="sz2">
+                <span class="size-name">30 × 40 cm</span>
+                <span class="size-price">$95.000 / obra</span>
+                <span class="size-note">Formato estándar de alta percepción</span>
+              </label>
+            </div>
+            <div class="size-opt">
+              <input type="radio" name="tamano" id="sz3" value="40 × 50 cm" />
+              <label for="sz3">
+                <span class="size-name">40 × 50 cm</span>
+                <span class="size-price">$145.000 / obra</span>
+                <span class="size-note">Para regalos de mayor valor</span>
+              </label>
+            </div>
+            <div class="size-opt">
+              <input type="radio" name="tamano" id="sz4" value="Sin preferencia / mezcla" />
+              <label for="sz4">
+                <span class="size-name">Sin preferencia</span>
+                <span class="size-price">A definir</span>
+                <span class="size-note">Lo conversamos en detalle</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-grid full" style="margin-bottom:24px">
+          <div class="form-field">
+            <label>Mensaje o detalles adicionales</label>
+            <textarea name="mensaje" rows="3" placeholder="Cuéntanos más: fecha tentativa de entrega, si necesitan tarjeta o mensaje personalizado, región de despacho, o cualquier otra consideración…"></textarea>
+          </div>
+        </div>
+
+        <button type="submit" class="form-submit" id="cot-submit">Enviar solicitud de cotización →</button>
+        <div class="form-msg" id="cot-msg"></div>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -403,7 +563,7 @@ a:hover{color:#3c3f21}
     </div>
     <div class="faq-item">
       <h3 class="faq-q">¿Cómo se gestiona un pedido corporativo en volumen?</h3>
-      <p class="faq-a">Para regalos de empresa en volumen — giftcards para un equipo o pinturas para clientes VIP — se trabaja directamente con cotización personalizada. Escríbenos por la sección Colaboremos con el número aproximado de destinatarios y el presupuesto por persona, y coordinamos la logística completa.</p>
+      <p class="faq-a">Llena el formulario de cotización en esta página con el número aproximado de obras, el tamaño preferido y la ocasión. Te respondemos en menos de 24 horas con una cotización detallada: precio total, tiempos de producción y despacho, y opciones de personalización del empaque. No hay mínimo de unidades — atendemos desde un solo regalo hasta cientos.</p>
     </div>
     <div class="faq-item">
       <h3 class="faq-q">¿Se puede poner el logo o mensaje de la empresa en el empaque?</h3>
@@ -418,11 +578,11 @@ a:hover{color:#3c3f21}
 
 <!-- CTA FINAL -->
 <div class="cta-band">
-  <h2>¿Tu empresa busca un regalo corporativo con alma?</h2>
-  <p>Escríbenos para coordinar tu pedido. Trabajamos con cotización personalizada para regalos de empresa en todos los formatos.</p>
+  <h2>¿Tu empresa busca un regalo con alma?</h2>
+  <p>Obras de arte originales del sur de Chile, enmarcadas y empaquetadas para entregar. Desde 1 hasta 100 unidades — con cotización a medida.</p>
   <div class="cta-btns">
-    <a class="cta-btn cta-btn--primary" href="/#contacto">Cotizar ahora</a>
-    <a class="cta-btn cta-btn--outline" href="/#giftcards">Ver giftcards de arte</a>
+    <a class="cta-btn cta-btn--primary" href="#cotizar">Solicitar cotización</a>
+    <a class="cta-btn cta-btn--outline" href="/#pinturas">Ver obras disponibles</a>
   </div>
 </div>
 
@@ -454,5 +614,51 @@ a:hover{color:#3c3f21}
 </footer>
 
 <CartDrawer />
+
+<script>
+document.getElementById('cot-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const btn = document.getElementById('cot-submit');
+  const msg = document.getElementById('cot-msg');
+  btn.disabled = true;
+  btn.textContent = 'Enviando…';
+  msg.className = 'form-msg';
+  try {
+    const data = Object.fromEntries(new FormData(form).entries());
+    const res = await fetch('/api/corporativo/cotizar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const json = await res.json();
+    if (json.ok) {
+      form.reset();
+      msg.textContent = '¡Listo! Recibimos tu solicitud. Te respondemos en menos de 24 horas con una cotización personalizada.';
+      msg.className = 'form-msg ok';
+    } else {
+      throw new Error(json.error || 'error');
+    }
+  } catch {
+    msg.textContent = 'Hubo un problema al enviar. Escríbenos directamente a contacto@lumaproducciones.cl';
+    msg.className = 'form-msg err';
+  }
+  btn.disabled = false;
+  btn.textContent = 'Enviar solicitud de cotización →';
+});
+
+// Cart sync
+const cartCountEl = document.getElementById('cart-count-shared');
+const cartBtn = document.getElementById('btn-cart-shared');
+function syncCart() {
+  try {
+    const cart = JSON.parse(localStorage.getItem('luma_cart') || '[]');
+    const total = cart.reduce((s, i) => s + (i.qty || 1), 0);
+    if (cartCountEl) cartCountEl.textContent = `(${total})`;
+  } catch {}
+}
+syncCart();
+cartBtn?.addEventListener('click', () => { document.getElementById('cart-drawer')?.classList.add('open'); });
+</script>
 </body>
 </html>

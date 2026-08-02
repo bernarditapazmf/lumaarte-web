@@ -6,182 +6,471 @@ import { initDb } from '../../../lib/db.js';
 if (!isAuthenticated(Astro.request)) return Astro.redirect('/admin/login');
 
 const id = Astro.url.searchParams.get('id');
+const db = await initDb();
 let campana = null;
 if (id) {
-  const db = await initDb();
   const { rows } = await db.execute({ sql: 'SELECT * FROM campanas WHERE id=?', args: [id] });
   campana = rows[0] ?? null;
 }
 
-const cuerpoInicial = campana?.cuerpo ? JSON.parse(campana.cuerpo) : [{ type: 'text', content: '' }];
+const { rows: subsRows } = await db.execute(
+  "SELECT COUNT(*) as cnt FROM contactos WHERE (origen='newsletter' OR tags LIKE '%suscriptor%') AND email IS NOT NULL"
+);
+const subsCount = Number(subsRows[0]?.cnt ?? 0);
+
+let secciones = [];
+try { secciones = JSON.parse(campana?.cuerpo || '[]'); } catch {}
 ---
-<AdminLayout title={campana ? 'Editar campaña' : 'Nueva campaña'} active="newsletter">
+<AdminLayout title="Crear Newsletter" active="newsletter">
 <style>
-  .composer{display:grid;grid-template-columns:1fr 480px;gap:24px;height:calc(100vh - 90px)}
-  .panel{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
-  .panel-head{padding:16px 20px;border-bottom:.5px solid rgba(33,31,24,.08);display:flex;align-items:center;justify-content:space-between}
-  .panel-title{font-family:'Mackinac',serif;font-size:15px;font-weight:400}
-  .panel-body{flex:1;overflow-y:auto;padding:20px}
-  .field{margin-bottom:16px}
-  .field label{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(33,31,24,.45);margin-bottom:6px}
-  .field input,.field textarea,.field select{width:100%;border:.5px solid rgba(33,31,24,.2);border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;color:#211f18;background:#fff;outline:none;resize:vertical}
-  .field input:focus,.field textarea:focus{border-color:#54582f}
-  .sections{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
-  .section-block{border:.5px solid rgba(33,31,24,.12);border-radius:8px;padding:14px;background:#faf9f5;position:relative}
-  .section-type{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#54582f;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
-  .section-del{background:none;border:none;color:rgba(170,51,51,.6);font-size:11px;cursor:pointer;padding:0}
-  .section-del:hover{color:#a33}
-  .section-block textarea{width:100%;border:.5px solid rgba(33,31,24,.15);border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit;resize:vertical;min-height:80px;background:#fff;outline:none}
-  .section-block textarea:focus{border-color:#54582f}
-  .section-block input{width:100%;border:.5px solid rgba(33,31,24,.15);border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit;background:#fff;outline:none;margin-bottom:6px}
-  .section-block input:focus{border-color:#54582f}
-  .add-section{display:flex;gap:8px;flex-wrap:wrap}
-  .btn-add{padding:7px 14px;border-radius:8px;font-size:11px;border:.5px solid rgba(33,31,24,.25);background:transparent;color:rgba(33,31,24,.6);cursor:pointer;font-family:inherit;transition:all .15s}
-  .btn-add:hover{background:#54582f;border-color:#54582f;color:#fdfcf8}
-  .actions-bar{padding:14px 20px;border-top:.5px solid rgba(33,31,24,.08);display:flex;gap:10px;flex-wrap:wrap}
-  .btn{padding:9px 18px;border-radius:8px;font-size:12px;font-family:inherit;cursor:pointer;transition:all .15s;letter-spacing:.03em}
-  .btn-save{background:transparent;border:.5px solid rgba(33,31,24,.25);color:rgba(33,31,24,.7)}
-  .btn-save:hover{background:rgba(33,31,24,.06)}
-  .btn-test{background:#f0ede5;border:.5px solid rgba(33,31,24,.15);color:#211f18}
-  .btn-test:hover{background:#e8e4d8}
-  .btn-send{background:#54582f;border:.5px solid #54582f;color:#fdfcf8}
-  .btn-send:hover{background:#3a3d1f}
-  .btn-send:disabled{opacity:.5;cursor:not-allowed}
-  .status{font-size:12px;padding:8px 12px;border-radius:6px;display:none}
-  .status.ok{background:#e8eddd;color:#3a4020;display:block}
-  .status.err{background:#fde8d8;color:#7a2010;display:block}
-  /* PREVIEW */
-  .preview-frame{flex:1;overflow-y:auto;background:#e8e4dc}
-  .preview-frame iframe{width:100%;height:100%;border:none}
-  @media(max-width:1100px){.composer{grid-template-columns:1fr}}
+  /* ── LAYOUT ─────────────────────────── */
+  .wiz{max-width:700px;margin:0 auto;padding-bottom:80px}
+  .wiz-back{display:inline-flex;align-items:center;gap:8px;color:rgba(33,31,24,.4);text-decoration:none;font-size:13px;margin-bottom:26px;transition:color .15s}
+  .wiz-back:hover{color:#211f18}
+  .wiz-back svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+  .wiz-hd{margin-bottom:40px}
+  .wiz-hd h1{font-family:'Mackinac',serif;font-size:28px;font-weight:400;margin-bottom:4px}
+  .wiz-hd p{font-size:13px;color:rgba(33,31,24,.4)}
+
+  /* ── STEPPER ─────────────────────────── */
+  .stepper{display:flex;align-items:flex-start;margin-bottom:48px;position:relative}
+  .st{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;z-index:1}
+  .st-connector{position:absolute;top:19px;left:50%;width:100%;height:1.5px;background:#e5e1d8;z-index:0;transition:background .3s}
+  .st:last-child .st-connector{display:none}
+  .st-icon{width:38px;height:38px;border-radius:50%;border:1.5px solid #e5e1d8;background:#fdfcf8;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .25s;position:relative;z-index:1}
+  .st-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;color:rgba(33,31,24,.3);transition:color .25s}
+  .st-label{font:600 9.5px/1 'Spline Sans Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:rgba(33,31,24,.3);margin-top:8px;text-align:center;transition:color .25s;white-space:nowrap}
+  /* done */
+  .st.done .st-icon{border-color:#54582f;background:#54582f}
+  .st.done .st-icon svg{color:#fdfcf8}
+  .st.done .st-label{color:rgba(33,31,24,.5)}
+  .st.done .st-connector{background:#54582f}
+  /* active */
+  .st.active .st-icon{border-color:#54582f;background:#54582f;box-shadow:0 0 0 4px rgba(84,88,47,.12)}
+  .st.active .st-icon svg{color:#fdfcf8}
+  .st.active .st-label{color:#211f18}
+
+  /* ── PANELS ─────────────────────────── */
+  .panel{display:none}
+  .panel.show{display:block}
+  .panel-header{text-align:center;margin-bottom:30px}
+  .panel-tag{display:inline-flex;align-items:center;gap:7px;background:#f0ede6;border-radius:20px;padding:5px 15px 5px 11px;font:600 10px/1 'Spline Sans Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#54582f;margin-bottom:16px}
+  .panel-tag svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+  .panel-header h2{font-family:'Mackinac',serif;font-size:24px;font-weight:400;margin-bottom:6px}
+  .panel-header p{font-size:13px;color:rgba(33,31,24,.45);max-width:44ch;margin:0 auto;line-height:1.65}
+
+  /* ── CARDS ─────────────────────────── */
+  .card{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:14px;padding:22px 24px;margin-bottom:14px}
+  .c-label{font:600 10px/1 'Spline Sans Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:rgba(33,31,24,.4);margin-bottom:8px;display:block}
+  .c-hint{font-size:12px;color:rgba(33,31,24,.38);margin-bottom:12px;line-height:1.6}
+  input[type=text],input[type=email],textarea{width:100%;border:.5px solid rgba(33,31,24,.18);border-radius:9px;padding:11px 13px;font-size:14px;font-family:inherit;color:#211f18;background:#fff;outline:none;box-sizing:border-box;transition:border-color .15s}
+  input[type=text]:focus,input[type=email]:focus,textarea:focus{border-color:#54582f}
+  textarea{resize:vertical;line-height:1.65}
+
+  /* ── UPLOAD CARD ─────────────────────── */
+  .upload-trigger{display:flex;align-items:center;gap:11px;padding:11px 16px;border:.5px solid rgba(33,31,24,.2);border-radius:9px;background:#fff;cursor:pointer;transition:border-color .15s;width:100%;text-align:left;font-family:inherit}
+  .upload-trigger:hover{border-color:#54582f}
+  .upload-trigger svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;color:#54582f;flex-shrink:0}
+  .upload-trigger span{font:500 12px/1 'Spline Sans Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#211f18;flex:1}
+  .upload-trigger .u-hint{font:400 11px/1 'CoFo Sans',sans-serif;text-transform:none;letter-spacing:0;color:rgba(33,31,24,.38)}
+  .upload-reveal{margin-top:10px;display:none}
+  .upload-reveal.open{display:block}
+  .url-note{font-size:11px;color:rgba(33,31,24,.35);margin-top:5px;line-height:1.5}
+
+  /* ── SECTIONS EDITOR ─────────────────── */
+  .sec-list{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;min-height:20px}
+  .sec-empty{text-align:center;padding:24px 0;font-size:13px;color:rgba(33,31,24,.3)}
+  .sec-item{background:#fff;border:.5px solid rgba(33,31,24,.12);border-radius:10px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px}
+  .sec-grip{color:rgba(33,31,24,.2);padding-top:2px;flex-shrink:0;font-size:16px;line-height:1;cursor:default}
+  .sec-body{flex:1;min-width:0}
+  .sec-badge{font:600 9px/1 'Spline Sans Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#54582f;margin-bottom:7px}
+  .sec-del{background:none;border:none;color:rgba(33,31,24,.25);font-size:18px;cursor:pointer;line-height:1;flex-shrink:0;padding:0;transition:color .15s}
+  .sec-del:hover{color:#b33}
+  .sec-field{width:100%;border:none;border-bottom:.5px solid rgba(33,31,24,.12);padding:3px 0 6px;font-size:13px;font-family:inherit;color:#211f18;background:transparent;outline:none;transition:border-color .15s}
+  .sec-field:focus{border-bottom-color:#54582f}
+  .sec-ta{width:100%;border:none;font:400 13px/1.7 inherit;color:#211f18;background:transparent;outline:none;resize:none;padding:0}
+  .sec-divider{height:1px;background:rgba(33,31,24,.12);border-radius:1px;margin:4px 0}
+  .add-row{display:flex;gap:8px;flex-wrap:wrap}
+  .add-btn{padding:7px 14px;border-radius:8px;font:500 10px/1 'Spline Sans Mono',monospace;letter-spacing:.08em;text-transform:uppercase;border:.5px solid rgba(33,31,24,.18);background:transparent;color:rgba(33,31,24,.55);cursor:pointer;transition:all .15s}
+  .add-btn:hover{border-color:#54582f;color:#54582f;background:rgba(84,88,47,.04)}
+
+  /* ── STATS ─────────────────────────── */
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+  .stat{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:12px;padding:20px;text-align:center}
+  .stat-n{font-family:'Mackinac',serif;font-size:32px;color:#211f18;line-height:1}
+  .stat-l{font:600 9.5px/1 'Spline Sans Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:rgba(33,31,24,.35);margin-top:6px}
+  .test-box{background:#f5f2ec;border:.5px solid rgba(33,31,24,.1);border-radius:12px;padding:20px}
+  .test-row{display:flex;gap:10px;margin-top:12px;align-items:center}
+  .test-inp{flex:1;border:.5px solid rgba(33,31,24,.18);border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;color:#211f18;background:#fff;outline:none;transition:border-color .15s}
+  .test-inp:focus{border-color:#54582f}
+  .btn-test-send{padding:10px 18px;border-radius:8px;background:#211f18;border:none;color:#fdfcf8;font:600 10px/1 'Spline Sans Mono',monospace;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:background .15s}
+  .btn-test-send:hover{background:#54582f}
+  .test-status{font-size:12px;margin-top:10px;line-height:1.5;display:none}
+
+  /* ── SUMMARY (paso 5) ─────────────────── */
+  .sum-list{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:14px;overflow:hidden;margin-bottom:14px}
+  .sum-row{display:flex;justify-content:space-between;gap:20px;align-items:baseline;padding:12px 20px;border-bottom:.5px solid rgba(33,31,24,.07);font-size:13px}
+  .sum-row:last-child{border-bottom:none}
+  .sum-k{color:rgba(33,31,24,.4);white-space:nowrap}
+  .sum-v{font-weight:500;color:#211f18;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:62%}
+  .warn-box{background:#fff8e8;border:.5px solid rgba(180,130,20,.2);border-radius:10px;padding:14px 16px;font-size:13px;color:#7a5c10;line-height:1.65}
+
+  /* ── PREVIEW ─────────────────────────── */
+  .prev-wrap{border:.5px solid rgba(33,31,24,.1);border-radius:12px;overflow:hidden;margin-top:16px}
+  .prev-bar{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:#f5f2ec;border-bottom:.5px solid rgba(33,31,24,.08)}
+  .prev-bar-label{font:600 10px/1 'Spline Sans Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:rgba(33,31,24,.4)}
+  .prev-bar button{font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.06em;background:none;border:none;color:#54582f;cursor:pointer;text-transform:uppercase;padding:0}
+  iframe{width:100%;height:480px;border:none;display:block}
+
+  /* ── BOTTOM NAV ─────────────────────── */
+  .nav{position:fixed;bottom:0;left:228px;right:0;background:rgba(253,252,248,.96);backdrop-filter:blur(8px);border-top:.5px solid rgba(33,31,24,.1);padding:14px 28px;display:flex;justify-content:space-between;align-items:center;z-index:50}
+  .btn-prev{display:flex;align-items:center;gap:7px;padding:10px 20px;border-radius:60px;border:.5px solid rgba(33,31,24,.18);background:transparent;font:600 10px/1 'Spline Sans Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:rgba(33,31,24,.55);cursor:pointer;transition:all .15s}
+  .btn-prev:hover{border-color:#211f18;color:#211f18}
+  .btn-prev svg,.btn-next svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+  .btn-next{display:flex;align-items:center;gap:7px;padding:10px 24px;border-radius:60px;border:none;background:#54582f;font:600 10px/1 'Spline Sans Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#fdfcf8;cursor:pointer;transition:background .15s}
+  .btn-next:hover{background:#3a3d1f}
+  .btn-next:disabled{background:rgba(33,31,24,.18);cursor:not-allowed}
+  .nav-status{font-size:12px;padding:6px 12px;border-radius:20px}
+  .nav-status.ok{background:#e8eddd;color:#3a4020}
+  .nav-status.err{background:#fde8d8;color:#7a2010}
+  .nav-status:empty{display:none}
+
+  @media(max-width:860px){.nav{left:0}}
+  @media(max-width:600px){.stats{grid-template-columns:1fr}.add-row{gap:5px}.add-btn{font-size:9px}}
 </style>
 
-<div class="composer">
-  <!-- EDITOR -->
-  <div class="panel">
-    <div class="panel-head">
-      <span class="panel-title">Composición</span>
-      <a href="/admin/newsletter" style="font-size:12px;color:rgba(33,31,24,.45);text-decoration:none">← Volver</a>
-    </div>
-    <div class="panel-body">
-      <div class="field">
-        <label>Asunto del correo *</label>
-        <input id="f-asunto" type="text" placeholder="Ej: Nuevas obras disponibles — Luma Arte" value={campana?.asunto ?? ''} />
-      </div>
-      <div class="field">
-        <label>Texto de previsualización (preheader)</label>
-        <input id="f-preheader" type="text" placeholder="Texto breve que se ve en bandeja de entrada..." value={campana?.preheader ?? ''} />
-      </div>
-      <div class="field">
-        <label>Imagen de header (URL completa o /img/...)</label>
-        <input id="f-header-img" type="text" placeholder="https://www.lumaarte.com/img/field.jpg" value={campana?.header_img ?? ''} />
-      </div>
+<div class="wiz">
+  <a class="wiz-back" href="/admin/newsletter">
+    <svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+    Newsletters
+  </a>
+  <div class="wiz-hd">
+    <h1>Crear <em>Newsletter</em></h1>
+    <p>Diseña y envía tu próximo correo en 5 pasos</p>
+  </div>
 
-      <div class="field" style="margin-bottom:8px">
-        <label>Secciones de contenido</label>
+  <!-- STEPPER -->
+  <div class="stepper" id="stepper">
+    <div class="st" data-s="1">
+      <div class="st-connector" id="ln1"></div>
+      <div class="st-icon">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
       </div>
-      <div class="sections" id="sections-wrap"></div>
-      <div class="add-section">
-        <button class="btn-add" onclick="addSection('text')">+ Párrafo</button>
-        <button class="btn-add" onclick="addSection('heading')">+ Título</button>
-        <button class="btn-add" onclick="addSection('image')">+ Imagen</button>
-        <button class="btn-add" onclick="addSection('button')">+ Botón CTA</button>
-        <button class="btn-add" onclick="addSection('divider')">+ Separador</button>
+      <span class="st-label">Asunto</span>
+    </div>
+    <div class="st" data-s="2">
+      <div class="st-connector" id="ln2"></div>
+      <div class="st-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      </div>
+      <span class="st-label">Contenido</span>
+    </div>
+    <div class="st" data-s="3">
+      <div class="st-connector" id="ln3"></div>
+      <div class="st-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 18"/><path d="M9 21V9"/></svg>
+      </div>
+      <span class="st-label">Diseño</span>
+    </div>
+    <div class="st" data-s="4">
+      <div class="st-connector" id="ln4"></div>
+      <div class="st-icon">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <span class="st-label">Destinatarios</span>
+    </div>
+    <div class="st" data-s="5">
+      <div class="st-icon">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </div>
+      <span class="st-label">Enviar</span>
+    </div>
+  </div>
+
+  <!-- ═══ PASO 1 — ASUNTO ═══ -->
+  <div class="panel" id="p1">
+    <div class="panel-header">
+      <div class="panel-tag">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Asunto
+      </div>
+      <h2>Configura el <em>asunto</em></h2>
+      <p>La primera impresión en la bandeja de entrada de tus suscriptores.</p>
+    </div>
+    <div class="card">
+      <label class="c-label">Asunto del correo *</label>
+      <input type="text" id="f-asunto" placeholder="Ej: Nueva colección disponible — Luma Arte" value={campana?.asunto ?? ''} />
+    </div>
+    <div class="card">
+      <label class="c-label">Preheader <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+      <div class="c-hint">Texto breve que aparece después del asunto en la bandeja de entrada.</div>
+      <input type="text" id="f-preheader" placeholder="Ej: Descubre las obras de la nueva temporada…" value={campana?.preheader ?? ''} maxlength="140" />
+    </div>
+  </div>
+
+  <!-- ═══ PASO 2 — CONTENIDO ═══ -->
+  <div class="panel" id="p2">
+    <div class="panel-header">
+      <div class="panel-tag">
+        <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Contenido
+      </div>
+      <h2>Escribe el <em>contenido</em></h2>
+      <p>Describe de qué se trata el envío y construye las secciones del correo.</p>
+    </div>
+    <div class="card">
+      <label class="c-label">¿De qué trata este envío?</label>
+      <div class="c-hint">Una nota orientadora — no se incluye en el correo enviado.</div>
+      <textarea id="f-descripcion" rows="3" placeholder="Ej: Anunciar el lanzamiento de 3 obras nuevas, la talla A4 con precio especial y un botón para ver la galería…"></textarea>
+    </div>
+    <div class="card">
+      <label class="c-label">Secciones del email</label>
+      <div class="c-hint">Agrega bloques de contenido. Se muestran en el orden que los crees.</div>
+      <div class="sec-list" id="sec-list"></div>
+      <div class="add-row">
+        <button class="add-btn" onclick="addSec('heading')">+ Título</button>
+        <button class="add-btn" onclick="addSec('text')">+ Párrafo</button>
+        <button class="add-btn" onclick="addSec('image')">+ Imagen</button>
+        <button class="add-btn" onclick="addSec('button')">+ Botón</button>
+        <button class="add-btn" onclick="addSec('divider')">+ Separador</button>
       </div>
     </div>
-    <div class="actions-bar">
-      <button class="btn btn-save" onclick="save()">Guardar borrador</button>
-      <button class="btn btn-test" onclick="sendTest()">Enviar prueba a mí</button>
-      <button class="btn btn-send" id="btn-send" onclick="sendAll()">
-        Enviar a suscriptores →
+  </div>
+
+  <!-- ═══ PASO 3 — DISEÑO ═══ -->
+  <div class="panel" id="p3">
+    <div class="panel-header">
+      <div class="panel-tag">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+        Diseño
+      </div>
+      <h2>Imagen y <em>vista previa</em></h2>
+      <p>Agrega una imagen de portada y revisa cómo se verá el correo.</p>
+    </div>
+    <div class="card">
+      <label class="c-label">Imagen para header <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+      <div class="c-hint">Banner principal del correo. Recomendado: 600×300 px, formato horizontal.</div>
+      <button class="upload-trigger" onclick="toggleReveal('reveal-header')">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span>Subir imagen de header</span>
+        <span class="u-hint">Pega la URL</span>
       </button>
+      <div class="upload-reveal" id="reveal-header">
+        <input type="text" id="f-header-img" placeholder="https://… o /img/nombre.jpg" value={campana?.header_img ?? ''} oninput="refreshPreview()" />
+        <div class="url-note">Sube la imagen a la carpeta <code style="background:#f0ede6;padding:1px 5px;border-radius:4px">/public/img/</code> o usa una URL externa.</div>
+      </div>
     </div>
-    <div style="padding:0 20px 14px">
-      <div class="status" id="status-msg"></div>
+    <div class="card">
+      <label class="c-label">Imágenes dentro del email</label>
+      <div class="c-hint">Agrégalas directamente en cada sección de tipo Imagen en el paso Contenido.</div>
+      <div style="background:#f5f2ec;border-radius:8px;padding:11px 14px;font-size:12.5px;color:rgba(33,31,24,.45);line-height:1.65">
+        Ve al paso Contenido → agrega una sección "Imagen" → pega la URL de cada imagen que quieras incluir.
+      </div>
+    </div>
+    <div class="prev-wrap">
+      <div class="prev-bar">
+        <span class="prev-bar-label">Vista previa</span>
+        <button onclick="refreshPreview()">↺ Actualizar</button>
+      </div>
+      <iframe id="prev-frame" title="Vista previa del correo"></iframe>
     </div>
   </div>
 
-  <!-- PREVIEW -->
-  <div class="panel">
-    <div class="panel-head">
-      <span class="panel-title">Vista previa</span>
-      <button onclick="refreshPreview()" style="font-size:11px;border:none;background:none;color:#54582f;cursor:pointer">↺ Actualizar</button>
+  <!-- ═══ PASO 4 — DESTINATARIOS ═══ -->
+  <div class="panel" id="p4">
+    <div class="panel-header">
+      <div class="panel-tag">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Destinatarios
+      </div>
+      <h2>¿A quién le <em>enviamos</em>?</h2>
+      <p>Revisa tu lista y envía una prueba antes del envío masivo.</p>
     </div>
-    <div class="preview-frame">
-      <iframe id="preview-frame" title="Vista previa del email"></iframe>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-n">{subsCount}</div>
+        <div class="stat-l">Suscriptores</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n" style="font-size:16px;padding-top:8px;line-height:1.2">hola@<br>lumaarte.com</div>
+        <div class="stat-l">Desde</div>
+      </div>
+    </div>
+    <div class="test-box">
+      <label class="c-label">Enviar correo de prueba</label>
+      <div class="c-hint" style="margin-bottom:0">Verifica el diseño en tu bandeja antes de enviarlo a todos.</div>
+      <div class="test-row">
+        <input class="test-inp" type="email" id="test-email" value="bernimirf@gmail.com" placeholder="correo@ejemplo.com" />
+        <button class="btn-test-send" id="btn-test" onclick="sendTest()">Enviar prueba</button>
+      </div>
+      <div class="test-status" id="test-status"></div>
     </div>
   </div>
+
+  <!-- ═══ PASO 5 — ENVIAR ═══ -->
+  <div class="panel" id="p5">
+    <div class="panel-header">
+      <div class="panel-tag">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Enviar
+      </div>
+      <h2>Resumen final y <em>envío</em></h2>
+      <p>Revisa todo y confirma el envío masivo a tus suscriptores.</p>
+    </div>
+    <div class="sum-list">
+      <div class="sum-row"><span class="sum-k">Asunto</span><span class="sum-v" id="sum-asunto">—</span></div>
+      <div class="sum-row"><span class="sum-k">Preheader</span><span class="sum-v" id="sum-preheader">Sin preheader</span></div>
+      <div class="sum-row"><span class="sum-k">Secciones</span><span class="sum-v" id="sum-secciones">—</span></div>
+      <div class="sum-row"><span class="sum-k">Imagen header</span><span class="sum-v" id="sum-header">Sin imagen</span></div>
+      <div class="sum-row"><span class="sum-k">Destinatarios</span><span class="sum-v">{subsCount} suscriptores</span></div>
+    </div>
+    <div class="warn-box">
+      <strong>Antes de enviar:</strong> asegúrate de haber revisado la vista previa y enviado una prueba. El envío masivo no se puede deshacer.
+    </div>
+  </div>
+
+  <div style="height:70px"></div>
 </div>
 
-<script define:vars={{ cuerpoInicial, campanaId: campana?.id ?? null, campanaEstado: campana?.estado ?? 'borrador' }}>
-let sections = cuerpoInicial.map((s, i) => ({ ...s, _id: i }));
-let nextId = sections.length;
+<!-- BARRA DE NAVEGACIÓN FIJA -->
+<div class="nav">
+  <button class="btn-prev" id="btn-prev" onclick="prevStep()">
+    <svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+    Anterior
+  </button>
+  <span class="nav-status" id="nav-status"></span>
+  <button class="btn-next" id="btn-next" onclick="nextStep()">
+    Siguiente
+    <svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+  </button>
+</div>
 
-function addSection(type) {
-  const s = { type, _id: nextId++ };
-  if (type === 'text') s.content = '';
-  if (type === 'heading') s.content = '';
-  if (type === 'image') { s.url = ''; s.alt = ''; }
-  if (type === 'button') { s.label = 'Ver obras →'; s.url = 'https://www.lumaarte.com/#pinturas'; }
-  if (type === 'divider') {}
-  sections.push(s);
-  renderSections();
-  refreshPreview();
+<script define:vars={{ campanaId: campana?.id ?? null, campanaEstado: campana?.estado ?? 'borrador', seccionesIniciales: secciones }}>
+// ─── ESTADO ─────────────────────────────────────────
+let step = 1;
+let savedId = campanaId;
+const TOTAL = 5;
+let secs = seccionesIniciales.map((s, i) => ({ ...s, _id: i }));
+let nextId = secs.length;
+
+// ─── ARRANQUE ────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  renderSecs();
+  goTo(campanaId ? 2 : 1);
+});
+
+// ─── NAVEGACIÓN ──────────────────────────────────────
+function goTo(n) {
+  step = n;
+  // Pasos
+  document.querySelectorAll('.st').forEach(el => {
+    const s = Number(el.dataset.s);
+    el.classList.remove('active', 'done');
+    if (s < n) el.classList.add('done');
+    else if (s === n) el.classList.add('active');
+  });
+  // Líneas conectoras
+  for (let i = 1; i < TOTAL; i++) {
+    const ln = document.getElementById('ln' + i);
+    if (ln) ln.style.background = i < n ? '#54582f' : '#e5e1d8';
+  }
+  // Paneles
+  for (let i = 1; i <= TOTAL; i++) {
+    const p = document.getElementById('p' + i);
+    if (p) p.classList.toggle('show', i === n);
+  }
+  // Botones
+  document.getElementById('btn-prev').style.visibility = n > 1 ? 'visible' : 'hidden';
+  const nxt = document.getElementById('btn-next');
+  if (n === TOTAL) {
+    nxt.innerHTML = 'Enviar a suscriptores <svg viewBox="0 0 24 24" width="13" height="13" style="stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
+    nxt.onclick = sendAll;
+  } else {
+    nxt.innerHTML = 'Siguiente <svg viewBox="0 0 24 24" width="13" height="13" style="stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><path d="m9 18 6-6-6-6"/></svg>';
+    nxt.onclick = nextStep;
+  }
+  if (n === 3) refreshPreview();
+  if (n === 5) updateSummary();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function removeSection(id) {
-  sections = sections.filter(s => s._id !== id);
-  renderSections();
-  refreshPreview();
+async function nextStep() {
+  if (!validate()) return;
+  await saveDraft();
+  if (step < TOTAL) goTo(step + 1);
+}
+function prevStep() { if (step > 1) goTo(step - 1); }
+window.prevStep = prevStep;
+window.nextStep = nextStep;
+
+// ─── VALIDACIÓN ──────────────────────────────────────
+function validate() {
+  if (step === 1) {
+    const v = document.getElementById('f-asunto').value.trim();
+    if (!v) { setStatus('El asunto es obligatorio.', false); return false; }
+  }
+  return true;
 }
 
-function renderSections() {
-  const wrap = document.getElementById('sections-wrap');
-  wrap.innerHTML = sections.map(s => {
-    const typeLabel = { text: 'Párrafo', heading: 'Título', image: 'Imagen', button: 'Botón CTA', divider: 'Separador' }[s.type] || s.type;
-    let fields = '';
-    if (s.type === 'text') {
-      fields = `<textarea rows="4" oninput="updateSection(${s._id},'content',this.value)" placeholder="Escribe el contenido del párrafo...">${s.content ?? ''}</textarea>`;
-    } else if (s.type === 'heading') {
-      fields = `<input type="text" oninput="updateSection(${s._id},'content',this.value)" placeholder="Título de sección..." value="${(s.content??'').replace(/"/g,'&quot;')}" />`;
-    } else if (s.type === 'image') {
-      fields = `<input type="text" oninput="updateSection(${s._id},'url',this.value)" placeholder="URL de la imagen..." value="${(s.url??'').replace(/"/g,'&quot;')}" />`
-             + `<input type="text" oninput="updateSection(${s._id},'alt',this.value)" placeholder="Texto alternativo (descripción)..." value="${(s.alt??'').replace(/"/g,'&quot;')}" />`;
-    } else if (s.type === 'button') {
-      fields = `<input type="text" oninput="updateSection(${s._id},'label',this.value)" placeholder="Texto del botón..." value="${(s.label??'').replace(/"/g,'&quot;')}" />`
-             + `<input type="text" oninput="updateSection(${s._id},'url',this.value)" placeholder="URL de destino..." value="${(s.url??'').replace(/"/g,'&quot;')}" />`;
-    } else if (s.type === 'divider') {
-      fields = '<div style="height:1px;background:rgba(33,31,24,.15);border-radius:2px;margin:4px 0"></div>';
-    }
-    return `<div class="section-block">
-      <div class="section-type">${typeLabel}<button class="section-del" onclick="removeSection(${s._id})">✕ Eliminar</button></div>
-      ${fields}
-    </div>`;
+// ─── SECCIONES ───────────────────────────────────────
+const LABELS = { heading:'Título', text:'Párrafo', image:'Imagen', button:'Botón', divider:'Separador' };
+
+function renderSecs() {
+  const el = document.getElementById('sec-list');
+  if (!secs.length) {
+    el.innerHTML = '<div class="sec-empty">Aún no hay secciones — agrégalas con los botones de abajo.</div>';
+    return;
+  }
+  el.innerHTML = secs.map((s, i) => {
+    let body = '';
+    if (s.type === 'heading')
+      body = `<input class="sec-field" type="text" value="${esc(s.content||'')}" oninput="updSec(${i},'content',this.value)" placeholder="Título de sección…" />`;
+    else if (s.type === 'text')
+      body = `<textarea class="sec-ta" rows="3" oninput="updSec(${i},'content',this.value)" placeholder="Escribe el párrafo aquí…">${s.content||''}</textarea>`;
+    else if (s.type === 'image')
+      body = `<input class="sec-field" type="text" value="${esc(s.url||'')}" oninput="updSec(${i},'url',this.value)" placeholder="URL de imagen…" />`
+           + `<input class="sec-field" type="text" value="${esc(s.alt||'')}" oninput="updSec(${i},'alt',this.value)" placeholder="Texto alt…" style="margin-top:5px" />`;
+    else if (s.type === 'button')
+      body = `<input class="sec-field" type="text" value="${esc(s.label||'')}" oninput="updSec(${i},'label',this.value)" placeholder="Texto del botón…" />`
+           + `<input class="sec-field" type="text" value="${esc(s.url||'')}" oninput="updSec(${i},'url',this.value)" placeholder="URL de destino…" style="margin-top:5px" />`;
+    else if (s.type === 'divider')
+      body = '<div class="sec-divider"></div>';
+    return `<div class="sec-item"><span class="sec-grip">⠿</span><div class="sec-body"><div class="sec-badge">${LABELS[s.type]||s.type}</div>${body}</div><button class="sec-del" onclick="delSec(${i})">×</button></div>`;
   }).join('');
 }
+function esc(s){ return s.replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 
-function updateSection(id, key, value) {
-  const s = sections.find(x => x._id === id);
-  if (s) { s[key] = value; refreshPreview(); }
-}
+window.addSec = type => {
+  const map = {
+    heading:{type:'heading',content:''},
+    text:{type:'text',content:''},
+    image:{type:'image',url:'',alt:''},
+    button:{type:'button',label:'Ver obras →',url:'https://www.lumaarte.com/#pinturas'},
+    divider:{type:'divider'},
+  };
+  secs.push({ ...(map[type]||{type}), _id: nextId++ });
+  renderSecs();
+};
+window.delSec = i => { secs.splice(i, 1); renderSecs(); };
+window.updSec = (i, k, v) => { if (secs[i]) { secs[i][k] = v; } };
 
-function getAsunto() { return document.getElementById('f-asunto').value.trim(); }
-function getPreheader() { return document.getElementById('f-preheader').value.trim(); }
-function getHeaderImg() { return document.getElementById('f-header-img').value.trim(); }
-
-function buildEmailHtml(asunto, preheader, headerImg, secs) {
+// ─── EMAIL HTML ───────────────────────────────────────
+function buildHtml() {
+  const asunto = v('f-asunto') || 'Vista previa';
+  const preheader = v('f-preheader');
+  const headerImg = v('f-header-img');
   const logo = 'https://www.lumaarte.com/img/luma-logo.png';
   const sitio = 'https://www.lumaarte.com';
 
   const headerBlock = headerImg
     ? `<div style="width:100%;max-height:320px;overflow:hidden"><img src="${headerImg}" alt="${asunto}" style="width:100%;max-height:320px;object-fit:cover;display:block" /></div>`
-    : `<div style="background:#1a1f14;height:12px"></div>`;
+    : `<div style="background:#1a1f14;height:10px"></div>`;
 
-  const sectionsHtml = secs.map(s => {
-    if (s.type === 'text') return `<p style="font-family:Georgia,serif;font-size:16px;line-height:1.78;color:rgba(33,31,24,.85);margin:0 0 20px">${(s.content||'').replace(/\n/g,'<br/>')}</p>`;
+  const secsHtml = secs.map(s => {
+    if (s.type === 'text')    return `<p style="font-family:Georgia,serif;font-size:16px;line-height:1.78;color:rgba(33,31,24,.85);margin:0 0 20px">${(s.content||'').replace(/\n/g,'<br/>')}</p>`;
     if (s.type === 'heading') return `<h2 style="font-family:Georgia,serif;font-size:24px;font-weight:400;line-height:1.2;color:#211f18;margin:32px 0 14px;letter-spacing:-.01em">${s.content||''}</h2>`;
     if (s.type === 'image' && s.url) return `<div style="margin:24px 0"><img src="${s.url}" alt="${s.alt||''}" style="width:100%;border-radius:8px;display:block" /></div>`;
-    if (s.type === 'button') return `<div style="text-align:center;margin:28px 0"><a href="${s.url||sitio}" style="display:inline-block;padding:14px 30px;border-radius:60px;background:#54582f;color:#fdfcf8;font-family:monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none">${s.label||'Ver obras →'}</a></div>`;
+    if (s.type === 'button')  return `<div style="text-align:center;margin:28px 0"><a href="${s.url||sitio}" style="display:inline-block;padding:14px 30px;border-radius:60px;background:#54582f;color:#fdfcf8;font-family:monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none">${s.label||'Ver obras →'}</a></div>`;
     if (s.type === 'divider') return `<hr style="border:none;border-top:.5px solid rgba(33,31,24,.2);margin:28px 0" />`;
     return '';
   }).join('');
@@ -192,17 +481,11 @@ ${preheader ? `<div style="display:none;max-height:0;overflow:hidden;color:trans
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#e8e4dc;padding:32px 16px">
   <tr><td align="center">
     <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fdfcf8;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08)">
-      <!-- HEADER con logo -->
       <tr><td style="background:#211f18;padding:22px 32px;text-align:center">
         <a href="${sitio}"><img src="${logo}" alt="Luma Arte" style="height:44px;filter:brightness(0) invert(1);opacity:.96" /></a>
       </td></tr>
-      <!-- IMAGEN HEADER -->
       <tr><td>${headerBlock}</td></tr>
-      <!-- CONTENIDO -->
-      <tr><td style="padding:40px 40px 28px">
-        ${sectionsHtml}
-      </td></tr>
-      <!-- FOOTER -->
+      <tr><td style="padding:40px 40px 28px">${secsHtml||'<p style="color:rgba(33,31,24,.3);text-align:center;font-size:14px">Agrega secciones de contenido en el paso Contenido.</p>'}</td></tr>
       <tr><td style="background:#f3f0e9;padding:28px 40px;border-top:.5px solid rgba(33,31,24,.1)">
         <p style="font-family:monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(33,31,24,.4);margin:0 0 8px">Luma Arte · Puerto Varas, Región de Los Lagos</p>
         <p style="font-size:12px;color:rgba(33,31,24,.4);margin:0"><a href="${sitio}" style="color:#54582f">lumaarte.com</a> · <a href="${sitio}/#contacto" style="color:rgba(33,31,24,.4)">Cancelar suscripción</a></p>
@@ -213,87 +496,107 @@ ${preheader ? `<div style="display:none;max-height:0;overflow:hidden;color:trans
 </body></html>`;
 }
 
+function v(id) { return document.getElementById(id)?.value?.trim() || ''; }
+
 function refreshPreview() {
-  const html = buildEmailHtml(getAsunto() || 'Vista previa', getPreheader(), getHeaderImg(), sections);
-  const frame = document.getElementById('preview-frame');
+  const frame = document.getElementById('prev-frame');
+  if (!frame) return;
   const doc = frame.contentDocument || frame.contentWindow.document;
-  doc.open(); doc.write(html); doc.close();
+  doc.open(); doc.write(buildHtml()); doc.close();
 }
-
-function showStatus(msg, ok) {
-  const el = document.getElementById('status-msg');
-  el.textContent = msg;
-  el.className = 'status ' + (ok ? 'ok' : 'err');
-  setTimeout(() => { el.className = 'status'; }, 5000);
-}
-
-async function save() {
-  const asunto = getAsunto();
-  if (!asunto) { showStatus('El asunto es obligatorio.', false); return; }
-  const html = buildEmailHtml(asunto, getPreheader(), getHeaderImg(), sections);
-  const body = { id: campanaId, asunto, preheader: getPreheader(), header_img: getHeaderImg(), cuerpo: JSON.stringify(sections.map(({ _id, ...s }) => s)), html };
-  const res = await fetch('/api/admin/campana-save', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
-  const data = await res.json();
-  if (data.ok) {
-    showStatus('Guardado correctamente.', true);
-    if (!campanaId && data.id) { history.replaceState(null,'',`/admin/newsletter/nueva?id=${data.id}`); campanaId = data.id; }
-  } else {
-    showStatus('Error al guardar: ' + (data.error||''), false);
-  }
-}
-
-async function sendTest() {
-  const asunto = getAsunto();
-  if (!asunto) { showStatus('El asunto es obligatorio.', false); return; }
-  await save();
-  const html = buildEmailHtml(asunto, getPreheader(), getHeaderImg(), sections);
-  const res = await fetch('/api/admin/newsletter-send', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ test: true, asunto, html })
-  });
-  const data = await res.json();
-  showStatus(data.ok ? '✓ Prueba enviada a tu correo.' : 'Error: ' + (data.error||''), data.ok);
-}
-
-async function sendAll() {
-  const asunto = getAsunto();
-  if (!asunto) { showStatus('El asunto es obligatorio.', false); return; }
-  if (campanaEstado === 'enviado') { showStatus('Esta campaña ya fue enviada.', false); return; }
-  if (!confirm(`¿Enviar "${asunto}" a todos los suscriptores? Esta acción no se puede deshacer.`)) return;
-  await save();
-  const btn = document.getElementById('btn-send');
-  btn.disabled = true; btn.textContent = 'Enviando…';
-  const html = buildEmailHtml(asunto, getPreheader(), getHeaderImg(), sections);
-  const res = await fetch('/api/admin/newsletter-send', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ test: false, asunto, html, campanaId })
-  });
-  const data = await res.json();
-  btn.disabled = false; btn.textContent = 'Enviar a suscriptores →';
-  if (data.ok) {
-    showStatus(`✓ Enviado a ${data.enviados} suscriptores.`, true);
-    setTimeout(() => location.href = '/admin/newsletter', 2000);
-  } else {
-    showStatus('Error al enviar: ' + (data.error||''), false);
-  }
-}
-
-window.addSection = addSection;
-window.removeSection = removeSection;
-window.updateSection = updateSection;
 window.refreshPreview = refreshPreview;
-window.save = save;
-window.sendTest = sendTest;
-window.sendAll = sendAll;
 
-// Inputs que regeneran el preview
-['f-asunto','f-preheader','f-header-img'].forEach(id => {
-  document.getElementById(id)?.addEventListener('input', refreshPreview);
-});
+// ─── TOGGLE UPLOAD REVEAL ────────────────────────────
+window.toggleReveal = id => {
+  document.getElementById(id)?.classList.toggle('open');
+};
 
-renderSections();
-refreshPreview();
+// ─── GUARDAR BORRADOR ────────────────────────────────
+async function saveDraft() {
+  const asunto = v('f-asunto');
+  if (!asunto) return;
+  const payload = {
+    id: savedId,
+    asunto,
+    preheader: v('f-preheader'),
+    header_img: v('f-header-img'),
+    cuerpo: JSON.stringify(secs.map(({ _id, ...s }) => s)),
+    html: buildHtml(),
+  };
+  const res = await fetch('/api/admin/campana-save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (data.ok && !savedId) {
+    savedId = data.id;
+    history.replaceState(null, '', `/admin/newsletter/nueva?id=${data.id}`);
+  }
+}
+
+// ─── PRUEBA ──────────────────────────────────────────
+window.sendTest = async () => {
+  const asunto = v('f-asunto');
+  if (!asunto) { setStatus('Completa el asunto primero.', false); return; }
+  await saveDraft();
+  const btn = document.getElementById('btn-test');
+  btn.disabled = true; btn.textContent = 'Enviando…';
+  const html = buildHtml();
+  const res = await fetch('/api/admin/newsletter-send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ test: true, asunto, html }),
+  });
+  const data = await res.json();
+  const ts = document.getElementById('test-status');
+  ts.style.display = 'block';
+  ts.style.color = data.ok ? '#54582f' : '#a33';
+  ts.textContent = data.ok ? '✓ Prueba enviada — revisa tu bandeja de entrada.' : 'Error: ' + (data.error || 'desconocido');
+  btn.disabled = false; btn.textContent = 'Enviar prueba';
+};
+
+// ─── ENVÍO MASIVO ────────────────────────────────────
+window.sendAll = async () => {
+  const asunto = v('f-asunto');
+  if (!asunto) { setStatus('El asunto es obligatorio.', false); return; }
+  if (campanaEstado === 'enviado') { setStatus('Esta campaña ya fue enviada.', false); return; }
+  if (!confirm(`¿Enviar "${asunto}" a todos los suscriptores? Esta acción no se puede deshacer.`)) return;
+  await saveDraft();
+  const nxt = document.getElementById('btn-next');
+  nxt.disabled = true; nxt.textContent = 'Enviando…';
+  const html = buildHtml();
+  const res = await fetch('/api/admin/newsletter-send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ test: false, asunto, html, campanaId: savedId }),
+  });
+  const data = await res.json();
+  nxt.disabled = false;
+  if (data.ok) {
+    setStatus(`✓ Enviado a ${data.enviados} suscriptores.`, true);
+    setTimeout(() => { window.location.href = '/admin/newsletter'; }, 2500);
+  } else {
+    setStatus('Error: ' + (data.error || 'desconocido'), false);
+    nxt.innerHTML = 'Enviar a suscriptores <svg viewBox="0 0 24 24" width="13" height="13" style="stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
+  }
+};
+
+// ─── RESUMEN ─────────────────────────────────────────
+function updateSummary() {
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || '—'; };
+  set('sum-asunto',    v('f-asunto') || '—');
+  set('sum-preheader', v('f-preheader') || 'Sin preheader');
+  set('sum-secciones', secs.length + ' sección' + (secs.length === 1 ? '' : 'es'));
+  set('sum-header',    v('f-header-img') || 'Sin imagen');
+}
+
+// ─── STATUS ──────────────────────────────────────────
+function setStatus(msg, ok) {
+  const el = document.getElementById('nav-status');
+  el.textContent = msg;
+  el.className = 'nav-status ' + (ok ? 'ok' : 'err');
+  setTimeout(() => { el.textContent = ''; el.className = 'nav-status'; }, 4500);
+}
 </script>
 </AdminLayout>
