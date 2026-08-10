@@ -34,10 +34,10 @@ export const GET: APIRoute = async () => {
   try {
     const db = await initDb();
     const { rows } = await db.execute(
-      "SELECT slug, updated_at, created_at FROM blog_posts WHERE estado='publicado'"
+      "SELECT slug, pub_date FROM blog_posts WHERE estado='publicado'"
     );
     for (const r of rows) {
-      const date = (r.updated_at || r.created_at) as string | null;
+      const date = r.pub_date as string | null;
       urls.push({
         url: `/blog/${r.slug}`,
         priority: '0.6',
