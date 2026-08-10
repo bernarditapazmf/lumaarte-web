@@ -22,7 +22,7 @@ const fecha = pubDate.toLocaleDateString('es-CL', { day: 'numeric', month: 'long
 
 <title>{title} — Luma Arte</title>
 <meta name="description" content={description} />
-<link rel="canonical" href={`https://www.lumaarte.com/blog/${Astro.url?.pathname?.split('/').filter(Boolean).pop() || ''}`} />
+<link rel="canonical" href={`https://www.lumaarte.com${Astro.url.pathname.replace(/\/$/, '')}`} />
 <meta name="robots" content="index, follow" />
 <meta property="og:type" content="article" />
 <meta property="og:locale" content="es_CL" />
