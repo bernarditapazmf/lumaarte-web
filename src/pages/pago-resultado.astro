@@ -164,7 +164,7 @@ const isPaid = status === 2;
       <!-- CTA -->
       <section class="cta-section">
         <a class="btn-primary" href="/">Volver al inicio</a>
-        <a class="btn-secondary" href="/#pinturas">Ver más obras</a>
+        <a class="btn-secondary" href="/colecciones">Ver más obras</a>
       </section>
     </>
   ) : (
@@ -174,13 +174,13 @@ const isPaid = status === 2;
           <div class="estado-icon">✕</div>
           <h1 class="estado-h1">Pago rechazado</h1>
           <p class="estado-p">Tu pago fue rechazado. Por favor intenta nuevamente con otra tarjeta o medio de pago.</p>
-          <a class="btn-primary" href="/#pinturas">Volver a las obras</a>
+          <a class="btn-primary" href="/colecciones">Volver a las obras</a>
         </>}
         {status === 4 && <>
           <div class="estado-icon">○</div>
           <h1 class="estado-h1">Pago anulado</h1>
           <p class="estado-p">El pago fue anulado. Si fue un error, puedes volver y realizar el pedido nuevamente.</p>
-          <a class="btn-primary" href="/#pinturas">Volver a las obras</a>
+          <a class="btn-primary" href="/colecciones">Volver a las obras</a>
         </>}
         {(status === 1 || !status) && <>
           <div class="estado-icon">◌</div>
