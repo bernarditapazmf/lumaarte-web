@@ -30,14 +30,14 @@ import CartDrawer from '../components/CartDrawer.astro';
 <meta property="og:site_name" content="Luma Arte" />
 <meta property="og:title" content="Colecciones — Pinturas Originales y Foto Bordado | Luma Arte" />
 <meta property="og:description" content="Pinturas originales del sur de Chile y Foto Bordado: tu foto importante, bordada e enmarcada en madera nativa." />
-<meta property="og:image" content="https://www.lumaarte.com/img/hands.jpg" />
+<meta property="og:image" content="https://www.lumaarte.com/img/gc4.jpg" />
 <meta property="og:url" content="https://www.lumaarte.com/colecciones" />
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Colecciones — Pinturas Originales y Foto Bordado | Luma Arte" />
 <meta name="twitter:description" content="Pinturas originales del sur de Chile y Foto Bordado: tu foto importante, bordada e enmarcada en madera nativa." />
-<meta name="twitter:image" content="https://www.lumaarte.com/img/hands.jpg" />
+<meta name="twitter:image" content="https://www.lumaarte.com/img/gc4.jpg" />
 
 <!-- Structured Data: CollectionPage (AEO/GEO) -->
 <script type="application/ld+json">{
@@ -106,7 +106,7 @@ a:hover{color:#3c3f21}
 
 /* HERO */
 .hero{position:relative;min-height:64vh;overflow:hidden;background:#20241a}
-.hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;animation:lumaDrift 52s ease-in-out infinite}
+.hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 45%;animation:lumaDrift 52s ease-in-out infinite}
 .hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,22,14,.5) 0%,rgba(20,22,14,.14) 32%,rgba(20,22,14,.2) 56%,rgba(20,22,14,.66) 100%)}
 .hero-body{position:absolute;left:48px;right:48px;bottom:64px;z-index:10}
 .hero-eyebrow{font:500 12px/1 'Spline Sans Mono',monospace;letter-spacing:.34em;text-transform:uppercase;color:rgba(253,252,248,.85);margin-bottom:24px}
@@ -233,7 +233,7 @@ a:hover{color:#3c3f21}
 <!-- HERO -->
 <article>
 <section class="hero" id="top" aria-label="Colecciones de Luma Arte">
-  <img class="hero-bg" src="/img/hands.jpg" alt="Manos creando — pintura y bordado artesanal, Luma Arte" fetchpriority="high" decoding="async" />
+  <img class="hero-bg" src="/img/gc4.jpg" alt="Vuelo de cisnes sobre el sur de Chile — Luma Arte" fetchpriority="high" decoding="async" />
   <div class="hero-overlay" aria-hidden="true"></div>
   <nav class="nav" aria-label="Navegación principal">
     <a href="/" aria-label="Ir al inicio — Luma Arte">
@@ -476,11 +476,12 @@ window.comprar = (i)=>{
   const o=OBRAS[i];
   const size=S.sizes[i]||'21 × 30 cm';
   const precio=o.precios[size]||0;
-  const matLabel=S.mat[i]==='black'?'Paspartú negro':'Paspartú blanco';
+  const matColor=S.mat[i]||'white';
+  const matLabel=matColor==='black'?'Paspartú negro':'Paspartú blanco';
   const marco=S.marco[i]||MARCOS[0];
   let cart = [];
   try { cart = JSON.parse(localStorage.getItem('luma_cart') || '[]'); } catch {}
-  cart.push({title:o.title,img:`/img/${o.base}.png`,detail:`${size} · ${matLabel} · Marco ${marco}`,precio,key:Date.now()+'-'+i});
+  cart.push({title:o.title,img:`/img/${o.base}.png`,detail:`${size} · ${matLabel} · Marco ${marco}`,precio,size,mat:matColor,marco,key:Date.now()+'-'+i});
   localStorage.setItem('luma_cart', JSON.stringify(cart));
   closeObra(i);
   document.getElementById('btn-cart-shared')?.click();

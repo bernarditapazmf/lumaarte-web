@@ -74,7 +74,7 @@ const pendientesEnvio = pedidos.filter(p => ['pagado','en_enmarcado'].includes(p
               </td>
               <td>
                 {p.obra_nombre || '—'}
-                {p.talla && <div style="font-size:11px;color:rgba(33,31,24,.4)">{p.talla} · {p.mat === 'black' ? 'Paspartú negro' : 'Paspartú blanco'}</div>}
+                {p.talla && <div style="font-size:11px;color:rgba(33,31,24,.4)">{p.talla} · {p.mat === 'black' ? 'Paspartú negro' : 'Paspartú blanco'}{p.marco ? ` · Marco ${p.marco}` : ''}</div>}
               </td>
               <td>${Number(p.monto).toLocaleString('es-CL')}</td>
               <td>

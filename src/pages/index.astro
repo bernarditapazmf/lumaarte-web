@@ -967,9 +967,10 @@ window.comprar = (i)=>{
   const o=OBRAS[i];
   const size=S.sizes[i]||'21 × 30 cm';
   const precio=o.precios[size]||0;
-  const matLabel=S.mat[i]==='black'?'Paspartú negro':'Paspartú blanco';
+  const matColor=S.mat[i]||'white';
+  const matLabel=matColor==='black'?'Paspartú negro':'Paspartú blanco';
   const marco=S.marco[i]||MARCOS[0];
-  S.cart.push({title:o.title,img:`/img/${o.base}.png`,detail:`${size} · ${matLabel} · Marco ${marco}`,precio,key:Date.now()+'-'+i});
+  S.cart.push({title:o.title,img:`/img/${o.base}.png`,detail:`${size} · ${matLabel} · Marco ${marco}`,precio,size,mat:matColor,marco,key:Date.now()+'-'+i});
   closeObra(i);
   renderCart();
   openCart();
@@ -1166,7 +1167,7 @@ document.getElementById('pedido-form').addEventListener('submit',async(e)=>{
     region: fd.get('region')||'',
     mensaje: fd.get('mensaje')||'',
     total,
-    items: S.cart.map(c=>({title:c.title,detail:c.detail,precio:c.precio})),
+    items: S.cart.map(c=>({title:c.title,detail:c.detail,precio:c.precio,size:c.size||null,mat:c.mat||null,marco:c.marco||null})),
   };
   try{
     const res=await fetch('/api/payment-create',{

@@ -62,9 +62,13 @@ export async function initDb() {
       obra_nombre             TEXT,
       talla                   TEXT,
       mat                     TEXT,
+      marco                   TEXT,
       cliente_nombre          TEXT,
       cliente_email           TEXT,
       cliente_telefono        TEXT,
+      cliente_direccion       TEXT,
+      cliente_ciudad          TEXT,
+      cliente_region          TEXT,
       monto                   INTEGER DEFAULT 0,
       estado                  TEXT    DEFAULT 'pagado',
       fecha_pedido            TEXT,
@@ -75,6 +79,13 @@ export async function initDb() {
       created_at              TEXT    DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Migrar pedidos si faltan columnas nuevas
+  const { rows: pedCols } = await db.execute('PRAGMA table_info(pedidos)');
+  const pedExisting = pedCols.map(r => r.name);
+  for (const [col, def] of [['marco','TEXT'],['cliente_direccion','TEXT'],['cliente_ciudad','TEXT'],['cliente_region','TEXT']]) {
+    if (!pedExisting.includes(col)) await db.execute(`ALTER TABLE pedidos ADD COLUMN ${col} ${def}`);
+  }
 
   await db.execute(`
     CREATE TABLE IF NOT EXISTS contactos (
