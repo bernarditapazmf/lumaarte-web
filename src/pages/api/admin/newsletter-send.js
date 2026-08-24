@@ -1,5 +1,6 @@
 import { initDb } from '../../../lib/db.js';
 import { isAuthenticated } from '../../../lib/auth.js';
+import { unsubscribeFooterHtml } from '../../../lib/unsubscribe.js';
 export const prerender = false;
 
 export async function POST({ request }) {
@@ -18,17 +19,17 @@ export async function POST({ request }) {
         from: 'Luma Arte <contacto@lumaarte.com>',
         to: ['bernimirf@gmail.com'],
         subject: `[PRUEBA] ${asunto}`,
-        html,
+        html: html + unsubscribeFooterHtml('bernimirf@gmail.com'),
       }),
     });
     const data = await res.json();
     return new Response(JSON.stringify({ ok: res.ok, error: data.message }), { headers: { 'Content-Type': 'application/json' } });
   }
 
-  // Envío masivo — obtener todos los suscriptores
+  // Envío masivo — obtener todos los suscriptores activos (excluye dados de baja)
   const db = await initDb();
   const { rows: subs } = await db.execute(
-    "SELECT email FROM contactos WHERE (origen='newsletter' OR tags LIKE '%suscriptor%') AND email IS NOT NULL"
+    "SELECT email FROM contactos WHERE (origen='newsletter' OR tags LIKE '%suscriptor%') AND email IS NOT NULL AND unsubscribed_at IS NULL"
   );
 
   let enviados = 0;
@@ -43,7 +44,7 @@ export async function POST({ request }) {
           from: 'Luma Arte <contacto@lumaarte.com>',
           to: [sub.email],
           subject: asunto,
-          html,
+          html: html + unsubscribeFooterHtml(sub.email),
         }),
       });
       if (res.ok) enviados++;

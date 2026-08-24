@@ -1,4 +1,5 @@
 import { initDb } from '../../lib/db.js';
+import { unsubscribeFooterHtml } from '../../lib/unsubscribe.js';
 export const prerender = false;
 
 export async function POST({ request }) {
@@ -51,6 +52,7 @@ export async function POST({ request }) {
                 Luma Arte · Puerto Varas, Región de Los Lagos<br>
                 <a href="https://www.lumaarte.com" style="color:rgba(33,31,24,.4)">lumaarte.com</a>
               </p>
+              ${unsubscribeFooterHtml(email)}
             </div>`,
         }),
       });

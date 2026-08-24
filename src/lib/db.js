@@ -78,15 +78,22 @@ export async function initDb() {
 
   await db.execute(`
     CREATE TABLE IF NOT EXISTS contactos (
-      id         INTEGER PRIMARY KEY AUTOINCREMENT,
-      nombre     TEXT,
-      email      TEXT UNIQUE,
-      telefono   TEXT,
-      origen     TEXT DEFAULT 'manual',
-      tags       TEXT,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+      id               INTEGER PRIMARY KEY AUTOINCREMENT,
+      nombre           TEXT,
+      email            TEXT UNIQUE,
+      telefono         TEXT,
+      origen           TEXT DEFAULT 'manual',
+      tags             TEXT,
+      unsubscribed_at  TEXT,
+      created_at       TEXT DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Migrar contactos si falta la columna de baja
+  const { rows: contCols } = await db.execute('PRAGMA table_info(contactos)');
+  if (!contCols.map(r => r.name).includes('unsubscribed_at')) {
+    await db.execute('ALTER TABLE contactos ADD COLUMN unsubscribed_at TEXT');
+  }
 
   await db.execute(`
     CREATE TABLE IF NOT EXISTS codigos_descuento (

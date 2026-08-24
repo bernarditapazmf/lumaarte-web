@@ -1,5 +1,6 @@
 import { isAuthenticated } from '../../../lib/auth.js';
 import { initDb } from '../../../lib/db.js';
+import { unsubscribeFooterHtml } from '../../../lib/unsubscribe.js';
 export const prerender = false;
 export async function POST({ request, redirect }) {
   if (!isAuthenticated(request)) return redirect('/admin/login');
@@ -9,7 +10,7 @@ export async function POST({ request, redirect }) {
   const apiKey = import.meta.env.RESEND_API_KEY;
 
   const db = await initDb();
-  const { rows: contactos } = await db.execute("SELECT * FROM contactos WHERE email IS NOT NULL");
+  const { rows: contactos } = await db.execute("SELECT * FROM contactos WHERE email IS NOT NULL AND unsubscribed_at IS NULL");
 
   if (!apiKey) {
     await db.execute({ sql: 'INSERT INTO campanas (asunto,cuerpo,estado) VALUES (?,?,?)', args:[asunto,cuerpo,'sin_api_key'] });
@@ -18,7 +19,7 @@ export async function POST({ request, redirect }) {
 
   let enviados = 0;
   for (const c of contactos) {
-    const html = cuerpo.replace('{nombre}', c.nombre || 'amig@');
+    const html = cuerpo.replace('{nombre}', c.nombre || 'amig@') + unsubscribeFooterHtml(c.email);
     try {
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
