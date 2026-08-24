@@ -277,6 +277,7 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
 .obra-mat-btns{display:flex;gap:8px}
 .obra-mat-btn{padding:10px 20px;border-radius:8px;font:500 10px/1 'Spline Sans Mono',monospace;letter-spacing:.12em;text-transform:uppercase;border:1.5px solid rgba(33,31,24,.22);background:transparent;color:rgba(33,31,24,.55);transition:all .2s ease}
 .obra-mat-btn.active{border-color:#211f18;background:#211f18;color:#fdfcf8}
+.obra-marco-select{width:100%;appearance:none;-webkit-appearance:none;-moz-appearance:none;background-color:transparent;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23211f18' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;border:1.5px solid rgba(33,31,24,.22);border-radius:8px;padding:10px 34px 10px 14px;font:500 10px/1 'Spline Sans Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:rgba(33,31,24,.75);cursor:pointer;outline:none}
 
 /* FONDO AGUA (inspiración + oficio) */
 .agua{position:relative;overflow:hidden;scroll-margin-top:10px;background:#171a10}
@@ -854,6 +855,7 @@ const OBRAS = [
     precios:{'21 × 30 cm':75000,'30 × 40 cm':95000,'40 × 50 cm':145000,'50 × 70 cm':220000} },
 ];
 const SIZES = ['21 × 30 cm','30 × 40 cm','40 × 50 cm','50 × 70 cm'];
+const MARCOS = ['Mañío','Laurel','Coihue','Roble'];
 const GC_IMGS = ['/img/gc1.jpg','/img/gc2.jpg','/img/gc3.jpg','/img/gc4.jpg','/img/gc5.jpg','/img/gc6.jpg'];
 
 // ── ESTADO ─────────────────────────────────────────
@@ -861,6 +863,7 @@ const S = {
   activeObra: null,
   sizes: {},
   mat: {},
+  marco: {},
   cart: [],
   gc: { design:0, de:'', para:'', mail:'', mensaje:'', amount:null, other:'' },
 };
@@ -916,6 +919,10 @@ function renderObras(){
           <button class="obra-mat-btn active" data-obra="${i}" data-mat="white" onclick="setMat(${i},'white')">Blanco</button>
           <button class="obra-mat-btn" data-obra="${i}" data-mat="black" onclick="setMat(${i},'black')">Negro</button>
         </div>
+        <div class="obra-mat-label">Marco de madera nativa</div>
+        <select class="obra-marco-select" data-obra="${i}" onchange="setMarco(${i},this.value)">
+          ${MARCOS.map(m=>`<option value="${m}">${m}</option>`).join('')}
+        </select>
       </div>
     </div>`;
   }).join('');
@@ -949,6 +956,7 @@ window.setMat = (i,val)=>{
     b.classList.toggle('active', b.dataset.mat===val);
   });
 };
+window.setMarco = (i,val)=>{ S.marco[i]=val; };
 window.selectSize = (i,sz)=>{
   S.sizes[i]=sz;
   document.querySelectorAll(`.obra-size-btn[data-obra="${i}"]`).forEach(b=>{
@@ -960,7 +968,8 @@ window.comprar = (i)=>{
   const size=S.sizes[i]||'21 × 30 cm';
   const precio=o.precios[size]||0;
   const matLabel=S.mat[i]==='black'?'Paspartú negro':'Paspartú blanco';
-  S.cart.push({title:o.title,img:`/img/${o.base}.png`,detail:`${size} · ${matLabel}`,precio,key:Date.now()+'-'+i});
+  const marco=S.marco[i]||MARCOS[0];
+  S.cart.push({title:o.title,img:`/img/${o.base}.png`,detail:`${size} · ${matLabel} · Marco ${marco}`,precio,key:Date.now()+'-'+i});
   closeObra(i);
   renderCart();
   openCart();
