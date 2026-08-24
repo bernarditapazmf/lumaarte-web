@@ -38,18 +38,21 @@ export async function POST({ request }) {
         <p style="font-size:12px;color:#999">Enviado desde lumaarte.com — formulario Colaboremos</p>
       </div>`;
     try {
-      await fetch('https://api.resend.com/emails', {
+      const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'Luma Arte <contacto@lumaproducciones.cl>',
+          from: 'Luma Arte <contacto@lumaarte.com>',
           to: ['contacto@lumaproducciones.cl'],
           reply_to: email,
           subject: `✉️ Nuevo mensaje de ${nombre} — Luma Arte`,
           html: htmlBody,
         }),
       });
-    } catch {}
+      if (!res.ok) console.error('Resend error (contacto):', res.status, await res.text());
+    } catch (e) {
+      console.error('Resend fetch failed (contacto):', e);
+    }
   }
 
   return new Response(JSON.stringify({ ok: true }), {

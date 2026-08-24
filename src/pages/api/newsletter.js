@@ -29,11 +29,11 @@ export async function POST({ request }) {
   const apiKey = import.meta.env.RESEND_API_KEY;
   if (apiKey) {
     try {
-      await fetch('https://api.resend.com/emails', {
+      const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'Luma Arte <contacto@lumaproducciones.cl>',
+          from: 'Luma Arte <contacto@lumaarte.com>',
           to: [email],
           subject: 'Bienvenida a Cartas desde el Sur — Luma Arte',
           html: `
@@ -54,7 +54,10 @@ export async function POST({ request }) {
             </div>`,
         }),
       });
-    } catch {}
+      if (!res.ok) console.error('Resend error (newsletter):', res.status, await res.text());
+    } catch (e) {
+      console.error('Resend fetch failed (newsletter):', e);
+    }
   }
 
   return new Response(JSON.stringify({ ok: true }), {
