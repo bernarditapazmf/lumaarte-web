@@ -1,0 +1,471 @@
+---
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+import { initDb } from '../../../lib/db.js';
+import { RETIRO_MUJERES as R, contarOcupados, tramosConEstado, tramoVigente, clp } from '../../../lib/experiencias.js';
+export const prerender = false;
+
+let ocupados = 0;
+try {
+  const db = await initDb();
+  ocupados = await contarOcupados(db, R);
+} catch (e) {
+  console.error('No se pudo leer cupos del retiro:', e);
+}
+const tramos = tramosConEstado(R, ocupados);
+const vigente = tramoVigente(R, ocupados);
+const agotado = !vigente;
+const quedanTotal = Math.max(R.cuposTotales - ocupados, 0);
+const esPrueba = Astro.url.searchParams.get('prueba') === '1';
+
+const SITE = 'https://www.lumaarte.com';
+const urlAbs = `${SITE}${R.url}`;
+
+const FAQ = [
+  { q: '¿Qué tengo que llevar al retiro?', a: 'Ropa cómoda, traje de baño, sandalias, toalla y agua.' },
+  { q: '¿Necesito experiencia previa en meditación, movimiento o arte?', a: 'No. El retiro está pensado para cualquier mujer, tenga o no experiencia. Cada práctica se adapta a tu cuerpo y a tu ritmo.' },
+  { q: '¿Puedo usar las biopiscinas si estoy embarazada o tengo problemas de presión?', a: 'Las biopiscinas tienen agua caliente entre 36 y 40 °C, por lo que no se recomiendan durante el embarazo ni con presión arterial alta o baja. Si tienes dudas, consulta a tu médico. Entrar a las biopiscinas es opcional y nos cuentas cualquier condición de salud en el formulario de inscripción.' },
+  { q: '¿Qué pasa si me inscribo y después no puedo asistir?', a: 'Hasta el 24 de diciembre de 2026 te devolvemos lo pagado descontando la comisión de la pasarela de pago. Luego la devolución es del 60% (hasta el 2 de enero), 40% (hasta el 9 de enero) y 20% (hasta el 15 de enero). Desde el 16 de enero no hay devolución, porque ya se han reservado y comprado los insumos de cada participante.' },
+  { q: '¿Puedo regalar el retiro?', a: '¡Sí, 100%! A quien creas que le puede servir, ayudar o con quien sientas que se va a identificar. Al inscribirte marca la opción "Es un regalo" e ingresa los datos de quien asistirá: ella recibirá la bienvenida y las prácticas de preparación.' },
+  { q: '¿El retiro incluye alojamiento o traslado?', a: 'No. Incluye todas las actividades del día, el almuerzo y las biopiscinas. Más abajo te dejamos ideas para llegar y alojarte en Frutillar o Puerto Varas.' },
+  { q: '¿Cuándo empiezan las prácticas de preparación?', a: 'Desde el 26 de diciembre de 2026 te enviaremos por correo meditaciones y prácticas corporales para llegar preparada. Si te inscribes después de esa fecha, las recibes desde el día de tu inscripción.' },
+  { q: '¿Qué incluye el almuerzo?', a: 'Plato de fondo y bebestible. Cuéntanos en la inscripción si tienes alguna restricción alimentaria.' },
+  { q: '¿Por qué el precio cambia?', a: 'Los cupos se venden por tramos: los primeros tienen el valor más bajo y el precio sube a medida que se completan, hasta un valor final de $150.000. El precio que pagas queda fijo.' },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: 'Retiro de mujeres en Frutillar — ¿Por qué estoy aquí?',
+    description: 'Un día de retiro para mujeres en el sur de Chile: círculo de mujeres, movimiento somático, Alba Emoting, arte terapia y cierre en biopiscinas de agua caliente. Incluye almuerzo y prácticas de preparación previas.',
+    startDate: R.fechaInicioISO,
+    eventStatus: 'https://schema.org/EventScheduled',
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    inLanguage: 'es-CL',
+    image: [`${SITE}/img/sobremi-filosofia.jpg`],
+    url: urlAbs,
+    location: {
+      '@type': 'Place',
+      name: 'Frutillar, Región de Los Lagos',
+      address: { '@type': 'PostalAddress', addressLocality: 'Frutillar', addressRegion: 'Los Lagos', addressCountry: 'CL' },
+    },
+    organizer: { '@type': 'Organization', name: 'Luma Arte', url: SITE },
+    performer: [
+      { '@type': 'Person', name: 'Andrea Ortúzar' },
+      { '@type': 'Person', name: 'Bernardita Mir', url: `${SITE}/sobremi` },
+    ],
+    offers: {
+      '@type': 'AggregateOffer',
+      priceCurrency: 'CLP',
+      lowPrice: vigente ? vigente.precio : 150000,
+      highPrice: 150000,
+      offerCount: quedanTotal,
+      availability: agotado ? 'https://schema.org/SoldOut' : 'https://schema.org/LimitedAvailability',
+      url: `${urlAbs}#inscripcion`,
+      validFrom: '2026-10-09T00:00:00-03:00',
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQ.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: SITE },
+      { '@type': 'ListItem', position: 2, name: 'Experiencias', item: `${SITE}/experiencias` },
+      { '@type': 'ListItem', position: 3, name: 'Retiro de mujeres', item: urlAbs },
+    ],
+  },
+];
+---
+<SiteLayout
+  title="Retiro de mujeres en Frutillar · 23 de enero 2027 | Luma Arte"
+  description="Un día de retiro para mujeres en el sur de Chile: círculo de mujeres, movimiento somático, Alba Emoting, arte terapia y biopiscinas. Sábado 23 de enero de 2027 en Frutillar. Cupos limitados."
+  canonical={R.url}
+  ogImage="/img/sobremi-filosofia.jpg"
+  ogType="event"
+  keywords="retiro para mujeres, retiro de mujeres sur de Chile, retiro mujeres enero 2027, círculo de mujeres Frutillar, círculo de mujeres Puerto Varas, arte terapia, Alba Emoting, vacaciones wellness sur de Chile, qué hacer en Frutillar"
+  jsonLd={jsonLd}
+  activo="experiencias"
+>
+<style>
+.r-hero{position:relative;min-height:min(92vh,860px);overflow:hidden;background:#171a10;display:flex;align-items:flex-end}
+.r-hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 40%;animation:lumaDrift 60s ease-in-out infinite}
+.r-hero-ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,20,10,.55) 0%,rgba(16,20,10,.2) 35%,rgba(16,20,10,.35) 60%,rgba(16,20,10,.82) 100%)}
+.r-hero-body{position:relative;z-index:2;padding:0 48px 72px;max-width:1100px}
+.r-eyebrow{font:500 12px/1 'Spline Sans Mono',monospace;letter-spacing:.3em;text-transform:uppercase;color:#cdd3ae;margin-bottom:22px}
+.r-h1{font-family:'Mackinac',serif;font-weight:400;font-size:clamp(40px,6vw,76px);line-height:1.02;letter-spacing:-.02em;color:#fdfcf8;max-width:16ch}
+.r-hero-meta{margin:26px 0 30px;font:300 18px/1.6 'CoFo Sans';color:rgba(253,252,248,.92)}
+.r-hero-meta strong{font-weight:500}
+.btn{display:inline-block;padding:17px 34px;border-radius:60px;background:#fdfcf8;color:#211f18;font:500 12px/1 'Spline Sans Mono',monospace;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border:none;cursor:pointer;transition:transform .2s}
+.btn:hover{transform:scale(1.03);color:#211f18}
+.btn--osc{background:#211f18;color:#fdfcf8}
+.btn--osc:hover{background:#54582f;color:#fdfcf8}
+.r-cupos{margin-top:14px;font:500 11px/1.4 'Spline Sans Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#cdd3ae}
+
+.sec{padding:104px 48px}
+.sec-in{max-width:1080px;margin:0 auto}
+.sec--crema{background:#f3f0e9}
+.sec--osc{background:#211f18;color:#fdfcf8}
+.eyebrow{font:500 12px/1 'Spline Sans Mono',monospace;letter-spacing:.3em;text-transform:uppercase;color:#54582f;margin-bottom:18px}
+.sec--osc .eyebrow{color:#cdd3ae}
+.h2{font-family:'Mackinac',serif;font-weight:400;font-size:clamp(30px,3.8vw,48px);line-height:1.08;letter-spacing:-.02em;margin-bottom:22px;max-width:22ch}
+.lead{font-family:'Mackinac',serif;font-size:22px;line-height:1.6;max-width:40ch}
+.p{font:300 16px/1.8 'CoFo Sans';color:rgba(33,31,24,.78);max-width:62ch;margin-bottom:16px}
+.sec--osc .p{color:rgba(253,252,248,.85)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
+
+.pregunta{text-align:center}
+.pregunta .h2{margin:0 auto 22px;font-style:italic;max-width:none;font-size:clamp(38px,5vw,64px)}
+.pregunta .p{margin:0 auto}
+
+.dia{display:flex;flex-direction:column}
+.momento{display:grid;grid-template-columns:150px 1fr;gap:28px;padding:30px 0;border-top:.5px solid rgba(33,31,24,.18)}
+.momento:last-child{border-bottom:.5px solid rgba(33,31,24,.18)}
+.momento-hora{font:500 11px/1.6 'Spline Sans Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#54582f;padding-top:6px}
+.momento-t{font-family:'Mackinac',serif;font-size:24px;line-height:1.2;margin-bottom:8px}
+
+.incl li{list-style:none;padding:12px 0;border-bottom:.5px solid rgba(33,31,24,.14);font:300 16px/1.6 'CoFo Sans'}
+.incl li::before{content:'—';color:#54582f;margin-right:12px}
+.no-incl{margin-top:22px;font:300 14px/1.6 'CoFo Sans';color:rgba(33,31,24,.55)}
+
+.img-sec{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:4px}
+
+.guias{display:flex;gap:48px;flex-wrap:wrap;margin-top:28px}
+.guia-n{font-family:'Mackinac',serif;font-size:28px}
+.guia-n a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(253,252,248,.3)}
+
+.circulo-cita{font-family:'Mackinac',serif;font-style:italic;font-size:clamp(22px,2.6vw,30px);line-height:1.5;max-width:34ch}
+
+.viaje-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:40px}
+.viaje-t{font-family:'Mackinac',serif;font-size:22px;margin-bottom:12px}
+
+.tramos{width:100%;border-collapse:collapse;margin-top:28px}
+.tramos td{padding:16px 6px;border-bottom:.5px solid rgba(33,31,24,.16);font:300 16px 'CoFo Sans'}
+.tramos td:last-child{text-align:right;font:500 13px 'Spline Sans Mono',monospace;letter-spacing:.06em}
+.tramo--agotado td{color:rgba(33,31,24,.35);text-decoration:line-through}
+.tramo--agotado td:last-child{text-decoration:none}
+.tramo--vigente td{font-weight:500;background:#fdfcf8}
+.tramo-badge{display:inline-block;margin-left:10px;padding:4px 10px;border-radius:60px;background:#54582f;color:#fdfcf8;font:500 10px/1 'Spline Sans Mono',monospace;letter-spacing:.12em;text-transform:uppercase;text-decoration:none}
+
+.form{background:#fdfcf8;border:.5px solid rgba(33,31,24,.12);border-radius:16px;padding:40px 36px}
+.form-precio{font-family:'Mackinac',serif;font-size:40px;line-height:1}
+.form-precio-sub{font:500 11px/1.5 'Spline Sans Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#54582f;margin:10px 0 28px}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.f-field{margin-bottom:18px}
+.f-label{display:block;font:500 11px/1.3 'Spline Sans Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:rgba(33,31,24,.55);margin-bottom:8px}
+.f-input,.f-select,.f-text{width:100%;background:transparent;border:none;border-bottom:.5px solid rgba(33,31,24,.35);padding:10px 2px;font:400 15px 'CoFo Sans';color:#211f18;outline:none}
+.f-text{resize:vertical}
+.f-check{display:flex;gap:12px;align-items:flex-start;font:300 14px/1.5 'CoFo Sans';margin:6px 0 18px;cursor:pointer}
+.f-check input{margin-top:3px;accent-color:#54582f}
+.regalo-box{padding:18px 0 4px;border-top:.5px dashed rgba(33,31,24,.25)}
+.f-msg{margin-top:14px;font:400 14px/1.6 'CoFo Sans';color:#a33}
+.f-nota{margin-top:14px;font:300 12.5px/1.6 'CoFo Sans';color:rgba(33,31,24,.5);text-align:center}
+.prueba{background:#fff4d6;border:1px solid #e6c766;border-radius:8px;padding:10px 14px;margin-bottom:20px;font:400 13px/1.5 'CoFo Sans'}
+
+.faq details{border-bottom:.5px solid rgba(33,31,24,.18);padding:22px 0}
+.faq summary{cursor:pointer;font-family:'Mackinac',serif;font-size:21px;list-style:none;display:flex;justify-content:space-between;gap:20px}
+.faq summary::after{content:'+';font-family:'CoFo Sans';color:#54582f}
+.faq details[open] summary::after{content:'–'}
+.faq .p{margin:14px 0 0}
+
+@media(max-width:900px){
+  .r-hero-body{padding:0 24px 56px}
+  .sec{padding:72px 24px}
+  .grid2{grid-template-columns:1fr;gap:40px}
+  .viaje-grid{grid-template-columns:1fr;gap:28px}
+  .momento{grid-template-columns:1fr;gap:6px}
+  .form{padding:30px 22px}
+}
+@media(max-width:600px){
+  .r-h1{font-size:38px}
+  .r-hero-meta{font-size:16px}
+  .f-row{grid-template-columns:1fr}
+}
+</style>
+
+<!-- HERO -->
+<section class="r-hero" aria-label="Retiro de mujeres en Frutillar">
+  <img class="r-hero-bg" src="/img/sobremi-filosofia.jpg" alt="Mujer de blanco en movimiento entre rayos de luz — retiro de mujeres en el sur de Chile" fetchpriority="high" decoding="async" />
+  <div class="r-hero-ov" aria-hidden="true"></div>
+  <div class="r-hero-body">
+    <p class="r-eyebrow">Experiencias · Frutillar</p>
+    <h1 class="r-h1">Retiro de <em>mujeres</em></h1>
+    <p class="r-hero-meta"><strong>Sábado 23 de enero de 2027</strong> · desde las 10:00 hrs · Frutillar, sur de Chile</p>
+    {agotado
+      ? <a class="btn" href="mailto:contacto@lumaarte.com?subject=Lista%20de%20espera%20Retiro%20de%20mujeres">Cupos agotados · Lista de espera</a>
+      : <a class="btn" href="#inscripcion">Inscribirme · {clp(vigente.precio)}</a>}
+    {!agotado && <p class="r-cupos">{vigente.nombre} · {vigente.quedan === 1 ? 'queda 1 cupo' : `quedan ${vigente.quedan} cupos`} a este valor</p>}
+  </div>
+</section>
+
+<!-- LA PREGUNTA -->
+<section class="sec pregunta" aria-labelledby="pregunta-t">
+  <div class="sec-in">
+    <p class="eyebrow">La pregunta que nos convoca</p>
+    <h2 class="h2" id="pregunta-t">¿Por qué estoy aquí?</h2>
+    <p class="p">Un día para detenerte, escucharte y volver a ti, rodeada de otras mujeres y de la naturaleza del sur de Chile. Abrimos el retiro con un círculo de mujeres en torno a esta pregunta, y desde ahí la recorremos con el cuerpo, con la emoción y con el arte.</p>
+  </div>
+</section>
+
+<!-- EL DÍA -->
+<section class="sec sec--crema" aria-labelledby="dia-t">
+  <div class="sec-in">
+    <p class="eyebrow">El día</p>
+    <h2 class="h2" id="dia-t">Así viviremos el retiro</h2>
+    <div class="dia">
+      <div class="momento">
+        <div class="momento-hora">10:00 · Apertura</div>
+        <div><div class="momento-t">Círculo de mujeres</div><p class="p">Nos reunimos en círculo para abrir el espacio y responder juntas la pregunta: ¿por qué estoy aquí?</p></div>
+      </div>
+      <div class="momento">
+        <div class="momento-hora">Mañana</div>
+        <div><div class="momento-t">Movimiento somático y Alba Emoting</div><p class="p">Prácticas corporales para habitar el cuerpo y reconocer la emoción desde la respiración y el movimiento. Cerramos la mañana conversando y compartiendo nuestras reflexiones.</p></div>
+      </div>
+      <div class="momento">
+        <div class="momento-hora">Mediodía</div>
+        <div><div class="momento-t">Almuerzo</div><p class="p">Plato de fondo y bebestible, para compartir con calma.</p></div>
+      </div>
+      <div class="momento">
+        <div class="momento-hora">Tarde</div>
+        <div><div class="momento-t">Arte terapia y tu "tesoro"</div><p class="p">Plasmamos todo lo conversado y profundizado a través de metodologías de arte terapia. Cada una se lleva su tesoro: un vision board con lo que conectó en la experiencia.</p></div>
+      </div>
+      <div class="momento">
+        <div class="momento-hora">Cierre</div>
+        <div><div class="momento-t">Biopiscinas a 36–40 °C</div><p class="p">Despedimos el día sumergidas en biopiscinas de agua caliente, para compartir un cierre lindo y suave.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INCLUYE + PREPARACIÓN -->
+<section class="sec" aria-labelledby="incluye-t">
+  <div class="sec-in grid2">
+    <div>
+      <p class="eyebrow">Qué incluye</p>
+      <h2 class="h2" id="incluye-t">Todo lo que necesitas para el día</h2>
+      <ul class="incl">
+        <li>Círculo de mujeres de apertura</li>
+        <li>Prácticas de movimiento somático y Alba Emoting</li>
+        <li>Almuerzo: plato de fondo y bebestible</li>
+        <li>Taller de arte terapia con todos los materiales</li>
+        <li>Tu vision board para llevar</li>
+        <li>Cierre en biopiscinas de agua caliente</li>
+        <li>Meditaciones y prácticas de preparación por correo</li>
+      </ul>
+      <p class="no-incl">No incluye alojamiento ni traslados.</p>
+    </div>
+    <div>
+      <p class="eyebrow">Tu preparación</p>
+      <h2 class="h2">El retiro empieza antes del retiro</h2>
+      <p class="p">Desde el <strong>26 de diciembre</strong> te enviaremos meditaciones y prácticas corporales para que llegues presente y puedas profundizar el día de la experiencia.</p>
+      <p class="p">Si te inscribes después de esa fecha, comienzas a recibirlas desde el día de tu inscripción.</p>
+      <img class="img-sec" src="/img/hands.jpg" alt="Manos en movimiento — prácticas corporales y arte terapia" loading="lazy" decoding="async" style="margin-top:20px" />
+    </div>
+  </div>
+</section>
+
+<!-- CÍRCULO -->
+<section class="sec sec--crema" aria-labelledby="circulo-t">
+  <div class="sec-in grid2">
+    <div>
+      <p class="eyebrow">Círculos de mujeres</p>
+      <h2 class="h2" id="circulo-t">¿Qué es un círculo de mujeres?</h2>
+    </div>
+    <div>
+      <p class="circulo-cita">Espacios y rituales de encuentro entre mujeres en pos del bienestar integral, en los que se abre la reflexión en torno a temas trascendentales de la vida y salud de las mujeres, fomentando una comunidad sensible, profunda y colaborativa en el cuidado individual y social —como hacían las antiguas—, de la mano de los ciclos de la naturaleza que van marcando el enfoque de cada círculo.</p>
+    </div>
+  </div>
+</section>
+
+<!-- GUÍAS -->
+<section class="sec sec--osc" aria-labelledby="guias-t">
+  <div class="sec-in">
+    <p class="eyebrow">Quiénes guían</p>
+    <h2 class="h2" id="guias-t">Facilitadoras</h2>
+    <div class="guias">
+      <div class="guia-n">Andrea Ortúzar</div>
+      <div class="guia-n"><a href="/sobremi">Bernardita Mir</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- VIAJE -->
+<section class="sec" aria-labelledby="viaje-t">
+  <div class="sec-in">
+    <p class="eyebrow">Ven de vacaciones al sur</p>
+    <h2 class="h2" id="viaje-t">Unas vacaciones que también te cuidan</h2>
+    <p class="p">Enero es pleno verano en el Lago Llanquihue: días largos, volcanes despejados y agua para nadar. El retiro puede ser el corazón de tu viaje al sur: llega unos días antes o quédate después para seguir descansando.</p>
+    <div class="viaje-grid">
+      <div>
+        <div class="viaje-t">Cómo llegar</div>
+        <p class="p">En avión, vuela a Puerto Montt (aeropuerto El Tepual) u Osorno; desde ambos estás a alrededor de una hora en auto de Frutillar. También hay buses desde Santiago a Frutillar y Puerto Varas.</p>
+      </div>
+      <div>
+        <div class="viaje-t">Dónde alojarte</div>
+        <p class="p">Frutillar tiene hospedajes, cabañas y hoteles frente al lago. Puerto Varas está a unos 30 minutos y suma oferta gastronómica y de alojamiento. La ubicación exacta del retiro te la enviamos al inscribirte.</p>
+      </div>
+      <div>
+        <div class="viaje-t">Qué más hacer</div>
+        <p class="p">Caminar la costanera de Frutillar y visitar el Teatro del Lago, subir al Volcán Osorno, conocer los Saltos del Petrohué o remar en el lago. En verano revisa la programación cultural de Frutillar.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRECIOS + INSCRIPCIÓN -->
+<section class="sec sec--crema" id="inscripcion" aria-labelledby="insc-t" style="scroll-margin-top:20px">
+  <div class="sec-in grid2">
+    <div>
+      <p class="eyebrow">Valores y cupos</p>
+      <h2 class="h2" id="insc-t">Cupos limitados, por tramos</h2>
+      <p class="p">Los primeros cupos tienen el valor más bajo y el precio sube a medida que se completan. El valor que pagas queda fijo.</p>
+      <table class="tramos">
+        <tbody>
+          {tramos.map(t => (
+            <tr class={t.agotado ? 'tramo--agotado' : t.vigente ? 'tramo--vigente' : ''}>
+              <td>
+                {t.nombre} · {t.capacidad} {t.capacidad === 1 ? 'cupo' : 'cupos'}
+                {t.vigente && <span class="tramo-badge">Ahora</span>}
+              </td>
+              <td>{t.agotado ? 'Agotado' : clp(t.precio)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p class="no-incl">Al inscribirte aceptas los <a href={`${R.url}/terminos`}>términos y la política de cancelación</a>.</p>
+    </div>
+
+    <div class="form">
+      {esPrueba && <div class="prueba">Modo prueba: si tienes sesión iniciada en el admin, esta inscripción cobra $350 y no ocupa cupo.</div>}
+      {agotado ? (
+        <>
+          <div class="form-precio">Cupos agotados</div>
+          <p class="p" style="margin-top:16px">Escríbenos a <a href="mailto:contacto@lumaarte.com">contacto@lumaarte.com</a> para quedar en lista de espera.</p>
+        </>
+      ) : (
+        <>
+          <div class="form-precio">{clp(vigente.precio)}</div>
+          <div class="form-precio-sub">{vigente.nombre} · {vigente.quedan === 1 ? 'queda 1 cupo' : `quedan ${vigente.quedan} cupos`} a este valor</div>
+          <form id="insc-form" novalidate>
+            <div class="f-field">
+              <label class="f-label" for="f-nombre">Nombre de quien asistirá *</label>
+              <input class="f-input" id="f-nombre" name="nombre" autocomplete="name" required />
+            </div>
+            <div class="f-row">
+              <div class="f-field">
+                <label class="f-label" for="f-email">Correo *</label>
+                <input class="f-input" id="f-email" name="email" type="email" autocomplete="email" required />
+              </div>
+              <div class="f-field">
+                <label class="f-label" for="f-tel">Teléfono *</label>
+                <input class="f-input" id="f-tel" name="telefono" type="tel" autocomplete="tel" required />
+              </div>
+            </div>
+            <div class="f-row">
+              <div class="f-field">
+                <label class="f-label" for="f-ciudad">¿Desde dónde vienes?</label>
+                <input class="f-input" id="f-ciudad" name="ciudadOrigen" placeholder="Ej: Santiago" />
+              </div>
+              <div class="f-field">
+                <label class="f-label" for="f-como">¿Cómo te enteraste?</label>
+                <select class="f-select" id="f-como" name="comoSeEntero">
+                  <option value="">Elige una opción</option>
+                  <option>Instagram</option>
+                  <option>Una amiga o conocida</option>
+                  <option>Google</option>
+                  <option>Newsletter de Luma</option>
+                  <option>Otro</option>
+                </select>
+              </div>
+            </div>
+            <div class="f-field">
+              <label class="f-label" for="f-rest">Restricciones alimentarias</label>
+              <input class="f-input" id="f-rest" name="restricciones" placeholder="Ej: vegetariana, celíaca, ninguna" />
+            </div>
+            <div class="f-field">
+              <label class="f-label" for="f-salud">¿Alguna condición de salud que debamos considerar?</label>
+              <textarea class="f-text" id="f-salud" name="salud" rows="2" placeholder="Embarazo, presión, lesiones… (opcional)"></textarea>
+            </div>
+            <label class="f-check"><input type="checkbox" id="f-regalo" name="esRegalo" /> Es un regalo para otra persona</label>
+            <div class="regalo-box" id="regalo-box" hidden>
+              <div class="f-row">
+                <div class="f-field">
+                  <label class="f-label" for="f-cnombre">Tu nombre (quien regala) *</label>
+                  <input class="f-input" id="f-cnombre" name="compradorNombre" />
+                </div>
+                <div class="f-field">
+                  <label class="f-label" for="f-cemail">Tu correo *</label>
+                  <input class="f-input" id="f-cemail" name="compradorEmail" type="email" />
+                </div>
+              </div>
+            </div>
+            <label class="f-check"><input type="checkbox" id="f-terminos" name="aceptaTerminos" required /> <span>Acepto los <a href={`${R.url}/terminos`} target="_blank">términos y la política de cancelación</a>.</span></label>
+            <button class="btn btn--osc" id="f-btn" type="submit" style="width:100%">Inscribirme y pagar {clp(vigente.precio)} →</button>
+            <p class="f-msg" id="f-msg" hidden></p>
+            <p class="f-nota">Pago seguro con Flow · Webpay · Tarjetas. Al confirmarse el pago te llega un correo de bienvenida.</p>
+          </form>
+        </>
+      )}
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="sec faq" aria-labelledby="faq-t">
+  <div class="sec-in" style="max-width:820px">
+    <p class="eyebrow">Preguntas frecuentes</p>
+    <h2 class="h2" id="faq-t">Lo que suelen preguntarnos</h2>
+    {FAQ.map(f => (
+      <details>
+        <summary>{f.q}</summary>
+        <p class="p">{f.a}</p>
+      </details>
+    ))}
+    <p class="p" style="margin-top:28px">¿Otra pregunta? Escríbenos a <a href="mailto:contacto@lumaarte.com">contacto@lumaarte.com</a>.</p>
+  </div>
+</section>
+
+<script define:vars={{ esPrueba, precio: vigente?.precio ?? 0, tramo: vigente?.nombre ?? '' }}>
+const form = document.getElementById('insc-form');
+const regalo = document.getElementById('f-regalo');
+const regaloBox = document.getElementById('regalo-box');
+regalo?.addEventListener('change', () => { regaloBox.hidden = !regalo.checked; });
+
+form?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('f-btn');
+  const msg = document.getElementById('f-msg');
+  msg.hidden = true;
+  const fd = new FormData(form);
+  const data = Object.fromEntries(fd.entries());
+  data.esRegalo = regalo.checked;
+  data.aceptaTerminos = document.getElementById('f-terminos').checked;
+  data.prueba = esPrueba;
+
+  if (!data.nombre || !data.email || !data.telefono) { msg.textContent = 'Completa nombre, correo y teléfono.'; msg.hidden = false; return; }
+  if (!data.aceptaTerminos) { msg.textContent = 'Debes aceptar los términos y la política de cancelación.'; msg.hidden = false; return; }
+
+  btn.disabled = true;
+  const textoBtn = btn.textContent;
+  btn.textContent = 'Redirigiendo al pago…';
+  if (typeof gtag === 'function') {
+    gtag('event', 'begin_checkout', { currency: 'CLP', value: precio, items: [{ item_id: 'retiro-mujeres-2027', item_name: 'Retiro de mujeres', item_variant: tramo, price: precio, quantity: 1 }] });
+  }
+  try {
+    const res = await fetch('/api/experiencias/inscribir', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    const json = await res.json();
+    if (json.redirectUrl) { window.location.href = json.redirectUrl; return; }
+    throw new Error(json.error || 'No pudimos iniciar el pago.');
+  } catch (err) {
+    msg.textContent = err.message || 'Hubo un problema. Escríbenos a contacto@lumaarte.com';
+    msg.hidden = false;
+    btn.disabled = false;
+    btn.textContent = textoBtn;
+  }
+});
+</script>
+</SiteLayout>

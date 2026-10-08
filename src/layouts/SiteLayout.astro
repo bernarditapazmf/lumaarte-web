@@ -1,0 +1,169 @@
+---
+// Layout común para páginas nuevas del sitio (Experiencias y siguientes):
+// cabecera SEO, fuentes, nav con menú móvil, footer y carrito.
+import CartDrawer from '../components/CartDrawer.astro';
+import MobileMenu from '../components/MobileMenu.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical: string;          // ruta, ej: /experiencias
+  ogImage?: string;           // ruta, ej: /img/gc4.jpg
+  ogType?: string;
+  keywords?: string;
+  jsonLd?: object | object[];
+  activo?: string;            // clave del link activo en el nav
+  navSolida?: boolean;        // true en páginas sin hero oscuro
+  noindex?: boolean;
+}
+const { title, description, canonical, ogImage = '/img/gc4.jpg', ogType = 'website', keywords, jsonLd, activo = '', navSolida = false, noindex = false } = Astro.props;
+const SITE = 'https://www.lumaarte.com';
+const links = [
+  { href: '/colecciones', label: 'Colecciones', key: 'colecciones' },
+  { href: '/experiencias', label: 'Experiencias', key: 'experiencias' },
+  { href: '/sobremi', label: 'Sobre mí', key: 'sobremi' },
+  { href: '/blog', label: 'Blog', key: 'blog' },
+  { href: '/#giftcards', label: 'Giftcard', key: 'giftcard' },
+  { href: '/#contacto', label: 'Contacto', key: 'contacto' },
+];
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VZNFX2FCYJ"></script>
+<script is:inline>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-VZNFX2FCYJ');
+</script>
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={`${SITE}${canonical}`} />
+<meta name="robots" content={noindex ? 'noindex' : 'index, follow'} />
+{keywords && <meta name="keywords" content={keywords} />}
+
+<meta property="og:type" content={ogType} />
+<meta property="og:locale" content="es_CL" />
+<meta property="og:site_name" content="Luma Arte" />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={`${SITE}${ogImage}`} />
+<meta property="og:url" content={`${SITE}${canonical}`} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={`${SITE}${ogImage}`} />
+
+{jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style is:global>
+@font-face{font-family:'Mackinac';src:url('/fonts/Mackinac-Book.otf') format('opentype');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Mackinac';src:url('/fonts/Mackinac-BookItalic.otf') format('opentype');font-weight:400;font-style:italic;font-display:swap}
+@font-face{font-family:'CoFo Sans';src:url('/fonts/CoFoSans-Light.otf') format('opentype');font-weight:300;font-style:normal;font-display:swap}
+@font-face{font-family:'CoFo Sans';src:url('/fonts/CoFoSans-Regular.otf') format('opentype');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'CoFo Sans';src:url('/fonts/CoFoSans-Medium.otf') format('opentype');font-weight:500;font-style:normal;font-display:swap}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{background:#FDFCF8;font-family:'CoFo Sans',system-ui,sans-serif;color:#211f18;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:#54582f}
+a:hover{color:#3c3f21}
+@keyframes lumaDrift{0%{transform:scale(1.08) translate(0,0)}50%{transform:scale(1.15) translate(-1.2%,-1%)}100%{transform:scale(1.08) translate(0,0)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+
+.nav{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:26px 48px;z-index:20}
+.nav--solida{position:relative;background:#211f18}
+.nav-logo{height:60px;width:104px;filter:brightness(0) invert(1);opacity:.97;object-fit:contain}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-link{font:500 12px/1 'Spline Sans Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#fdfcf8;text-decoration:none;padding-bottom:3px;border-bottom:1px solid transparent;transition:border-color .2s}
+.nav-link:hover{border-bottom-color:rgba(253,252,248,.7);color:#fdfcf8}
+.nav-link--active{border-bottom-color:rgba(253,252,248,.8)}
+.nav-cart{display:flex;align-items:center;gap:8px;background:none;border:none;color:#fdfcf8;padding:6px 2px;cursor:pointer}
+
+.footer{background:#211f18;color:#f3f0e9;padding:64px 48px 38px}
+.footer-inner{max-width:1000px;margin:0 auto}
+.footer-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:36px;padding-bottom:42px;border-bottom:.5px solid rgba(243,240,233,.18)}
+.footer-logo{height:52px;filter:brightness(0) invert(1);opacity:.95}
+.footer-tagline{margin:22px 0 0;font:300 14px/1.7 'CoFo Sans';color:rgba(243,240,233,.65)}
+.footer-links{display:flex;gap:64px}
+.footer-col-label{font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.22em;text-transform:uppercase;color:rgba(243,240,233,.5);margin-bottom:14px}
+.footer-email{display:block;color:#f3f0e9;text-decoration:none;font:400 15px 'CoFo Sans'}
+.footer-email:hover{color:#cdd3ae}
+.footer-address{margin-top:8px;font:300 13px/1.6 'CoFo Sans';color:rgba(243,240,233,.55)}
+.footer-ig{display:inline-flex;align-items:center;gap:10px;color:#f3f0e9;text-decoration:none;font:400 15px 'CoFo Sans'}
+.footer-ig:hover{color:#cdd3ae}
+.footer-copy{padding-top:22px;font:400 11.5px/1 'CoFo Sans';color:rgba(243,240,233,.45)}
+
+@media(max-width:900px){
+  .nav{padding:20px 24px}
+  .nav-links{gap:18px}
+  .nav-link{font-size:10px}
+  .footer{padding:48px 24px 32px}
+  .footer-top{flex-direction:column}
+}
+@media(max-width:600px){
+  .nav-links{display:none}
+  .nav-logo{height:50px;width:87px}
+  .footer-links{flex-direction:column;gap:32px}
+}
+</style>
+<slot name="head" />
+</head>
+<body>
+
+<nav class={`nav${navSolida ? ' nav--solida' : ''}`} aria-label="Navegación principal">
+  <a href="/" aria-label="Ir al inicio — Luma Arte"><img class="nav-logo" src="/img/luma-logo.png" alt="Luma Arte" /></a>
+  <div class="nav-links">
+    {links.map(l => (
+      <a class={`nav-link${activo === l.key ? ' nav-link--active' : ''}`} href={l.href} aria-current={activo === l.key ? 'page' : undefined}>{l.label}</a>
+    ))}
+    <button class="nav-cart" id="btn-cart-shared" aria-label="Ver carrito">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <span id="cart-count-shared">(0)</span>
+    </button>
+  </div>
+  <MobileMenu activo={activo} />
+</nav>
+
+<slot />
+
+<footer class="footer" aria-label="Pie de página">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <img class="footer-logo" src="/img/luma-logo.png" alt="Luma Arte" />
+        <p class="footer-tagline">Arte y experiencias inspiradas en la naturaleza del sur de Chile.</p>
+      </div>
+      <div class="footer-links">
+        <div>
+          <div class="footer-col-label">Contacto</div>
+          <a class="footer-email" href="mailto:contacto@lumaarte.com">contacto@lumaarte.com</a>
+          <div class="footer-address">Puerto Varas, Región de Los Lagos</div>
+        </div>
+        <div>
+          <div class="footer-col-label">Síguenos</div>
+          <a class="footer-ig" href="https://www.instagram.com/lumaartechile" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5.5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+            @lumaartechile
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-copy">© 2026 Luma Arte · Arte y experiencias del sur de Chile.</div>
+  </div>
+</footer>
+
+<CartDrawer />
+</body>
+</html>

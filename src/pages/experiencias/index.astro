@@ -1,0 +1,63 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { RETIRO_MUJERES as R } from '../../lib/experiencias.js';
+export const prerender = true;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Experiencias — Luma Arte',
+  url: 'https://www.lumaarte.com/experiencias',
+  inLanguage: 'es-CL',
+  description: 'Retiros y experiencias de bienestar para mujeres en el sur de Chile: círculos de mujeres, movimiento, arte terapia y naturaleza.',
+  hasPart: [{ '@type': 'Event', name: 'Retiro de mujeres en Frutillar', startDate: R.fechaInicioISO, url: `https://www.lumaarte.com${R.url}` }],
+};
+---
+<SiteLayout
+  title="Experiencias — Retiros para mujeres en el sur de Chile | Luma Arte"
+  description="Retiros y experiencias de bienestar en el sur de Chile: círculos de mujeres, movimiento, arte terapia y naturaleza. Próximo: Retiro de mujeres en Frutillar, 23 de enero de 2027."
+  canonical="/experiencias"
+  ogImage="/img/sobremi-filosofia.jpg"
+  keywords="experiencias bienestar sur de Chile, retiro para mujeres, círculo de mujeres, arte terapia, vacaciones wellness Chile"
+  jsonLd={jsonLd}
+  activo="experiencias"
+>
+<style>
+.e-hero{position:relative;min-height:64vh;overflow:hidden;background:#171a10;display:flex;align-items:flex-end}
+.e-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 45%;animation:lumaDrift 60s ease-in-out infinite}
+.e-ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,20,10,.5),rgba(16,20,10,.2) 40%,rgba(16,20,10,.75))}
+.e-body{position:relative;z-index:2;padding:0 48px 64px}
+.e-eyebrow{font:500 12px/1 'Spline Sans Mono',monospace;letter-spacing:.3em;text-transform:uppercase;color:#cdd3ae;margin-bottom:22px}
+.e-h1{font-family:'Mackinac',serif;font-weight:400;font-size:clamp(38px,5.4vw,68px);line-height:1.04;color:#fdfcf8;max-width:18ch}
+.e-sub{margin-top:22px;font:300 17px/1.6 'CoFo Sans';color:rgba(253,252,248,.9);max-width:50ch}
+.e-list{max-width:1100px;margin:0 auto;padding:96px 48px 110px}
+.card{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;text-decoration:none;color:inherit}
+.card img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:4px;transition:transform .8s cubic-bezier(.16,1,.3,1)}
+.card:hover img{transform:scale(1.02)}
+.card-fecha{font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.2em;text-transform:uppercase;color:#54582f;margin-bottom:16px}
+.card-t{font-family:'Mackinac',serif;font-size:clamp(30px,3.5vw,42px);line-height:1.08;margin-bottom:16px;color:#211f18}
+.card-p{font:300 16px/1.75 'CoFo Sans';color:rgba(33,31,24,.75);margin-bottom:24px}
+.card-cta{font:500 12px/1 'Spline Sans Mono',monospace;letter-spacing:.14em;text-transform:uppercase;border-bottom:1px solid rgba(33,31,24,.4);padding-bottom:6px;color:#211f18}
+@media(max-width:900px){.e-body{padding:0 24px 48px}.e-list{padding:64px 24px 80px}.card{grid-template-columns:1fr;gap:28px}}
+</style>
+<section class="e-hero">
+  <img src="/img/gc4.jpg" alt="Vuelo de cisnes sobre el sur de Chile" fetchpriority="high" decoding="async" />
+  <div class="e-ov" aria-hidden="true"></div>
+  <div class="e-body">
+    <p class="e-eyebrow">Experiencias</p>
+    <h1 class="e-h1">Encuentros para volver <em>a ti</em>.</h1>
+    <p class="e-sub">Retiros y experiencias de bienestar en el sur de Chile: cuerpo, emoción, arte y naturaleza.</p>
+  </div>
+</section>
+<section class="e-list" aria-label="Próximas experiencias">
+  <a class="card" href={R.url}>
+    <img src="/img/sobremi-filosofia.jpg" alt="Retiro de mujeres en Frutillar" loading="lazy" decoding="async" />
+    <div>
+      <p class="card-fecha">Sábado 23 de enero de 2027 · Frutillar</p>
+      <h2 class="card-t">Retiro de <em>mujeres</em></h2>
+      <p class="card-p">Un día para responder juntas: ¿por qué estoy aquí? Círculo de mujeres, movimiento somático, Alba Emoting, arte terapia y cierre en biopiscinas de agua caliente. Incluye almuerzo y prácticas de preparación.</p>
+      <span class="card-cta">Ver el retiro →</span>
+    </div>
+  </a>
+</section>
+</SiteLayout>

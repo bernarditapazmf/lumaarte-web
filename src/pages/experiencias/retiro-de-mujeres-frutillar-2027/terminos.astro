@@ -1,0 +1,51 @@
+---
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+import { RETIRO_MUJERES as R } from '../../../lib/experiencias.js';
+import { TERMINOS_TITULO, TERMINOS_SUBTITULO, TERMINOS_VERSION, TABLA_CANCELACION, SECCIONES_TERMINOS } from '../../../lib/terminosRetiro.js';
+export const prerender = true;
+---
+<SiteLayout
+  title={`${TERMINOS_TITULO} | Luma Arte`}
+  description="Términos, condiciones y política de cancelación del Retiro de mujeres en Frutillar, sábado 23 de enero de 2027."
+  canonical={`${R.url}/terminos`}
+  activo="experiencias"
+  navSolida
+>
+<style>
+.t{max-width:780px;margin:0 auto;padding:72px 24px 96px}
+.t-eyebrow{font:500 12px/1 'Spline Sans Mono',monospace;letter-spacing:.3em;text-transform:uppercase;color:#54582f;margin-bottom:18px}
+.t h1{font-family:'Mackinac',serif;font-weight:400;font-size:clamp(30px,4vw,44px);line-height:1.1;margin-bottom:12px}
+.t-sub{font:300 16px/1.6 'CoFo Sans';color:rgba(33,31,24,.6)}
+.t-ver{font:300 13px/1.6 'CoFo Sans';color:rgba(33,31,24,.45);margin-bottom:18px}
+.t-pdf{display:inline-block;margin-bottom:28px;font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#211f18;border-bottom:1px solid rgba(33,31,24,.4);padding-bottom:5px;text-decoration:none}
+.t h2{font-family:'Mackinac',serif;font-weight:400;font-size:24px;margin:40px 0 12px}
+.t p{font:300 16px/1.8 'CoFo Sans';color:rgba(33,31,24,.8);margin-bottom:12px}
+.t table{width:100%;border-collapse:collapse;margin:16px 0 20px;font:300 15px/1.5 'CoFo Sans'}
+.t th{text-align:left;font-weight:500;background:#f3f0e9;padding:12px}
+.t td{padding:12px;border-bottom:.5px solid rgba(33,31,24,.15);vertical-align:top}
+.t td:last-child{font-weight:500}
+.t-volver{margin-top:40px;display:inline-block}
+@media(max-width:600px){.t table,.t tbody,.t tr,.t td{display:block}.t thead{display:none}.t tr{border-bottom:.5px solid rgba(33,31,24,.15);padding:8px 0}.t td{border:none;padding:4px 0}}
+</style>
+<main class="t">
+  <p class="t-eyebrow">Experiencias · Retiro de mujeres</p>
+  <h1>{TERMINOS_TITULO}</h1>
+  <p class="t-sub">{TERMINOS_SUBTITULO}</p>
+  <p class="t-ver">{TERMINOS_VERSION}</p>
+  <a class="t-pdf" href="/docs/terminos-retiro-de-mujeres-2027.pdf" target="_blank" rel="noopener">Descargar PDF</a>
+  {SECCIONES_TERMINOS.map(s => (
+    <section>
+      <h2>{s.titulo}</h2>
+      {s.parrafos.map(p => <p>{p}</p>)}
+      {s.tabla && (
+        <table>
+          <thead><tr><th>Si cancelas…</th><th>Te devolvemos</th></tr></thead>
+          <tbody>{TABLA_CANCELACION.map(f => <tr><td>{f.plazo}</td><td>{f.devolucion}</td></tr>)}</tbody>
+        </table>
+      )}
+      {(s.parrafosDespues || []).map(p => <p>{p}</p>)}
+    </section>
+  ))}
+  <a class="t-volver" href={R.url}>← Volver al retiro</a>
+</main>
+</SiteLayout>

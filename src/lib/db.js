@@ -172,6 +172,30 @@ export async function initDb() {
   `);
 
   await db.execute(`
+    CREATE TABLE IF NOT EXISTS inscripciones (
+      id                          INTEGER PRIMARY KEY AUTOINCREMENT,
+      experiencia                 TEXT NOT NULL,
+      nombre                      TEXT,
+      email                       TEXT,
+      telefono                    TEXT,
+      ciudad_origen               TEXT,
+      restricciones_alimentarias  TEXT,
+      salud                       TEXT,
+      como_se_entero              TEXT,
+      es_regalo                   INTEGER DEFAULT 0,
+      comprador_nombre            TEXT,
+      comprador_email             TEXT,
+      precio                      INTEGER DEFAULT 0,
+      tramo                       TEXT,
+      estado                      TEXT DEFAULT 'pendiente_pago',
+      flow_order                  TEXT,
+      bienvenida_enviada          INTEGER DEFAULT 0,
+      paid_at                     TEXT,
+      created_at                  TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS configuracion (
       clave       TEXT PRIMARY KEY,
       valor       TEXT,

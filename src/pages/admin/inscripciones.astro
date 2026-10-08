@@ -1,0 +1,76 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { isAuthenticated } from '../../lib/auth.js';
+import { initDb } from '../../lib/db.js';
+import { RETIRO_MUJERES as R, contarOcupados, tramoVigente, clp } from '../../lib/experiencias.js';
+
+if (!isAuthenticated(Astro.request)) return Astro.redirect('/admin/login');
+
+const db = await initDb();
+const { rows } = await db.execute({
+  sql: `SELECT * FROM inscripciones WHERE experiencia = ? ORDER BY created_at DESC`,
+  args: [R.codigo],
+});
+const pagadas = rows.filter(r => r.estado === 'pagado' && r.tramo !== 'prueba');
+const recaudado = pagadas.reduce((s, r) => s + (Number(r.precio) || 0), 0);
+const ocupados = await contarOcupados(db, R);
+const vigente = tramoVigente(R, ocupados);
+const fecha = (s) => s ? String(s).slice(0, 16).replace('T', ' ') : '—';
+---
+<AdminLayout title="Inscripciones" active="inscripciones">
+  <style>
+    h1{font-family:'Mackinac',serif;font-size:26px;font-weight:400;margin-bottom:8px}
+    h1 em{font-style:italic}
+    .sub{font-size:13px;color:rgba(33,31,24,.5);margin-bottom:24px}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+    .stat{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:10px;padding:18px 20px}
+    .stat-num{font-family:'Mackinac',serif;font-size:26px;line-height:1;margin-bottom:4px}
+    .stat-label{font-size:10px;color:rgba(33,31,24,.45);letter-spacing:.06em;text-transform:uppercase}
+    .table-wrap{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:10px;overflow-x:auto}
+    table{width:100%;border-collapse:collapse;min-width:900px}
+    th{text-align:left;padding:10px 14px;font-size:10px;letter-spacing:.08em;color:rgba(33,31,24,.4);border-bottom:.5px solid rgba(33,31,24,.08);font-weight:400;text-transform:uppercase}
+    td{padding:12px 14px;border-bottom:.5px solid rgba(33,31,24,.06);font-size:13px;vertical-align:top}
+    .muted{font-size:11px;color:rgba(33,31,24,.45)}
+    .pill{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px;letter-spacing:.04em}
+    .pagado{background:#e5ebd2;color:#3c4a12}.pendiente_pago{background:#f3eed8;color:#7a6512}.error_pago{background:#f5dede;color:#8a2020}
+    .empty{text-align:center;padding:60px 20px;color:rgba(33,31,24,.4);font-size:13px}
+  </style>
+
+  <h1>Inscripciones <em>Retiro de mujeres</em></h1>
+  <p class="sub">{R.fechaTexto} · {R.lugar} · <a href={R.url} target="_blank">ver landing</a> · <a href={`${R.url}?prueba=1#inscripcion`} target="_blank">hacer inscripción de prueba ($350)</a></p>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num">{pagadas.length} / {R.cuposTotales}</div><div class="stat-label">Cupos pagados</div></div>
+    <div class="stat"><div class="stat-num">{clp(recaudado)}</div><div class="stat-label">Recaudado</div></div>
+    <div class="stat"><div class="stat-num">{vigente ? clp(vigente.precio) : 'Agotado'}</div><div class="stat-label">Precio vigente{vigente ? ` · ${vigente.nombre}` : ''}</div></div>
+    <div class="stat"><div class="stat-num">{vigente ? vigente.quedan : 0}</div><div class="stat-label">Quedan a este precio</div></div>
+  </div>
+
+  <div class="table-wrap">
+    {rows.length === 0 ? (
+      <div class="empty">Aún no hay inscripciones.</div>
+    ) : (
+      <table>
+        <thead><tr><th>Participante</th><th>Viene desde</th><th>Alimentación</th><th>Salud</th><th>Tramo · monto</th><th>Estado</th><th>Fecha</th></tr></thead>
+        <tbody>
+          {rows.map(r => (
+            <tr>
+              <td>
+                <strong>{r.nombre}</strong>
+                <div class="muted">{r.email} · {r.telefono}</div>
+                {Number(r.es_regalo) ? <div class="muted">Regalo de {r.comprador_nombre} ({r.comprador_email})</div> : null}
+                {r.como_se_entero && <div class="muted">Se enteró por: {r.como_se_entero}</div>}
+              </td>
+              <td>{r.ciudad_origen || '—'}</td>
+              <td>{r.restricciones_alimentarias || '—'}</td>
+              <td>{r.salud || '—'}</td>
+              <td>{r.tramo}<div class="muted">{clp(r.precio)}</div></td>
+              <td><span class={`pill ${r.estado}`}>{String(r.estado).replace('_', ' ')}</span>{Number(r.bienvenida_enviada) ? <div class="muted">bienvenida ✓</div> : null}</td>
+              <td class="muted">{fecha(r.paid_at || r.created_at)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
+</AdminLayout>

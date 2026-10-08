@@ -9,6 +9,8 @@ const SITE = 'https://www.lumaarte.com';
 const STATIC = [
   { url: '/',                      priority: '1.0', changefreq: 'weekly'  },
   { url: '/colecciones',           priority: '0.9', changefreq: 'weekly'  },
+  { url: '/experiencias',          priority: '0.8', changefreq: 'weekly'  },
+  { url: '/experiencias/retiro-de-mujeres-frutillar-2027', priority: '0.9', changefreq: 'weekly' },
   { url: '/sobremi',               priority: '0.7', changefreq: 'monthly' },
   { url: '/blog',                  priority: '0.8', changefreq: 'weekly'  },
   { url: '/regalos-de-boda',       priority: '0.8', changefreq: 'monthly' },
