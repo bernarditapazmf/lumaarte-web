@@ -1,0 +1,58 @@
+---
+// Menú para celulares (≤600px). En pantallas grandes se oculta y se usa el nav normal.
+interface Props { activo?: string }
+const { activo = '' } = Astro.props;
+const links = [
+  { href: '/colecciones', label: 'Colecciones', key: 'colecciones' },
+  { href: '/experiencias', label: 'Experiencias', key: 'experiencias' },
+  { href: '/sobremi', label: 'Sobre mí', key: 'sobremi' },
+  { href: '/blog', label: 'Blog', key: 'blog' },
+  { href: '/#giftcards', label: 'Giftcard', key: 'giftcard' },
+  { href: '/#contacto', label: 'Contacto', key: 'contacto' },
+];
+---
+<button class="mm-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="mm-panel">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+<div class="mm-panel" id="mm-panel" hidden>
+  <div class="mm-top">
+    <a href="/" aria-label="Ir al inicio"><img class="mm-logo" src="/img/luma-logo.png" alt="Luma Arte" /></a>
+    <button class="mm-close" type="button" aria-label="Cerrar menú">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <nav class="mm-links" aria-label="Menú">
+    {links.map(l => (
+      <a class={`mm-link${activo === l.key ? ' mm-link--activo' : ''}`} href={l.href} aria-current={activo === l.key ? 'page' : undefined}>{l.label}</a>
+    ))}
+    <button class="mm-link mm-cart" type="button">Carrito</button>
+  </nav>
+</div>
+
+<style is:global>
+.mm-toggle{display:none;background:none;border:none;color:#fdfcf8;padding:6px;cursor:pointer;line-height:0}
+.mm-panel{position:fixed;inset:0;z-index:1200;background:#211f18;color:#fdfcf8;display:flex;flex-direction:column;padding:20px 24px calc(32px + env(safe-area-inset-bottom,0px))}
+.mm-panel[hidden]{display:none}
+.mm-top{display:flex;align-items:center;justify-content:space-between;padding-top:env(safe-area-inset-top,0px)}
+.mm-logo{height:50px;width:87px;object-fit:contain;filter:brightness(0) invert(1)}
+.mm-close{background:none;border:none;color:#fdfcf8;padding:6px;cursor:pointer;line-height:0}
+.mm-links{display:flex;flex-direction:column;margin-top:48px}
+.mm-link{display:block;text-align:left;background:none;border:none;border-bottom:.5px solid rgba(253,252,248,.18);padding:18px 0;font-family:'Mackinac',serif;font-size:28px;font-weight:400;color:#fdfcf8;text-decoration:none;cursor:pointer}
+.mm-link--activo{font-style:italic;color:#cdd3ae}
+.mm-cart{font:500 13px/1 'Spline Sans Mono',monospace;letter-spacing:.16em;text-transform:uppercase;border-bottom:none;margin-top:24px}
+@media(max-width:600px){ .mm-toggle{display:block} }
+</style>
+
+<script>
+const toggle = document.querySelector('.mm-toggle');
+const panel = document.getElementById('mm-panel');
+const abrir = () => { panel.hidden = false; toggle.setAttribute('aria-expanded', 'true'); document.body.style.overflow = 'hidden'; };
+const cerrar = () => { panel.hidden = true; toggle.setAttribute('aria-expanded', 'false'); document.body.style.overflow = ''; };
+toggle?.addEventListener('click', abrir);
+panel?.querySelector('.mm-close')?.addEventListener('click', cerrar);
+panel?.querySelectorAll('a.mm-link').forEach(a => a.addEventListener('click', cerrar));
+panel?.querySelector('.mm-cart')?.addEventListener('click', () => {
+  cerrar();
+  (document.getElementById('btn-cart') || document.getElementById('btn-cart-shared'))?.click();
+});
+</script>

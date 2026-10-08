@@ -1,4 +1,5 @@
 ---
+import MobileMenu from '../components/MobileMenu.astro';
 export const prerender = true;
 import CartDrawer from '../components/CartDrawer.astro';
 ---
@@ -212,6 +213,7 @@ a:hover{color:#3c3f21}
     </a>
     <div class="nav-links">
       <a class="nav-link" href="/colecciones">Colecciones</a>
+      <a class="nav-link" href="/experiencias">Experiencias</a>
       <a class="nav-link" href="/sobremi">Sobre mí</a>
       <a class="nav-link" href="/blog">Blog</a>
       <a class="nav-link" href="/#giftcards">Giftcard</a>
@@ -221,6 +223,7 @@ a:hover{color:#3c3f21}
         <span id="cart-count-shared">(0)</span>
       </button>
     </div>
+    <MobileMenu />
   </nav>
   <div class="hero-body">
     <p class="hero-eyebrow">Luma Arte · Regalos de Boda</p>
