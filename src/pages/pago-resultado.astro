@@ -1,28 +1,32 @@
 ---
-import crypto from 'crypto';
+import { estadoPagoFlow } from '../lib/flow.js';
+import { RETIRO_MUJERES as R } from '../lib/experiencias.js';
 
-function sign(params, secretKey) {
-  const keys = Object.keys(params).sort();
-  const str = keys.map(k => k + params[k]).join('');
-  return crypto.createHmac('sha256', secretKey).update(str).digest('hex');
+// Flow vuelve a esta página con el token por POST (o en la URL, según el caso).
+let token = Astro.url.searchParams.get('token');
+if (!token && Astro.request.method === 'POST') {
+  try { token = (await Astro.request.formData()).get('token'); } catch {}
 }
-
-const token = Astro.url.searchParams.get('token');
 let status = null;
 let payment = null;
 
 if (token) {
-  const apiKey = import.meta.env.FLOW_API_KEY;
-  const secretKey = import.meta.env.FLOW_SECRET_KEY;
-  const params = { apiKey, token };
-  const s = sign(params, secretKey);
-  const qs = new URLSearchParams({ ...params, s }).toString();
-  const res = await fetch(`https://www.flow.cl/api/payment/getStatus?${qs}`);
-  payment = await res.json();
-  status = payment.status; // 1=pendiente, 2=pagado, 3=rechazado, 4=anulado
+  try {
+    payment = await estadoPagoFlow(token);
+    status = payment.status; // 1=pendiente, 2=pagado, 3=rechazado, 4=anulado
+  } catch (e) {
+    console.error('No se pudo consultar el pago:', e);
+  }
 }
 
 const isPaid = status === 2;
+const esRetiro = String(payment?.commerceOrder || '').startsWith(R.prefijoOrden);
+const compraGA = isPaid ? {
+  transaction_id: String(payment.commerceOrder),
+  value: Number(payment.amount) || 0,
+  currency: 'CLP',
+  items: [{ item_name: esRetiro ? R.nombre : 'Pedido tienda', price: Number(payment.amount) || 0, quantity: 1 }],
+} : null;
 ---
 <!doctype html>
 <html lang="es">
@@ -122,9 +126,15 @@ const isPaid = status === 2;
         <img class="hero-bg" src="/img/oficio.jpg" alt="Naturaleza del sur de Chile" />
         <div class="hero-overlay"></div>
         <div class="hero-body">
-          <p class="hero-eyebrow">Pedido confirmado</p>
-          <h1 class="hero-h1">Gracias por llevar<br/>el Sur <em>contigo</em>.</h1>
-          <p class="hero-sub">Tu pago fue recibido. En las próximas horas te escribimos para coordinar el embalaje y el despacho.</p>
+          {esRetiro ? <>
+            <p class="hero-eyebrow">Inscripción confirmada</p>
+            <h1 class="hero-h1">Te esperamos en<br/>el <em>Retiro de mujeres</em>.</h1>
+            <p class="hero-sub">Tu cupo está confirmado para el {R.fechaTexto} en {R.lugar}. Te enviamos un correo de bienvenida con los términos y condiciones. Desde el {R.practicasDesdeTexto} comenzarás a recibir las prácticas de preparación.</p>
+          </> : <>
+            <p class="hero-eyebrow">Pedido confirmado</p>
+            <h1 class="hero-h1">Gracias por llevar<br/>el Sur <em>contigo</em>.</h1>
+            <p class="hero-sub">Tu pago fue recibido. En las próximas horas te escribimos para coordinar el embalaje y el despacho.</p>
+          </>}
           {payment?.flowOrder && (
             <p class="hero-order">Orden N° {payment.flowOrder}</p>
           )}
@@ -132,7 +142,7 @@ const isPaid = status === 2;
       </section>
 
       <!-- QUÉ SIGUE -->
-      <section class="steps">
+      {!esRetiro && <section class="steps">
         <div class="steps-inner">
           <p class="steps-label">¿Qué pasa ahora?</p>
           <div class="steps-list">
@@ -159,12 +169,14 @@ const isPaid = status === 2;
             </div>
           </div>
         </div>
-      </section>
+      </section>}
 
       <!-- CTA -->
       <section class="cta-section">
         <a class="btn-primary" href="/">Volver al inicio</a>
-        <a class="btn-secondary" href="/colecciones">Ver más obras</a>
+        {esRetiro
+          ? <a class="btn-secondary" href={R.url}>Ver el retiro</a>
+          : <a class="btn-secondary" href="/colecciones">Ver más obras</a>}
       </section>
     </>
   ) : (
@@ -201,5 +213,11 @@ const isPaid = status === 2;
     <div class="footer-copy">© 2026 Luma Arte · Arte patagónico original.</div>
   </footer>
 
+  {compraGA && <script is:inline define:vars={{ compraGA }}>
+    if (typeof gtag === 'function' && !sessionStorage.getItem('ga_compra_' + compraGA.transaction_id)) {
+      gtag('event', 'purchase', compraGA);
+      try { sessionStorage.setItem('ga_compra_' + compraGA.transaction_id, '1'); } catch (e) {}
+    }
+  </script>}
 </body>
 </html>

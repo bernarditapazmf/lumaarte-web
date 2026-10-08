@@ -1,4 +1,5 @@
 ---
+import MobileMenu from '../components/MobileMenu.astro';
 export const prerender = true;
 ---
 <!DOCTYPE html>
@@ -512,6 +513,7 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
     <a href="#top"><img class="nav-logo" src="/img/luma-logo.png" alt="Luma Arte" /></a>
     <nav class="nav-links">
       <a class="nav-link" href="/colecciones">Colecciones</a>
+      <a class="nav-link" href="/experiencias">Experiencias</a>
       <a class="nav-link" href="/sobremi">Sobre mí</a>
       <a class="nav-link" href="/blog">Blog</a>
       <a class="nav-link" href="#giftcards">Giftcard</a>
@@ -521,6 +523,7 @@ input::placeholder,textarea::placeholder{color:rgba(33,31,24,.4)}
         <span id="cart-count-nav">(0)</span>
       </button>
     </nav>
+    <MobileMenu />
   </div>
   <div class="hero-body">
     <div class="hero-eyebrow">Pintura original — Patagonia chilena</div>
@@ -1107,7 +1110,7 @@ document.getElementById('gc-add-btn').addEventListener('click',()=>{
   const complete = !!String(gc.de).trim()&&!!String(gc.para).trim()&&emailOk&&!!String(gc.mensaje).trim()&&monto>0;
   if(!complete) return;
   const design = GC_LABELS[gc.design]||GC_LABELS[0];
-  S.cart.push({ title:`Giftcard — ${design}`, img:GC_IMGS[gc.design], detail:`Envío digital · ${clp(monto)}`, key:Date.now()+'-gc' });
+  S.cart.push({ title:`Giftcard — ${design}`, img:GC_IMGS[gc.design], detail:`Envío digital · Para ${String(gc.para).trim()}`, precio:monto, monto, para:String(gc.para).trim(), paraEmail:String(gc.mail).trim(), de:String(gc.de).trim(), dedicatoria:String(gc.mensaje).trim(), key:Date.now()+'-gc' });
   renderCart();
   openCart();
 });
@@ -1167,7 +1170,7 @@ document.getElementById('pedido-form').addEventListener('submit',async(e)=>{
     region: fd.get('region')||'',
     mensaje: fd.get('mensaje')||'',
     total,
-    items: S.cart.map(c=>({title:c.title,detail:c.detail,precio:c.precio,size:c.size||null,mat:c.mat||null,marco:c.marco||null})),
+    items: S.cart.map(c=>({title:c.title,size:c.size||null,mat:c.mat||null,marco:c.marco||null,monto:c.monto??c.precio,para:c.para,paraEmail:c.paraEmail,de:c.de,dedicatoria:c.dedicatoria})),
   };
   try{
     const res=await fetch('/api/payment-create',{

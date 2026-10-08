@@ -1,79 +1,69 @@
-import crypto from 'crypto';
 import { initDb } from '../../lib/db.js';
+import { crearPagoFlow } from '../../lib/flow.js';
+import { precioItem, MARCOS } from '../../lib/precios.js';
 
-function sign(params, secretKey) {
-  const keys = Object.keys(params).sort();
-  const str = keys.map(k => k + params[k]).join('');
-  return crypto.createHmac('sha256', secretKey).update(str).digest('hex');
-}
+const json = (body, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 
 export async function POST({ request }) {
   const body = await request.json();
-  const { items, total, nombre, email, telefono, direccion, ciudad, region, mensaje } = body;
+  const { items, nombre, email, telefono, direccion, ciudad, region, mensaje } = body;
 
-  const apiKey = import.meta.env.FLOW_API_KEY;
-  const secretKey = import.meta.env.FLOW_SECRET_KEY;
+  if (!Array.isArray(items) || items.length === 0) return json({ error: 'El carrito está vacío' }, 400);
+  if (!nombre || !email) return json({ error: 'Faltan nombre o correo' }, 422);
 
-  if (!apiKey || !secretKey) {
-    return new Response(JSON.stringify({ error: 'Credenciales Flow no configuradas' }), { status: 500 });
+  // El monto se calcula en el servidor con la lista de precios oficial.
+  // Se ignora cualquier precio o total que venga desde el navegador.
+  const lineas = [];
+  for (const item of items) {
+    const precio = precioItem(item);
+    if (precio === null) return json({ error: `Producto no válido: ${item?.title || 'desconocido'}` }, 400);
+    const esGiftcard = item.title.startsWith('Giftcard');
+    lineas.push({
+      titulo: item.title,
+      talla: esGiftcard ? null : item.size,
+      mat: esGiftcard ? null : (item.mat === 'black' ? 'black' : 'white'),
+      marco: esGiftcard ? null : (MARCOS.includes(item.marco) ? item.marco : MARCOS[0]),
+      precio,
+      notasItem: esGiftcard
+        ? [`Giftcard para: ${item.para || '—'} (${item.paraEmail || '—'})`, `De: ${item.de || '—'}`, item.dedicatoria ? `Dedicatoria: ${item.dedicatoria}` : null].filter(Boolean).join('\n')
+        : null,
+    });
   }
+  const total = lineas.reduce((s, l) => s + l.precio, 0);
 
   const commerceOrder = 'LUMA-' + Date.now();
-  const subject = 'Pedido Luma Arte';
-  const urlBase = 'https://www.lumaarte.com';
 
   // Guardamos el pedido en la base de datos ANTES de ir a pagar. Flow limita
-  // fuertemente el largo del parámetro "optional", así que ya no dependemos
-  // de que nos devuelva el detalle completo — lo recuperamos por flow_order.
+  // fuertemente el largo del parámetro "optional", así que no dependemos
+  // de que nos devuelva el detalle — lo recuperamos por flow_order.
   try {
     const db = await initDb();
     const fechaPedido = new Date().toISOString().slice(0, 10);
-    for (const item of (items || [])) {
+    for (const l of lineas) {
+      const notas = [mensaje ? `Mensaje: ${mensaje}` : null, l.notasItem].filter(Boolean).join('\n') || null;
       await db.execute({
         sql: `INSERT INTO pedidos
               (obra_nombre, talla, mat, marco, cliente_nombre, cliente_email, cliente_telefono,
                cliente_direccion, cliente_ciudad, cliente_region, monto, estado, fecha_pedido, flow_order, notas)
               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         args: [
-          item.title || null, item.size || null, item.mat || null, item.marco || null,
-          nombre || null, email || null, telefono || null,
+          l.titulo, l.talla, l.mat, l.marco,
+          nombre, email, telefono || null,
           direccion || null, ciudad || null, region || null,
-          item.precio || 0, 'pendiente_pago', fechaPedido, commerceOrder, mensaje || null,
+          l.precio, 'pendiente_pago', fechaPedido, commerceOrder, notas,
         ],
       });
     }
   } catch (e) {
     console.error('Error guardando pedido:', e);
-    return new Response(JSON.stringify({ error: 'No se pudo registrar el pedido' }), { status: 500 });
+    return json({ error: 'No se pudo registrar el pedido' }, 500);
   }
 
-  const params = {
-    apiKey,
-    commerceOrder,
-    subject,
-    currency: 'CLP',
-    amount: total,
-    email,
-    urlConfirmation: `${urlBase}/api/payment-confirm`,
-    urlReturn: `${urlBase}/pago-resultado`,
-  };
-
-  params.s = sign(params, secretKey);
-
-  const form = new URLSearchParams();
-  for (const [k, v] of Object.entries(params)) form.append(k, v);
-
-  const res = await fetch('https://www.flow.cl/api/payment/create', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: form.toString(),
-  });
-
-  const json = await res.json();
-
-  if (json.url && json.token) {
-    return new Response(JSON.stringify({ redirectUrl: json.url + '?token=' + json.token }), { status: 200 });
+  try {
+    const { redirectUrl } = await crearPagoFlow({ commerceOrder, subject: 'Pedido Luma Arte', amount: total, email });
+    return json({ redirectUrl });
+  } catch (e) {
+    return json({ error: e.message }, 400);
   }
-
-  return new Response(JSON.stringify({ error: json.message || 'Error al crear pago' }), { status: 400 });
 }
