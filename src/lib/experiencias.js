@@ -18,9 +18,9 @@ export const RETIRO_MUJERES = {
   tramos: [
     { nombre: 'Early bird', precio: 98000,  cupos: 2 },
     { nombre: 'Tramo 2',    precio: 105000, cupos: 3 },
-    { nombre: 'Tramo 3',    precio: 115000, cupos: 2 },
-    { nombre: 'Tramo 4',    precio: 125000, cupos: 2 },
-    { nombre: 'Tramo 5',    precio: 135000, cupos: 2 },
+    { nombre: 'Tramo 3',    precio: 115000, cupos: 3 },
+    { nombre: 'Tramo 4',    precio: 125000, cupos: 3 },
+    { nombre: 'Tramo 5',    precio: 135000, cupos: 3 },
     { nombre: 'Valor final', precio: 150000, cupos: null }, // null = los cupos que queden
   ],
   minutosReserva: 30,
