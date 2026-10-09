@@ -14,8 +14,7 @@ export const RETIRO_MUJERES = {
   horaInicio: '10:00',
   practicasDesdeISO: '2026-12-26',
   practicasDesdeTexto: '26 de diciembre',
-  // TODO confirmar con Bernardita: total de cupos del retiro.
-  cuposTotales: 15,
+  cuposTotales: 20,
   tramos: [
     { nombre: 'Early bird', precio: 98000,  cupos: 2 },
     { nombre: 'Tramo 2',    precio: 105000, cupos: 3 },
