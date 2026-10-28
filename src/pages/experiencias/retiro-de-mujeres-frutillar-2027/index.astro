@@ -42,7 +42,7 @@ const jsonLd = [
     eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     inLanguage: 'es-CL',
-    image: [`${SITE}/img/sobremi-filosofia.jpg`, `${SITE}/img/retiro/circulo-noche.jpg`, `${SITE}/img/retiro/agua.jpg`],
+    image: [`${SITE}/img/retiro/agua.jpg`, `${SITE}/img/retiro/circulo-noche.jpg`, `${SITE}/img/retiro/soltar.jpg`],
     url: urlAbs,
     location: {
       '@type': 'Place',
@@ -85,7 +85,7 @@ const jsonLd = [
   title="Retiro de mujeres en Frutillar · 23 de enero 2027 | Luma Arte"
   description="Un día de retiro para mujeres en el sur de Chile: círculo de mujeres, movimiento somático, Alba Emoting, arte terapia y biopiscinas. Sábado 23 de enero de 2027 en Frutillar. Cupos limitados."
   canonical={R.url}
-  ogImage="/img/sobremi-filosofia.jpg"
+  ogImage="/img/retiro/agua.jpg"
   ogType="event"
   keywords="retiro para mujeres, retiro de mujeres sur de Chile, retiro mujeres enero 2027, círculo de mujeres Frutillar, círculo de mujeres Puerto Varas, arte terapia, Alba Emoting, vacaciones wellness sur de Chile, qué hacer en Frutillar"
   jsonLd={jsonLd}
@@ -93,8 +93,8 @@ const jsonLd = [
 >
 <style>
 .r-hero{position:relative;min-height:min(92vh,860px);overflow:hidden;background:#171a10;display:flex;align-items:flex-end}
-.r-hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 40%;animation:lumaDrift 60s ease-in-out infinite}
-.r-hero-ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,20,10,.55) 0%,rgba(16,20,10,.2) 35%,rgba(16,20,10,.35) 60%,rgba(16,20,10,.82) 100%)}
+.r-hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;animation:lumaDrift 60s ease-in-out infinite}
+.r-hero-ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,20,10,.5) 0%,rgba(16,20,10,.05) 30%,rgba(16,20,10,.2) 58%,rgba(16,20,10,.8) 100%)}
 .r-hero-body{position:relative;z-index:2;padding:0 48px 72px;max-width:1100px}
 .r-eyebrow{font:500 12px/1 'Spline Sans Mono',monospace;letter-spacing:.3em;text-transform:uppercase;color:#cdd3ae;margin-bottom:22px}
 .r-h1{font-family:'Mackinac',serif;font-weight:400;font-size:clamp(40px,6vw,76px);line-height:1.02;letter-spacing:-.02em;color:#fdfcf8;max-width:16ch}
@@ -123,7 +123,9 @@ const jsonLd = [
 .contraste{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;margin-top:96px}
 .contraste-t{font-family:'Mackinac',serif;font-size:26px;line-height:1.2;margin-bottom:16px}
 .contraste-real{padding-top:16px;border-top:.5px solid rgba(33,31,24,.2);font-style:italic}
-.regalate{max-width:720px;margin:110px auto 0;text-align:center}
+.regalate{display:grid;grid-template-columns:5fr 7fr;gap:72px;align-items:center;margin-top:120px}
+.regalate-foto{aspect-ratio:2/3}
+.regalate-txt{text-align:center}
 .regalate .lead,.regalate .p{margin-left:auto;margin-right:auto}
 .regalate .h2{font-style:italic;margin:22px auto;max-width:18ch}
 .regalate-pero{font-family:'Mackinac',serif;font-style:italic;font-size:clamp(40px,5vw,64px);line-height:1;color:#54582f;margin-bottom:28px}
@@ -145,7 +147,7 @@ const jsonLd = [
 .banda .eyebrow{color:#cdd3ae}
 .banda .circulo-cita{text-shadow:0 2px 24px rgba(8,12,4,.7)}
 
-.mosaico{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:#211f18}
+.mosaico{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:#211f18}
 .mosaico .foto{aspect-ratio:3/4;border-radius:0}
 
 .llevar{margin-top:40px}
@@ -212,9 +214,10 @@ const jsonLd = [
   .momento{grid-template-columns:1fr;gap:6px}
   .galeria{grid-template-columns:1fr 1fr;gap:14px;margin-top:44px}
   .contraste{grid-template-columns:1fr;gap:44px;margin-top:64px}
-  .regalate{margin-top:72px}
+  .regalate{grid-template-columns:1fr;gap:44px;margin-top:72px}
+  .regalate-foto{max-width:380px;margin:0 auto}
   .banda{padding:96px 24px}
-  .mosaico{grid-template-columns:1fr 1fr}
+  .mosaico{grid-template-columns:repeat(3,1fr);gap:3px}
   .guias-grid{grid-template-columns:1fr;gap:40px}
   .form{padding:30px 22px}
 }
@@ -227,7 +230,7 @@ const jsonLd = [
 
 <!-- HERO -->
 <section class="r-hero" aria-label="Retiro de mujeres en Frutillar">
-  <img class="r-hero-bg" src="/img/sobremi-filosofia.jpg" alt="Mujer de blanco en movimiento entre rayos de luz — retiro de mujeres en el sur de Chile" fetchpriority="high" decoding="async" />
+  <img class="r-hero-bg" src="/img/retiro/agua.jpg" alt="Círculo de mujeres tomadas de la mano dentro del lago al atardecer — retiro de mujeres en el sur de Chile" fetchpriority="high" decoding="async" />
   <div class="r-hero-ov" aria-hidden="true"></div>
   <div class="r-hero-body">
     <p class="r-eyebrow">Experiencias · Frutillar</p>
@@ -271,6 +274,8 @@ const jsonLd = [
     </div>
 
     <div class="regalate">
+      <img class="foto regalate-foto" src="/img/retiro/loba.jpg" alt="Mujer y loba aullando juntas al cielo sobre una roca" loading="lazy" decoding="async" />
+      <div class="regalate-txt">
       <p class="regalate-pero">Pero…</p>
       <p class="lead">Y si en todo eso que sigues cediendo, planeando, limpiando, preparando…</p>
       <h3 class="h2">¿Te regalas un día planeado para ti?</h3>
@@ -282,6 +287,7 @@ const jsonLd = [
       </ul>
       <p class="p">Te esperamos el sábado 23 de enero en el sur de Chile, entre bosque y a orillas del Lago Llanquihue.</p>
       <p class="regalate-firma">Andrea y Berni</p>
+      </div>
     </div>
   </div>
 </section>
@@ -317,7 +323,7 @@ const jsonLd = [
       <figure><img class="foto" src="/img/retiro/danza.jpg" alt="Mujer mayor bailando con los ojos cerrados" loading="lazy" decoding="async" /><figcaption>Cuerpo</figcaption></figure>
       <figure><img class="foto" src="/img/retiro/emocion.jpg" alt="Mujer de blanco con la mano en el pecho, conectando con su emoción" loading="lazy" decoding="async" /><figcaption>Emoción</figcaption></figure>
       <figure><img class="foto" src="/img/retiro/hilos.jpg" alt="Manos de mujeres unidas por hilos que forman una red" loading="lazy" decoding="async" /><figcaption>Arte</figcaption></figure>
-      <figure><img class="foto" src="/img/retiro/agua.jpg" alt="Círculo de mujeres tomadas de la mano dentro del agua al atardecer" loading="lazy" decoding="async" /><figcaption>Agua</figcaption></figure>
+      <figure><img class="foto" src="/img/retiro/bosque.jpg" alt="Mujeres caminando por el bosque con los brazos en alto" loading="lazy" decoding="async" /><figcaption>Naturaleza</figcaption></figure>
     </div>
   </div>
 </section>
@@ -377,9 +383,8 @@ const jsonLd = [
 <!-- MOSAICO -->
 <div class="mosaico" aria-hidden="true">
   <img class="foto" src="/img/retiro/antiguas.jpg" alt="" loading="lazy" decoding="async" />
-  <img class="foto" src="/img/retiro/loba.jpg" alt="" loading="lazy" decoding="async" />
+  <img class="foto" src="/img/sunrays.jpg" alt="" loading="lazy" decoding="async" />
   <img class="foto" src="/img/retiro/nina.jpg" alt="" loading="lazy" decoding="async" />
-  <img class="foto" src="/img/retiro/bosque.jpg" alt="" loading="lazy" decoding="async" />
 </div>
 
 <!-- GUÍAS -->
