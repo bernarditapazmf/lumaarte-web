@@ -21,7 +21,7 @@ const SITE = 'https://www.lumaarte.com';
 const urlAbs = `${SITE}${R.url}`;
 
 const FAQ = [
-  { q: '¿Qué tengo que llevar al retiro?', a: 'Ropa cómoda, traje de baño, sandalias, toalla y agua.' },
+  { q: '¿Qué tengo que llevar al retiro?', a: 'Ropa cómoda, traje de baño, sandalias, toalla, agua, un cuaderno, lápiz, una taza y algo significativo para ti para dejar en el altar.' },
   { q: '¿Necesito experiencia previa en meditación, movimiento o arte?', a: 'No. El retiro está pensado para cualquier mujer, tenga o no experiencia. Cada práctica se adapta a tu cuerpo y a tu ritmo.' },
   { q: '¿Puedo usar las biopiscinas si estoy embarazada o tengo problemas de presión?', a: 'Las biopiscinas tienen agua caliente entre 36 y 40 °C, por lo que no se recomiendan durante el embarazo ni con presión arterial alta o baja. Si tienes dudas, consulta a tu médico. Entrar a las biopiscinas es opcional y nos cuentas cualquier condición de salud en el formulario de inscripción.' },
   { q: '¿Qué pasa si me inscribo y después no puedo asistir?', a: 'Hasta el 24 de diciembre de 2026 te devolvemos lo pagado descontando la comisión de la pasarela de pago. Luego la devolución es del 60% (hasta el 2 de enero), 40% (hasta el 9 de enero) y 20% (hasta el 15 de enero). Desde el 16 de enero no hay devolución, porque ya se han reservado y comprado los insumos de cada participante.' },
@@ -36,13 +36,13 @@ const jsonLd = [
   {
     '@context': 'https://schema.org',
     '@type': 'Event',
-    name: 'Retiro de mujeres en Frutillar — ¿Por qué estoy aquí?',
+    name: 'Retiro de mujeres en Frutillar',
     description: 'Un día de retiro para mujeres en el sur de Chile: círculo de mujeres, movimiento somático, Alba Emoting, arte terapia y cierre en biopiscinas de agua caliente. Incluye almuerzo y prácticas de preparación previas.',
     startDate: R.fechaInicioISO,
     eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     inLanguage: 'es-CL',
-    image: [`${SITE}/img/sobremi-filosofia.jpg`],
+    image: [`${SITE}/img/sobremi-filosofia.jpg`, `${SITE}/img/retiro/circulo-noche.jpg`, `${SITE}/img/retiro/agua.jpg`],
     url: urlAbs,
     location: {
       '@type': 'Place',
@@ -51,8 +51,8 @@ const jsonLd = [
     },
     organizer: { '@type': 'Organization', name: 'Luma Arte', url: SITE },
     performer: [
-      { '@type': 'Person', name: 'Andrea Ortúzar' },
-      { '@type': 'Person', name: 'Bernardita Mir', url: `${SITE}/sobremi` },
+      { '@type': 'Person', name: 'Andrea Ortúzar', sameAs: ['https://www.instagram.com/andrea.ortuzar'] },
+      { '@type': 'Person', name: 'Bernardita Mir', url: `${SITE}/sobremi`, sameAs: ['https://www.instagram.com/bernarditamirf'] },
     ],
     offers: {
       '@type': 'AggregateOffer',
@@ -118,9 +118,38 @@ const jsonLd = [
 .sec--osc .p{color:rgba(253,252,248,.85)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
 
-.pregunta{text-align:center}
-.pregunta .h2{margin:0 auto 22px;font-style:italic;max-width:none;font-size:clamp(38px,5vw,64px)}
-.pregunta .p{margin:0 auto}
+.vacaciones .grid2{align-items:center}
+.vacaciones .grid2 .h2{font-style:italic;font-size:clamp(36px,4.6vw,60px);max-width:14ch}
+.contraste{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;margin-top:96px}
+.contraste-t{font-family:'Mackinac',serif;font-size:26px;line-height:1.2;margin-bottom:16px}
+.contraste-real{padding-top:16px;border-top:.5px solid rgba(33,31,24,.2);font-style:italic}
+.regalate{max-width:720px;margin:110px auto 0;text-align:center}
+.regalate .lead,.regalate .p{margin-left:auto;margin-right:auto}
+.regalate .h2{font-style:italic;margin:22px auto;max-width:18ch}
+.regalate-pero{font-family:'Mackinac',serif;font-style:italic;font-size:clamp(40px,5vw,64px);line-height:1;color:#54582f;margin-bottom:28px}
+.regalate-lista{list-style:none;padding:0;margin:36px 0}
+.regalate-lista li{font-family:'Mackinac',serif;font-size:clamp(20px,2.2vw,26px);line-height:1.4;padding:14px 0;border-top:.5px solid rgba(33,31,24,.16)}
+.regalate-lista li:last-child{border-bottom:.5px solid rgba(33,31,24,.16)}
+.regalate-firma{margin-top:28px;font-family:'Mackinac',serif;font-style:italic;font-size:24px}
+
+.foto{display:block;width:100%;object-fit:cover;border-radius:4px}
+.galeria{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:64px}
+.galeria figure{margin:0}
+.galeria .foto{aspect-ratio:3/4}
+.galeria figcaption{margin-top:12px;font:500 11px/1.4 'Spline Sans Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#54582f}
+
+.banda{position:relative;overflow:hidden;background:#171a10;color:#fdfcf8;padding:150px 48px}
+.banda-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 60%;animation:lumaDrift 62s ease-in-out infinite}
+.banda-ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,20,10,.35) 0%,rgba(16,20,10,.15) 45%,rgba(16,20,10,.6) 100%)}
+.banda .sec-in{position:relative;z-index:2}
+.banda .eyebrow{color:#cdd3ae}
+.banda .circulo-cita{text-shadow:0 2px 24px rgba(8,12,4,.7)}
+
+.mosaico{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:#211f18}
+.mosaico .foto{aspect-ratio:3/4;border-radius:0}
+
+.llevar{margin-top:40px}
+.llevar .incl li::before{content:'·'}
 
 .dia{display:flex;flex-direction:column}
 .momento{display:grid;grid-template-columns:150px 1fr;gap:28px;padding:30px 0;border-top:.5px solid rgba(33,31,24,.18)}
@@ -137,6 +166,9 @@ const jsonLd = [
 .guias{display:flex;gap:48px;flex-wrap:wrap;margin-top:28px}
 .guia-n{font-family:'Mackinac',serif;font-size:28px}
 .guia-n a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(253,252,248,.3)}
+.guia-ig{display:inline-block;margin-top:8px;font:500 11px/1 'Spline Sans Mono',monospace;letter-spacing:.1em;color:#cdd3ae;text-decoration:none}
+.guia-ig:hover{color:#fdfcf8}
+.guias-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:center}
 
 .circulo-cita{font-family:'Mackinac',serif;font-style:italic;font-size:clamp(22px,2.6vw,30px);line-height:1.5;max-width:34ch}
 
@@ -178,6 +210,12 @@ const jsonLd = [
   .grid2{grid-template-columns:1fr;gap:40px}
   .viaje-grid{grid-template-columns:1fr;gap:28px}
   .momento{grid-template-columns:1fr;gap:6px}
+  .galeria{grid-template-columns:1fr 1fr;gap:14px;margin-top:44px}
+  .contraste{grid-template-columns:1fr;gap:44px;margin-top:64px}
+  .regalate{margin-top:72px}
+  .banda{padding:96px 24px}
+  .mosaico{grid-template-columns:1fr 1fr}
+  .guias-grid{grid-template-columns:1fr;gap:40px}
   .form{padding:30px 22px}
 }
 @media(max-width:600px){
@@ -202,12 +240,49 @@ const jsonLd = [
   </div>
 </section>
 
-<!-- LA PREGUNTA -->
-<section class="sec pregunta" aria-labelledby="pregunta-t">
+<!-- PARA QUIÉN -->
+<section class="sec vacaciones" aria-labelledby="vacaciones-t">
   <div class="sec-in">
-    <p class="eyebrow">La pregunta que nos convoca</p>
-    <h2 class="h2" id="pregunta-t">¿Por qué estoy aquí?</h2>
-    <p class="p">Un día para detenerte, escucharte y volver a ti, rodeada de otras mujeres y de la naturaleza del sur de Chile. Abrimos el retiro con un círculo de mujeres en torno a esta pregunta, y desde ahí la recorremos con el cuerpo, con la emoción y con el arte.</p>
+    <div class="grid2">
+      <div>
+        <p class="eyebrow">Un día solo para ti</p>
+        <h2 class="h2" id="vacaciones-t">Si tuvieras el tiempo… ¿te lo darías a ti?</h2>
+        <p class="lead">El verano significa vacaciones escolares y universitarias, pero para ti como mujer: <em>¿lo son realmente?</em></p>
+      </div>
+      <img class="foto" src="/img/retiro/soltar.jpg" alt="Mujer de vestido rojo con los brazos abiertos en un campo con neblina, soltando" loading="lazy" decoding="async" style="aspect-ratio:4/5" />
+    </div>
+
+    <div class="contraste">
+      <div>
+        <div class="contraste-t">Idealizas las vacaciones</div>
+        <p class="p">Tienes el recuerdo de cuando partías con tu bolso y tu grupo de amigas a la playa… la máxima preocupación era qué ibas a comer y a dónde ibas a ir en la noche.</p>
+        <p class="p contraste-real">Hoy quizás sales con tu familia, con hijos e hijas, con tu pareja, con tu familia extendida… Almuerzos, panoramas, el aseo, las compras, y así…</p>
+      </div>
+      <div>
+        <div class="contraste-t">Esperas las vacaciones todo el año</div>
+        <p class="p">Levantarte más tarde, instalarte a leer el libro que tienes en el velador hace meses, tomar sol.</p>
+        <p class="p contraste-real">Terminas preparando desayunos, armando bolsos y picnics para la playa, pasando a comprar para el almuerzo. Quizás niños y niñas se van a jugar, pero ahí quedas: cambiando trajes de baño, limpiando la arena de los ojos y con la pelea de poner el bloqueador…</p>
+      </div>
+      <div>
+        <div class="contraste-t">Anhelas un descanso real</div>
+        <p class="p">Ese de irte a la playa, al campo o al bosque, rodearte de naturaleza, salir a caminar, disfrutar el silencio.</p>
+        <p class="p contraste-real">Terminas en grupos, ruido, música, una intensidad que no es la que deseas en ese momento. Un ritmo que te deja más cansada, necesitando vacaciones de las vacaciones.</p>
+      </div>
+    </div>
+
+    <div class="regalate">
+      <p class="regalate-pero">Pero…</p>
+      <p class="lead">Y si en todo eso que sigues cediendo, planeando, limpiando, preparando…</p>
+      <h3 class="h2">¿Te regalas un día planeado para ti?</h3>
+      <p class="p">Un día planeado: pero no planeado y organizado <em>por</em> ti, sino <strong>para ti</strong>. Con comida rica, compañía de más mujeres, movimiento, arte, conversación sin juicio y naturaleza.</p>
+      <ul class="regalate-lista">
+        <li>Miradas en ti, pero para escucharte.</li>
+        <li>Escuchas tu nombre, pero para recibir el almuerzo listo.</li>
+        <li>Te llaman, pero para invitarte a un piquero al lago.</li>
+      </ul>
+      <p class="p">Te esperamos el sábado 23 de enero en el sur de Chile, entre bosque y a orillas del Lago Llanquihue.</p>
+      <p class="regalate-firma">Andrea y Berni</p>
+    </div>
   </div>
 </section>
 
@@ -238,6 +313,12 @@ const jsonLd = [
         <div><div class="momento-t">Biopiscinas a 36–40 °C</div><p class="p">Despedimos el día sumergidas en biopiscinas de agua caliente, para compartir un cierre lindo y suave.</p></div>
       </div>
     </div>
+    <div class="galeria">
+      <figure><img class="foto" src="/img/retiro/danza.jpg" alt="Mujer mayor bailando con los ojos cerrados" loading="lazy" decoding="async" /><figcaption>Cuerpo</figcaption></figure>
+      <figure><img class="foto" src="/img/retiro/emocion.jpg" alt="Mujer de blanco con la mano en el pecho, conectando con su emoción" loading="lazy" decoding="async" /><figcaption>Emoción</figcaption></figure>
+      <figure><img class="foto" src="/img/retiro/hilos.jpg" alt="Manos de mujeres unidas por hilos que forman una red" loading="lazy" decoding="async" /><figcaption>Arte</figcaption></figure>
+      <figure><img class="foto" src="/img/retiro/agua.jpg" alt="Círculo de mujeres tomadas de la mano dentro del agua al atardecer" loading="lazy" decoding="async" /><figcaption>Agua</figcaption></figure>
+    </div>
   </div>
 </section>
 
@@ -257,19 +338,31 @@ const jsonLd = [
         <li>Meditaciones y prácticas de preparación por correo</li>
       </ul>
       <p class="no-incl">No incluye alojamiento ni traslados.</p>
+      <div class="llevar">
+        <p class="eyebrow">Qué llevar</p>
+        <ul class="incl">
+          <li>Ropa cómoda, traje de baño, sandalias y toalla</li>
+          <li>Agua</li>
+          <li>Un cuaderno y lápiz</li>
+          <li>Una taza</li>
+          <li>Algo significativo para ti, para dejar en el altar</li>
+        </ul>
+      </div>
     </div>
     <div>
       <p class="eyebrow">Tu preparación</p>
       <h2 class="h2">El retiro empieza antes del retiro</h2>
       <p class="p">Desde el <strong>26 de diciembre</strong> te enviaremos meditaciones y prácticas corporales para que llegues presente y puedas profundizar el día de la experiencia.</p>
       <p class="p">Si te inscribes después de esa fecha, comienzas a recibirlas desde el día de tu inscripción.</p>
-      <img class="img-sec" src="/img/hands.jpg" alt="Manos en movimiento — prácticas corporales y arte terapia" loading="lazy" decoding="async" style="margin-top:20px" />
+      <img class="img-sec" src="/img/retiro/meditacion.jpg" alt="Mujeres meditando con los ojos cerrados en una sala de madera" loading="lazy" decoding="async" style="margin-top:20px;object-position:28% center" />
     </div>
   </div>
 </section>
 
 <!-- CÍRCULO -->
-<section class="sec sec--crema" aria-labelledby="circulo-t">
+<section class="banda" aria-labelledby="circulo-t">
+  <img class="banda-bg" src="/img/retiro/circulo-noche.jpg" alt="" loading="lazy" decoding="async" />
+  <div class="banda-ov" aria-hidden="true"></div>
   <div class="sec-in grid2">
     <div>
       <p class="eyebrow">Círculos de mujeres</p>
@@ -281,15 +374,33 @@ const jsonLd = [
   </div>
 </section>
 
+<!-- MOSAICO -->
+<div class="mosaico" aria-hidden="true">
+  <img class="foto" src="/img/retiro/antiguas.jpg" alt="" loading="lazy" decoding="async" />
+  <img class="foto" src="/img/retiro/loba.jpg" alt="" loading="lazy" decoding="async" />
+  <img class="foto" src="/img/retiro/nina.jpg" alt="" loading="lazy" decoding="async" />
+  <img class="foto" src="/img/retiro/bosque.jpg" alt="" loading="lazy" decoding="async" />
+</div>
+
 <!-- GUÍAS -->
 <section class="sec sec--osc" aria-labelledby="guias-t">
-  <div class="sec-in">
-    <p class="eyebrow">Quiénes guían</p>
-    <h2 class="h2" id="guias-t">Facilitadoras</h2>
-    <div class="guias">
-      <div class="guia-n">Andrea Ortúzar</div>
-      <div class="guia-n"><a href="/sobremi">Bernardita Mir</a></div>
+  <div class="sec-in guias-grid">
+    <div>
+      <p class="eyebrow">Quiénes guían</p>
+      <h2 class="h2" id="guias-t">Facilitadoras</h2>
+      <p class="p">Nos unimos Andrea y Berni para acompañarte y cuidarte durante todo el retiro, desde las prácticas de preparación hasta el cierre en el agua.</p>
+      <div class="guias">
+        <div>
+          <div class="guia-n">Andrea Ortúzar</div>
+          <a class="guia-ig" href="https://www.instagram.com/andrea.ortuzar" target="_blank" rel="noopener">@andrea.ortuzar</a>
+        </div>
+        <div>
+          <div class="guia-n"><a href="/sobremi">Bernardita Mir</a></div>
+          <a class="guia-ig" href="https://www.instagram.com/bernarditamirf" target="_blank" rel="noopener">@bernarditamirf</a>
+        </div>
+      </div>
     </div>
+    <img class="foto" src="/img/retiro/tazas.jpg" alt="Manos de mujeres sosteniendo tazas de cacao con flores" loading="lazy" decoding="async" style="aspect-ratio:4/5" />
   </div>
 </section>
 
@@ -425,7 +536,7 @@ const jsonLd = [
         <p class="p">{f.a}</p>
       </details>
     ))}
-    <p class="p" style="margin-top:28px">¿Otra pregunta? Escríbenos a <a href="mailto:contacto@lumaarte.com">contacto@lumaarte.com</a>.</p>
+    <p class="p" style="margin-top:28px">¿Otra pregunta? Escríbenos a <a href="mailto:contacto@lumaarte.com">contacto@lumaarte.com</a> o por Instagram a <a href="https://www.instagram.com/andrea.ortuzar" target="_blank" rel="noopener">@andrea.ortuzar</a> o <a href="https://www.instagram.com/bernarditamirf" target="_blank" rel="noopener">@bernarditamirf</a>.</p>
   </div>
 </section>
 

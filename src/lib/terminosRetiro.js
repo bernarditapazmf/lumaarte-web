@@ -5,7 +5,7 @@
 
 export const TERMINOS_TITULO = 'Términos y condiciones — Retiro de mujeres';
 export const TERMINOS_SUBTITULO = 'Frutillar · Sábado 23 de enero de 2027 · Organiza Luma Arte';
-export const TERMINOS_VERSION = 'Versión del 8 de octubre de 2026';
+export const TERMINOS_VERSION = 'Versión del 28 de octubre de 2026';
 
 export const TABLA_CANCELACION = [
   { plazo: 'Hasta el 24 de diciembre de 2026 (30 días o más antes)', devolucion: '100% de lo pagado, descontando la comisión de la pasarela de pago (Flow)' },
@@ -72,7 +72,8 @@ export const SECCIONES_TERMINOS = [
   {
     titulo: '8. Contacto',
     parrafos: [
-      'Luma Arte · contacto@lumaarte.com · www.lumaarte.com',
+      'Facilitadoras: Andrea Ortúzar (Instagram @andrea.ortuzar) y Bernardita Mir (Instagram @bernarditamirf).',
+      'Organiza Luma Arte · contacto@lumaarte.com · www.lumaarte.com · Instagram @lumaartechile',
     ],
   },
 ];

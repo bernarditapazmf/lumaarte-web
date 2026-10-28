@@ -45,7 +45,7 @@ export function bienvenidaHtml(insc) {
     <p style="font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#54582f;margin:0 0 24px">Luma Arte · Experiencias</p>
     <h1 style="font-size:28px;font-weight:400;line-height:1.25;margin:0 0 24px">Bienvenida al <em>${R.nombre}</em>${nombre ? `, ${nombre}` : ''}.</h1>
     <p style="font-size:16px;line-height:1.75;color:rgba(33,31,24,.8);margin:0 0 16px">
-      Qué alegría que seas parte de este encuentro. Tu cupo está confirmado y ya estamos preparando con cariño cada detalle para recibirte.
+      Nos unimos Andrea y Berni para acompañarte y cuidarte en este retiro, y te damos la bienvenida. Qué alegría que seas parte de este encuentro. Tu cupo está confirmado y ya estamos preparando con cariño cada detalle para recibirte.
     </p>
     ${regalo}
     <div style="border-top:1px solid rgba(33,31,24,.15);border-bottom:1px solid rgba(33,31,24,.15);padding:20px 0;margin:28px 0">
@@ -56,13 +56,16 @@ export function bienvenidaHtml(insc) {
     <h2 style="font-size:20px;font-weight:400;margin:0 0 12px">Antes del retiro</h2>
     <p style="font-size:16px;line-height:1.75;color:rgba(33,31,24,.8);margin:0 0 28px">${preparacion}</p>
     <h2 style="font-size:20px;font-weight:400;margin:0 0 12px">Qué llevar ese día</h2>
-    <p style="font-size:16px;line-height:1.75;color:rgba(33,31,24,.8);margin:0 0 28px">Ropa cómoda, traje de baño, sandalias, toalla y agua.</p>
+    <p style="font-size:16px;line-height:1.75;color:rgba(33,31,24,.8);margin:0 0 28px">Ropa cómoda, traje de baño, sandalias, toalla, agua, un cuaderno, lápiz, una taza y algo significativo para ti para dejar en el altar.</p>
     <p style="font-size:14px;line-height:1.7;color:rgba(33,31,24,.65);margin:0 0 28px">
       Adjuntamos los <strong>términos y condiciones</strong> del retiro, con la política de cancelación. También puedes leerlos en
       <a href="https://www.lumaarte.com${R.url}/terminos" style="color:#54582f">lumaarte.com</a>.
       Si tienes cualquier duda, responde este correo.
     </p>
     <p style="font-size:16px;line-height:1.75;margin:0">Con cariño,<br><em>Andrea Ortúzar y Bernardita Mir</em></p>
+    <p style="font-size:13px;line-height:1.7;color:rgba(33,31,24,.6);margin:12px 0 0">
+      Instagram: <a href="https://www.instagram.com/andrea.ortuzar" style="color:#54582f">@andrea.ortuzar</a> · <a href="https://www.instagram.com/bernarditamirf" style="color:#54582f">@bernarditamirf</a> · <a href="https://www.instagram.com/lumaartechile" style="color:#54582f">@lumaartechile</a>
+    </p>
   </div>`;
 }
 
