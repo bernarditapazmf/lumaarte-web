@@ -207,7 +207,7 @@ try { secciones = JSON.parse(campana?.cuerpo || '[]'); } catch {}
     <div class="card">
       <label class="c-label">Asunto del correo *</label>
       <input type="text" id="f-asunto" placeholder="Ej: Nueva colección disponible — Luma Arte" value={campana?.asunto ?? ''} />
-      <div class="c-hint" style="margin:8px 0 0">Escribe <code>{nombre}</code> en el asunto o en cualquier sección y se reemplaza por el primer nombre de cada persona. Si no tenemos su nombre, "Hola, {nombre}." queda "Hola.".</div>
+      <div class="c-hint" style="margin:8px 0 0">Escribe <code>{'{nombre}'}</code> en el asunto o en cualquier sección y se reemplaza por el primer nombre de cada persona. Si no tenemos su nombre, "Hola, {'{nombre}'}." queda "Hola.".</div>
     </div>
     <div class="card">
       <label class="c-label">Preheader <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
