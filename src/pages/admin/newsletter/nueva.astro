@@ -14,9 +14,13 @@ if (id) {
 }
 
 const { rows: subsRows } = await db.execute(
-  "SELECT COUNT(*) as cnt FROM contactos WHERE (origen='newsletter' OR tags LIKE '%suscriptor%') AND email IS NOT NULL"
+  "SELECT COUNT(DISTINCT lower(email)) as cnt FROM contactos WHERE (origen='newsletter' OR tags LIKE '%suscriptor%') AND email IS NOT NULL AND email != '' AND unsubscribed_at IS NULL"
 );
 const subsCount = Number(subsRows[0]?.cnt ?? 0);
+const { rows: todosRows } = await db.execute(
+  "SELECT COUNT(DISTINCT lower(email)) as cnt FROM contactos WHERE email IS NOT NULL AND email != '' AND unsubscribed_at IS NULL"
+);
+const todosCount = Number(todosRows[0]?.cnt ?? 0);
 
 let secciones = [];
 try { secciones = JSON.parse(campana?.cuerpo || '[]'); } catch {}
@@ -99,6 +103,9 @@ try { secciones = JSON.parse(campana?.cuerpo || '[]'); } catch {}
   .stat{background:#fdfcf8;border:.5px solid rgba(33,31,24,.1);border-radius:12px;padding:20px;text-align:center}
   .stat-n{font-family:'Mackinac',serif;font-size:32px;color:#211f18;line-height:1}
   .stat-l{font:600 9.5px/1 'Spline Sans Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:rgba(33,31,24,.35);margin-top:6px}
+  .aud{cursor:pointer;position:relative}
+  .aud input{position:absolute;top:14px;right:14px;accent-color:#54582f}
+  .aud:has(input:checked){outline:1.5px solid #54582f}
   .test-box{background:#f5f2ec;border:.5px solid rgba(33,31,24,.1);border-radius:12px;padding:20px}
   .test-row{display:flex;gap:10px;margin-top:12px;align-items:center}
   .test-inp{flex:1;border:.5px solid rgba(33,31,24,.18);border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;color:#211f18;background:#fff;outline:none;transition:border-color .15s}
@@ -200,6 +207,7 @@ try { secciones = JSON.parse(campana?.cuerpo || '[]'); } catch {}
     <div class="card">
       <label class="c-label">Asunto del correo *</label>
       <input type="text" id="f-asunto" placeholder="Ej: Nueva colección disponible — Luma Arte" value={campana?.asunto ?? ''} />
+      <div class="c-hint" style="margin:8px 0 0">Escribe <code>{nombre}</code> en el asunto o en cualquier sección y se reemplaza por el primer nombre de cada persona. Si no tenemos su nombre, "Hola, {nombre}." queda "Hola.".</div>
     </div>
     <div class="card">
       <label class="c-label">Preheader <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
@@ -287,12 +295,20 @@ try { secciones = JSON.parse(campana?.cuerpo || '[]'); } catch {}
       <p>Revisa tu lista y envía una prueba antes del envío masivo.</p>
     </div>
     <div class="stats">
-      <div class="stat">
+      <label class="stat aud">
+        <input type="radio" name="audiencia" value="suscriptores" checked onchange="updateSummary()" />
         <div class="stat-n">{subsCount}</div>
         <div class="stat-l">Suscriptores</div>
-      </div>
+      </label>
+      <label class="stat aud">
+        <input type="radio" name="audiencia" value="todos" onchange="updateSummary()" />
+        <div class="stat-n">{todosCount}</div>
+        <div class="stat-l">Toda la base de contactos</div>
+      </label>
+    </div>
+    <div class="stats">
       <div class="stat">
-        <div class="stat-n" style="font-size:16px;padding-top:8px;line-height:1.2">hola@<br>lumaarte.com</div>
+        <div class="stat-n" style="font-size:16px;padding-top:8px;line-height:1.2">contacto@<br>lumaarte.com</div>
         <div class="stat-l">Desde</div>
       </div>
     </div>
@@ -315,14 +331,14 @@ try { secciones = JSON.parse(campana?.cuerpo || '[]'); } catch {}
         Enviar
       </div>
       <h2>Resumen final y <em>envío</em></h2>
-      <p>Revisa todo y confirma el envío masivo a tus suscriptores.</p>
+      <p>Revisa todo y confirma el envío masivo.</p>
     </div>
     <div class="sum-list">
       <div class="sum-row"><span class="sum-k">Asunto</span><span class="sum-v" id="sum-asunto">—</span></div>
       <div class="sum-row"><span class="sum-k">Preheader</span><span class="sum-v" id="sum-preheader">Sin preheader</span></div>
       <div class="sum-row"><span class="sum-k">Secciones</span><span class="sum-v" id="sum-secciones">—</span></div>
       <div class="sum-row"><span class="sum-k">Imagen header</span><span class="sum-v" id="sum-header">Sin imagen</span></div>
-      <div class="sum-row"><span class="sum-k">Destinatarios</span><span class="sum-v">{subsCount} suscriptores</span></div>
+      <div class="sum-row"><span class="sum-k">Destinatarios</span><span class="sum-v" id="sum-dest">{subsCount} suscriptores</span></div>
     </div>
     <div class="warn-box">
       <strong>Antes de enviar:</strong> asegúrate de haber revisado la vista previa y enviado una prueba. El envío masivo no se puede deshacer.
@@ -345,7 +361,7 @@ try { secciones = JSON.parse(campana?.cuerpo || '[]'); } catch {}
   </button>
 </div>
 
-<script define:vars={{ campanaId: campana?.id ?? null, campanaEstado: campana?.estado ?? 'borrador', seccionesIniciales: secciones }}>
+<script define:vars={{ campanaId: campana?.id ?? null, campanaEstado: campana?.estado ?? 'borrador', seccionesIniciales: secciones, conteos: { suscriptores: subsCount, todos: todosCount } }}>
 // ─── ESTADO ─────────────────────────────────────────
 let step = 1;
 let savedId = campanaId;
@@ -383,7 +399,7 @@ function goTo(n) {
   document.getElementById('btn-prev').style.visibility = n > 1 ? 'visible' : 'hidden';
   const nxt = document.getElementById('btn-next');
   if (n === TOTAL) {
-    nxt.innerHTML = 'Enviar a suscriptores <svg viewBox="0 0 24 24" width="13" height="13" style="stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
+    nxt.innerHTML = 'Enviar ahora <svg viewBox="0 0 24 24" width="13" height="13" style="stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
     nxt.onclick = sendAll;
   } else {
     nxt.innerHTML = 'Siguiente <svg viewBox="0 0 24 24" width="13" height="13" style="stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><path d="m9 18 6-6-6-6"/></svg>';
@@ -488,7 +504,7 @@ ${preheader ? `<div style="display:none;max-height:0;overflow:hidden;color:trans
       <tr><td style="padding:40px 40px 28px">${secsHtml||'<p style="color:rgba(33,31,24,.3);text-align:center;font-size:14px">Agrega secciones de contenido en el paso Contenido.</p>'}</td></tr>
       <tr><td style="background:#f3f0e9;padding:28px 40px;border-top:.5px solid rgba(33,31,24,.1)">
         <p style="font-family:monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(33,31,24,.4);margin:0 0 8px">Luma Arte · Puerto Varas, Región de Los Lagos</p>
-        <p style="font-size:12px;color:rgba(33,31,24,.4);margin:0"><a href="${sitio}" style="color:#54582f">lumaarte.com</a> · <a href="${sitio}/#contacto" style="color:rgba(33,31,24,.4)">Cancelar suscripción</a></p>
+        <p style="font-size:12px;color:rgba(33,31,24,.4);margin:0"><a href="${sitio}" style="color:#54582f">lumaarte.com</a> · <a href="{{baja}}" style="color:rgba(33,31,24,.4)">Cancelar suscripción</a></p>
       </td></tr>
     </table>
   </td></tr>
@@ -561,7 +577,8 @@ window.sendAll = async () => {
   const asunto = v('f-asunto');
   if (!asunto) { setStatus('El asunto es obligatorio.', false); return; }
   if (campanaEstado === 'enviado') { setStatus('Esta campaña ya fue enviada.', false); return; }
-  if (!confirm(`¿Enviar "${asunto}" a todos los suscriptores? Esta acción no se puede deshacer.`)) return;
+  const audiencia = aud();
+  if (!confirm(`¿Enviar "${asunto}" a ${destTexto()}? Esta acción no se puede deshacer.`)) return;
   await saveDraft();
   const nxt = document.getElementById('btn-next');
   nxt.disabled = true; nxt.textContent = 'Enviando…';
@@ -569,26 +586,35 @@ window.sendAll = async () => {
   const res = await fetch('/api/admin/newsletter-send', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ test: false, asunto, html, campanaId: savedId }),
+    body: JSON.stringify({ test: false, asunto, html, campanaId: savedId, audiencia }),
   });
   const data = await res.json();
   nxt.disabled = false;
   if (data.ok) {
-    setStatus(`✓ Enviado a ${data.enviados} suscriptores.`, true);
+    setStatus(`✓ Enviado a ${data.enviados} personas${data.errors?.length ? ` (${data.errors.length} con error)` : ''}.`, true);
+    if (data.errors?.length) console.warn('Correos con error:', data.errors);
     setTimeout(() => { window.location.href = '/admin/newsletter'; }, 2500);
   } else {
     setStatus('Error: ' + (data.error || 'desconocido'), false);
-    nxt.innerHTML = 'Enviar a suscriptores <svg viewBox="0 0 24 24" width="13" height="13" style="stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
+    nxt.innerHTML = 'Enviar ahora <svg viewBox="0 0 24 24" width="13" height="13" style="stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
   }
 };
 
+function aud() { return document.querySelector('input[name="audiencia"]:checked')?.value || 'suscriptores'; }
+function destTexto() {
+  const a = aud();
+  return a === 'todos' ? `toda la base de contactos (${conteos.todos})` : `${conteos.suscriptores} suscriptores`;
+}
+
 // ─── RESUMEN ─────────────────────────────────────────
+window.updateSummary = () => updateSummary();
 function updateSummary() {
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || '—'; };
   set('sum-asunto',    v('f-asunto') || '—');
   set('sum-preheader', v('f-preheader') || 'Sin preheader');
   set('sum-secciones', secs.length + ' sección' + (secs.length === 1 ? '' : 'es'));
   set('sum-header',    v('f-header-img') || 'Sin imagen');
+  set('sum-dest',      destTexto());
 }
 
 // ─── STATUS ──────────────────────────────────────────
