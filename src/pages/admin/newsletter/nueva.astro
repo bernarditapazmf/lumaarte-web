@@ -312,6 +312,11 @@ try { secciones = JSON.parse(campana?.cuerpo || '[]'); } catch {}
         <div class="stat-l">Desde</div>
       </div>
     </div>
+    <div class="card">
+      <label class="c-label">Envío por tandas <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+      <div class="c-hint">Máximo de correos por día. Se envía la primera tanda al confirmar y el resto cada 24 horas, sin repetir a nadie. Déjalo vacío para enviar a todos de una vez. Con el plan gratis de Resend el límite es 100 al día, incluyendo los correos automáticos del sitio.</div>
+      <input type="number" id="f-por-dia" min="1" step="1" placeholder="Ej: 100" oninput="updateSummary()" />
+    </div>
     <div class="test-box">
       <label class="c-label">Enviar correo de prueba</label>
       <div class="c-hint" style="margin-bottom:0">Verifica el diseño en tu bandeja antes de enviarlo a todos.</div>
@@ -338,6 +343,7 @@ try { secciones = JSON.parse(campana?.cuerpo || '[]'); } catch {}
       <div class="sum-row"><span class="sum-k">Preheader</span><span class="sum-v" id="sum-preheader">Sin preheader</span></div>
       <div class="sum-row"><span class="sum-k">Secciones</span><span class="sum-v" id="sum-secciones">—</span></div>
       <div class="sum-row"><span class="sum-k">Imagen header</span><span class="sum-v" id="sum-header">Sin imagen</span></div>
+      <div class="sum-row"><span class="sum-k">Ritmo</span><span class="sum-v" id="sum-ritmo">Todos de una vez</span></div>
       <div class="sum-row"><span class="sum-k">Destinatarios</span><span class="sum-v" id="sum-dest">{subsCount} suscriptores</span></div>
     </div>
     <div class="warn-box">
@@ -576,9 +582,10 @@ window.sendTest = async () => {
 window.sendAll = async () => {
   const asunto = v('f-asunto');
   if (!asunto) { setStatus('El asunto es obligatorio.', false); return; }
-  if (campanaEstado === 'enviado') { setStatus('Esta campaña ya fue enviada.', false); return; }
+  if (campanaEstado === 'enviado' || campanaEstado === 'enviando') { setStatus('Esta campaña ya fue enviada o está en envío diario.', false); return; }
+  const porDia = porDiaVal();
   const audiencia = aud();
-  if (!confirm(`¿Enviar "${asunto}" a ${destTexto()}? Esta acción no se puede deshacer.`)) return;
+  if (!confirm(`¿Enviar "${asunto}" a ${destTexto()}${porDia ? `, en tandas de ${porDia} al día` : ''}? Esta acción no se puede deshacer.`)) return;
   await saveDraft();
   const nxt = document.getElementById('btn-next');
   nxt.disabled = true; nxt.textContent = 'Enviando…';
@@ -586,12 +593,12 @@ window.sendAll = async () => {
   const res = await fetch('/api/admin/newsletter-send', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ test: false, asunto, html, campanaId: savedId, audiencia }),
+    body: JSON.stringify({ test: false, asunto, html, campanaId: savedId, audiencia, porDia }),
   });
   const data = await res.json();
   nxt.disabled = false;
   if (data.ok) {
-    setStatus(`✓ Enviado a ${data.enviados} personas${data.errors?.length ? ` (${data.errors.length} con error)` : ''}.`, true);
+    setStatus(`✓ Enviado a ${data.enviados} personas${data.errors?.length ? ` (${data.errors.length} con error)` : ''}${data.pendientes ? `. Quedan ${data.pendientes}: siguen mañana.` : '.'}`, true);
     if (data.errors?.length) console.warn('Correos con error:', data.errors);
     setTimeout(() => { window.location.href = '/admin/newsletter'; }, 2500);
   } else {
@@ -600,6 +607,7 @@ window.sendAll = async () => {
   }
 };
 
+function porDiaVal() { return Math.max(0, Math.floor(Number(v('f-por-dia')) || 0)); }
 function aud() { return document.querySelector('input[name="audiencia"]:checked')?.value || 'suscriptores'; }
 function destTexto() {
   const a = aud();
@@ -615,6 +623,7 @@ function updateSummary() {
   set('sum-secciones', secs.length + ' sección' + (secs.length === 1 ? '' : 'es'));
   set('sum-header',    v('f-header-img') || 'Sin imagen');
   set('sum-dest',      destTexto());
+  set('sum-ritmo',     porDiaVal() ? `${porDiaVal()} por día` : 'Todos de una vez');
 }
 
 // ─── STATUS ──────────────────────────────────────────

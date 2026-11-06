@@ -153,9 +153,20 @@ export async function initDb() {
   // Migrar campanas si faltan columnas
   const { rows: campCols } = await db.execute('PRAGMA table_info(campanas)');
   const campExisting = campCols.map(r => r.name);
-  for (const [col, def] of [['preheader','TEXT'],['html','TEXT'],['header_img','TEXT']]) {
+  for (const [col, def] of [['preheader','TEXT'],['html','TEXT'],['header_img','TEXT'],['audiencia','TEXT'],['por_dia','INTEGER DEFAULT 0'],['ultima_tanda','TEXT']]) {
     if (!campExisting.includes(col)) await db.execute(`ALTER TABLE campanas ADD COLUMN ${col} ${def}`);
   }
+
+  // A quién ya se le envió cada campaña (permite enviar por tandas diarias sin repetir)
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS campana_envios (
+      campana_id  INTEGER NOT NULL,
+      email       TEXT    NOT NULL,
+      enviado_at  TEXT    DEFAULT CURRENT_TIMESTAMP,
+      error       TEXT,
+      PRIMARY KEY (campana_id, email)
+    )
+  `);
 
   await db.execute(`
     CREATE TABLE IF NOT EXISTS blog_posts (

@@ -34,6 +34,7 @@ const totalSubs = subs[0]?.total ?? 0;
     .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px}
     .badge-borrador{background:#f5f0e8;color:#7a6030}
     .badge-enviado{background:#e8eddd;color:#3a4020}
+    .badge-enviando{background:#e6eef3;color:#2f4f63}
     .actions{display:flex;gap:6px}
     .btn-edit{font-size:11px;color:#54582f;text-decoration:none;padding:4px 10px;border:.5px solid rgba(84,88,47,.35);border-radius:5px}
     .btn-edit:hover{background:#54582f;color:#fdfcf8}
@@ -83,7 +84,7 @@ const totalSubs = subs[0]?.total ?? 0;
             <tr>
               <td style="font-weight:400">{c.asunto}</td>
               <td><span class={`badge badge-${c.estado}`}>{c.estado}</span></td>
-              <td>{c.enviados ?? 0}</td>
+              <td>{c.enviados ?? 0}{c.estado === 'enviando' && c.por_dia ? <span style="color:rgba(33,31,24,.45)"> · {c.por_dia}/día</span> : null}</td>
               <td style="color:rgba(33,31,24,.45);font-size:12px">{c.created_at?.slice(0,10)}</td>
               <td class="actions">
                 <a class="btn-edit" href={`/admin/newsletter/nueva?id=${c.id}`}>Editar</a>
