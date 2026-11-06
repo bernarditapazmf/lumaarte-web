@@ -1,4 +1,5 @@
 import { RETIRO_MUJERES as R, clp } from './experiencias.js';
+import { initDb } from './db.js';
 
 const FROM = 'Luma Arte <contacto@lumaarte.com>';
 const PDF_TERMINOS = 'https://www.lumaarte.com/docs/terminos-retiro-de-mujeres-2027.pdf';
@@ -107,4 +108,19 @@ export async function avisarInscripcionRetiro(insc, payment) {
     subject: `🌿 Inscripción ${R.nombre}: ${insc.nombre} (${clp(insc.precio)})`,
     html,
   }, 'aviso inscripción retiro');
+}
+
+// Bienvenidas que no salieron al confirmar el pago (p. ej. cuota diaria de Resend agotada por el newsletter).
+// Solo inscripciones pagadas hace más de 10 min, para no cruzarse con payment-confirm.
+export async function reintentarBienvenidasRetiro() {
+  if (!import.meta.env.RESEND_API_KEY) return;
+  const db = await initDb();
+  const { rows } = await db.execute(
+    "SELECT * FROM inscripciones WHERE estado='pagado' AND COALESCE(bienvenida_enviada,0)=0 AND paid_at <= datetime('now','-10 minutes') ORDER BY id LIMIT 5"
+  );
+  for (const insc of rows) {
+    if (!(await enviarBienvenidaRetiro(insc))) break; // sin cupo: se reintenta en la próxima revisión
+    await db.execute({ sql: 'UPDATE inscripciones SET bienvenida_enviada = 1 WHERE id = ?', args: [insc.id] });
+    console.log(`Bienvenida retiro reenviada a inscripción #${insc.id}`);
+  }
 }
