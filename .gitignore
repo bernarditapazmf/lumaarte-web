@@ -22,3 +22,7 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# bases de datos de contactos (datos personales, no subir)
+BBDD*.xlsx
+BBDD*.csv
