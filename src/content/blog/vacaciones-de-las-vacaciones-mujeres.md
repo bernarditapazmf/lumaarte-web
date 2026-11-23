@@ -70,7 +70,7 @@ Es un día planeado, pero no organizado por ti: **organizado para ti**. Con comi
 - **Tarde · Arte terapia.** Plasmamos lo vivido y cada una se lleva su "tesoro": un vision board con lo que conectó.
 - **Cierre · Biopiscinas a 36–40 °C.** Despedimos el día en el agua.
 
-El retiro empieza antes del retiro: desde el **26 de diciembre** recibes por correo meditaciones y prácticas corporales para llegar presente.
+El retiro empieza antes del retiro: desde el **21 de diciembre** recibes por correo meditaciones y prácticas corporales para llegar presente.
 
 Lo guían **Andrea Ortúzar y Bernardita Mir**. Los cupos son limitados y se venden por tramos: los primeros tienen el valor más bajo.
 

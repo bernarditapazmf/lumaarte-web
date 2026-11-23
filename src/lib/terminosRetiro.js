@@ -20,7 +20,7 @@ export const SECCIONES_TERMINOS = [
     titulo: '1. La experiencia',
     parrafos: [
       'El Retiro de mujeres se realiza el sábado 23 de enero de 2027, desde las 10:00 hrs, en Frutillar, Región de Los Lagos. La ubicación exacta y las indicaciones de llegada se envían por correo a cada participante antes del retiro. Es guiado por Andrea Ortúzar y Bernardita Mir.',
-      'Incluye: círculo de mujeres de apertura; prácticas de movimiento somático y Alba Emoting; espacio de conversación y reflexión; almuerzo (plato de fondo y bebestible); taller de arte terapia con todos los materiales y el "tesoro" o vision board que cada participante se lleva; cierre en biopiscinas de agua caliente (36 a 40 °C); y meditaciones y prácticas de preparación enviadas por correo desde el 26 de diciembre de 2026, o desde la inscripción si esta ocurre después de esa fecha.',
+      'Incluye: círculo de mujeres de apertura; prácticas de movimiento somático y Alba Emoting; espacio de conversación y reflexión; almuerzo (plato de fondo y bebestible); taller de arte terapia con todos los materiales y el "tesoro" o vision board que cada participante se lleva; cierre en biopiscinas de agua caliente (36 a 40 °C); y meditaciones y prácticas de preparación enviadas por correo desde el 21 de diciembre de 2026, o desde la inscripción si esta ocurre después de esa fecha.',
       'No incluye: traslados, alojamiento ni consumos adicionales a los señalados.',
     ],
   },

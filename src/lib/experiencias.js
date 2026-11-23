@@ -12,8 +12,8 @@ export const RETIRO_MUJERES = {
   fechaInicioISO: '2027-01-23T10:00:00-03:00',
   fechaTexto: 'sábado 23 de enero de 2027',
   horaInicio: '10:00',
-  practicasDesdeISO: '2026-12-26',
-  practicasDesdeTexto: '26 de diciembre',
+  practicasDesdeISO: '2026-12-21',
+  practicasDesdeTexto: '21 de diciembre',
   cuposTotales: 20,
   tramos: [
     { nombre: 'Early bird', precio: 98000,  cupos: 2 },

@@ -47,7 +47,7 @@ El día se organiza en torno a una pregunta: **¿por qué estoy aquí?**
 - En la tarde plasmamos lo vivido con **arte terapia**: cada participante se lleva su propio vision board.
 - Cerramos en **biopiscinas de agua caliente** de 36 a 40 °C.
 
-El retiro empieza antes del retiro: desde el 26 de diciembre las participantes reciben por correo meditaciones y prácticas corporales para llegar preparadas.
+El retiro empieza antes del retiro: desde el 21 de diciembre las participantes reciben por correo meditaciones y prácticas corporales para llegar preparadas.
 
 Es una experiencia de un día, así que puedes combinarla con unos días de descanso en el Lago Llanquihue antes o después. Los cupos son limitados y se venden por tramos: los primeros tienen el valor más bajo.
 
