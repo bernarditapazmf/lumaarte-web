@@ -27,7 +27,7 @@ export async function POST({ request }) {
   // Reservar la campaña: solo se puede lanzar una vez (las tandas siguientes las envía el servidor cada 24 h)
   const por_dia = Math.max(0, Math.floor(Number(porDia) || 0));
   const claim = await db.execute({
-    sql: "UPDATE campanas SET asunto=?, html=?, audiencia=?, por_dia=?, estado='enviando', ultima_tanda=datetime('now') WHERE id=? AND estado NOT IN ('enviando','enviado')",
+    sql: "UPDATE campanas SET asunto=?, html=?, audiencia=?, por_dia=?, estado='enviando', ultima_tanda=datetime('now') WHERE id=? AND estado NOT IN ('enviando','enviado','pausado')",
     args: [asunto, html, audiencia, por_dia, campanaId],
   });
   if (claim.rowsAffected !== 1) return json({ ok: false, error: 'Esta campaña ya fue enviada o está en envío diario.' }, 409);

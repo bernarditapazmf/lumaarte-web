@@ -98,7 +98,8 @@ async function enviarLotes(correos, onResultado) {
   return { enviados, errors };
 }
 
-// Envía la siguiente tanda de una campaña (o todo lo pendiente si por_dia = 0) a quienes aún no la recibieron
+// Envía la siguiente tanda de una campaña (o todo lo pendiente si por_dia = 0) a quienes aún no la recibieron.
+// Van primero quienes han recibido menos correos de otras campañas.
 export async function enviarTanda(db, campana) {
   const filtro = AUDIENCIAS[campana.audiencia] ?? AUDIENCIAS.suscriptores;
   const limite = Number(campana.por_dia) > 0 ? Number(campana.por_dia) : -1;
@@ -106,7 +107,9 @@ export async function enviarTanda(db, campana) {
     sql: `SELECT lower(trim(email)) AS email, MAX(nombre) AS nombre FROM contactos
           WHERE ${filtro} AND email IS NOT NULL AND trim(email) != '' AND unsubscribed_at IS NULL
             AND lower(trim(email)) NOT IN (SELECT email FROM campana_envios WHERE campana_id = ?)
-          GROUP BY lower(trim(email)) ORDER BY MIN(id) LIMIT ?`,
+          GROUP BY lower(trim(email))
+          ORDER BY (SELECT COUNT(*) FROM campana_envios ce WHERE ce.email = lower(trim(contactos.email)) AND ce.error IS NULL), MIN(id)
+          LIMIT ?`,
     args: [campana.id, limite],
   });
 

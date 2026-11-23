@@ -582,7 +582,7 @@ window.sendTest = async () => {
 window.sendAll = async () => {
   const asunto = v('f-asunto');
   if (!asunto) { setStatus('El asunto es obligatorio.', false); return; }
-  if (campanaEstado === 'enviado' || campanaEstado === 'enviando') { setStatus('Esta campaña ya fue enviada o está en envío diario.', false); return; }
+  if (['enviado', 'enviando', 'pausado'].includes(campanaEstado)) { setStatus('Esta campaña ya fue enviada o está en envío diario.', false); return; }
   const porDia = porDiaVal();
   const audiencia = aud();
   if (!confirm(`¿Enviar "${asunto}" a ${destTexto()}${porDia ? `, en tandas de ${porDia} al día` : ''}? Esta acción no se puede deshacer.`)) return;

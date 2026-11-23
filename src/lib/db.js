@@ -167,6 +167,7 @@ export async function initDb() {
       PRIMARY KEY (campana_id, email)
     )
   `);
+  await db.execute('CREATE INDEX IF NOT EXISTS idx_campana_envios_email ON campana_envios(email)');
 
   await db.execute(`
     CREATE TABLE IF NOT EXISTS blog_posts (
