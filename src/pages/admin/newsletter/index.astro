@@ -90,6 +90,7 @@ const totalSubs = subs[0]?.total ?? 0;
               <td class="actions">
                 {c.estado === 'enviando' && <button class="btn-edit" data-id={c.id} data-accion="pausar" onclick="cambiarEstado(this)">Pausar</button>}
                 {c.estado === 'pausado' && <button class="btn-edit" data-id={c.id} data-accion="reanudar" onclick="cambiarEstado(this)">Reanudar</button>}
+                {(c.estado === 'enviando' || c.estado === 'pausado') && Number(c.por_dia) > 0 && <button class="btn-edit" data-id={c.id} data-por-dia={c.por_dia} onclick="cambiarRitmo(this)">Cambiar ritmo</button>}
                 <a class="btn-edit" href={`/admin/newsletter/nueva?id=${c.id}`}>Editar</a>
                 <button class="btn-del" data-id={c.id} onclick="del(this)">Eliminar</button>
               </td>
@@ -115,4 +116,14 @@ async function cambiarEstado(btn) {
   location.reload();
 }
 window.cambiarEstado = cambiarEstado;
+
+async function cambiarRitmo(btn) {
+  const valor = prompt('¿Cuántos correos por día? Se aplica desde la próxima tanda.', btn.dataset.porDia);
+  if (valor === null) return;
+  const res = await fetch('/api/admin/campana-estado', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ id: btn.dataset.id, accion: 'ritmo', porDia: valor }) });
+  const d = await res.json().catch(() => ({}));
+  if (!d.ok) { alert(d.error || 'No se pudo cambiar el ritmo.'); return; }
+  location.reload();
+}
+window.cambiarRitmo = cambiarRitmo;
 </script>
