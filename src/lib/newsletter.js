@@ -135,18 +135,40 @@ export async function enviarTanda(db, campana) {
   return { enviados: rows.length - errors.length, errors, total: Number(total), pendientes: Number(pendientes) };
 }
 
-// Campañas por tandas: si pasaron 24 h desde la última, envía la siguiente
+// Las tandas diarias salen a las 18:00 de Chile. Si el servidor estuvo caído a esa hora,
+// se envían igual hasta las 22:00; más tarde, quedan para el día siguiente.
+const ZONA = 'America/Santiago';
+const HORA_TANDA = 18;
+const HORA_LIMITE = 22;
+
+// Si ahora estamos dentro de la ventana de envío, devuelve cuándo se abrió (UTC, formato SQLite); si no, null
+export function inicioVentanaTanda(ahora = new Date()) {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
+    timeZone: ZONA, hourCycle: 'h23', hour: '2-digit', minute: '2-digit', second: '2-digit',
+  }).formatToParts(ahora).map(x => [x.type, Number(x.value)]));
+  if (p.hour < HORA_TANDA || p.hour >= HORA_LIMITE) return null;
+  const desde = new Date(ahora.getTime() - (((p.hour - HORA_TANDA) * 60 + p.minute) * 60 + p.second) * 1000 - ahora.getMilliseconds());
+  return desde.toISOString().slice(0, 19).replace('T', ' ');
+}
+
+// Campañas por tandas: una tanda al día, a las 18:00 de Chile.
+// Además deben haber pasado 12 h desde la anterior, para no mandar dos tandas seguidas a una misma campaña.
+const PENDIENTE = "(ultima_tanda IS NULL OR (ultima_tanda < ? AND ultima_tanda <= datetime('now','-12 hours')))";
+
 export async function revisarTandas() {
   if (!import.meta.env.RESEND_API_KEY) return;
+  const desde = inicioVentanaTanda();
+  if (!desde) return;
   const db = await initDb();
-  const { rows } = await db.execute(
-    "SELECT * FROM campanas WHERE estado='enviando' AND por_dia > 0 AND (ultima_tanda IS NULL OR ultima_tanda <= datetime('now','-24 hours'))"
-  );
+  const { rows } = await db.execute({
+    sql: `SELECT * FROM campanas WHERE estado='enviando' AND por_dia > 0 AND ${PENDIENTE}`,
+    args: [desde],
+  });
   for (const c of rows) {
     // Reservar la tanda antes de enviar, para que dos procesos no la manden dos veces
     const claim = await db.execute({
-      sql: "UPDATE campanas SET ultima_tanda=datetime('now') WHERE id=? AND (ultima_tanda IS NULL OR ultima_tanda <= datetime('now','-24 hours'))",
-      args: [c.id],
+      sql: `UPDATE campanas SET ultima_tanda=datetime('now') WHERE id=? AND ${PENDIENTE}`,
+      args: [c.id, desde],
     });
     if (claim.rowsAffected !== 1) continue;
     const r = await enviarTanda(db, c);
