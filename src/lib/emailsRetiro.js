@@ -36,7 +36,7 @@ export function bienvenidaHtml(insc) {
   const yaComenzaron = new Date() >= new Date(`${R.practicasDesdeISO}T00:00:00-03:00`);
   const preparacion = yaComenzaron
     ? `Como te inscribiste cerca de la fecha, en los próximos días comenzarás a recibir las meditaciones y prácticas corporales de preparación.`
-    : `Desde el <strong>${R.practicasDesdeTexto}</strong> comenzaremos con los preparativos: te iremos enviando meditaciones y prácticas corporales que te ayudarán a llegar presente y a profundizar el día de la experiencia.`;
+    : `Desde el <strong>${R.practicasDesdeTexto}</strong> comenzaremos con los preparativos: te iremos enviando por WhatsApp meditaciones y prácticas corporales que te ayudarán a llegar presente y a profundizar el día de la experiencia.`;
   const regalo = Number(insc.es_regalo) && insc.comprador_nombre
     ? `<p style="font-size:16px;line-height:1.75;color:rgba(33,31,24,.8);margin:0 0 16px">Este cupo es un regalo de <strong>${escapar(insc.comprador_nombre)}</strong>. Alguien pensó en ti para este día. 🌿</p>`
     : '';
